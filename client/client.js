@@ -1,10 +1,15 @@
-var WIDTH = 500;
-var HEIGHT = 500;
+var width = 0;
+var height = 0;
 var w = 0;
 var h = 0;
 var slide = 0;
-var squareW = 0;
-var squareH = 0;
+
+var size = 50;
+var viewX = 0;
+var viewY = 0;
+
+var viewSmooth = 100;
+var viewDist = 4;
 
 var leaderboard = [];
 
@@ -45,8 +50,6 @@ socket.on('init',function(data){
     if(!board) {
       w = data.board.length;
       h = data.board[0].length;
-      squareW = WIDTH/w;
-      squareH = HEIGHT/h;
     }
     board = data.board;
   }
@@ -92,13 +95,16 @@ document.onkeyup = function(event){
 function keyPressResponse(ok,dx,dy) {
   if(ok && board[selected.i+dx][selected.j+dy].id == selfId) {
     selected.i += dx;
-    selected.j +=dy;
+    selected.j += dy;
   }
 }
 
 document.onmouseup = function(event){
-  var i = Math.floor(event.clientX/squareW);
-  var j = Math.floor(event.clientY/squareH);
+  var offsetX = width/2 - viewX;
+  var offsetY = height/2 - viewY;
+
+  var i = Math.floor((event.clientX-offsetX)/size);
+  var j = Math.floor((event.clientY-offsetY)/size);
   if(i>=0 && i<w && j>=0 && j<h && board[i][j].id == selfId) {
     selected.i = i;
     selected.j = j;
@@ -107,35 +113,105 @@ document.onmouseup = function(event){
     selected.i = null;
     selected.j = null;
   }
-
-  console.log(JSON.stringify(selected));
 }
 
+//client side update loop for drawing
 setInterval(function(){
   if(!selfId || !board) return;
 
-  for(var i = 0; i < w; i++) {
-		for(var j = 0; j < h; j++) {
-			if(board[i][j].prev.count > 0) { board[i][j].prev.count--; }
-		}
-	}
+  width = window.innerWidth;
+  height = window.innerHeight;
+  ctx.canvas.width  = width;
+  ctx.canvas.height = height;
 
-  ctx.clearRect(0,0,WIDTH,HEIGHT);
+  boardSlide();
+  getView();
+
+  ctx.clearRect(0,0,width,height);
   drawBoard();
   drawUI();
 },40);
 
+//get info on own pieces for size and view
+function getView() {
+  var minI, maxI, minJ, maxJ;
+  var first = true;
+  var count = 0;
+
+  var avI = 0;
+  var avJ = 0;
+
+  for(var i = 0; i < w; i++) {
+		for(var j = 0; j < h; j++) {
+      if(board[i][j].id == selfId) {
+        if(first) { minI = i; maxI = i; minJ = j; maxJ = j; first = false; }
+        else {
+          if(i < minI) { minI = i; }
+          if(i > maxI) { maxI = i; }
+          if(j < minJ) { minJ = j; }
+          if(j > maxJ) { maxJ = j; }
+        }
+
+        avI += i+0.5;
+        avJ += j+0.5;
+        count++;
+      }
+		}
+	}
+
+  var playerSizeX = (maxI - minI + 1)*size;
+  var playerSizeY = (maxJ - minJ + 1)*size;
+
+  var r = Math.min(width/(playerSizeX*viewDist),height/(playerSizeY*viewDist));
+  //size = size*r;
+
+
+  avI = avI/count;
+  avJ = avJ/count;
+  viewX += (avI*size - viewX)/viewSmooth;
+  viewY += (avJ*size - viewY)/viewSmooth;
+}
+
+//client side sliding
+function boardSlide() {
+  for(var i = 0; i < w; i++) {
+		for(var j = 0; j < h; j++) {
+			if(board[i][j].prev.count > 0) { board[i][j].prev.count--; }
+    }
+  }
+}
+
 var drawBoard = function(){
+  var offsetX = width/2 - viewX;
+  var offsetY = height/2 - viewY;
+
   ctx.lineWidth = 2;
   ctx.strokeStyle = "rgb(200,200,200)";
 
   //draw board design
-  ctx.fillStyle = "rgb(255,255,255)";
+  /*ctx.fillStyle = "rgb(255,255,255)";
   for(var i = 0; i < w; i++) {
     for(var j = 0; j < h; j++) {
-      roundRect(i*squareW,j*squareH,squareW,squareH,squareW*0.25,true);
+      roundRect(i*size+offsetX,j*size+offsetY,size,size,size*0.25,true,true);
     }
+  }*/
+
+  //more efficient board style
+  ctx.fillStyle = "rgb(255,255,255)";
+  ctx.fillRect(offsetX,offsetY,size*w,size*h);
+  for(var i = 1; i < w; i++) {
+    ctx.beginPath();
+    ctx.moveTo(i*size+offsetX,offsetY);
+    ctx.lineTo(i*size+offsetX,(w+1)*size+offsetY);
+    ctx.stroke();
   }
+  for(var j = 1; j < h; j++) {
+    ctx.beginPath();
+    ctx.moveTo(offsetX,j*size+offsetY);
+    ctx.lineTo((h+1)*size+offsetX,j*size+offsetY);
+    ctx.stroke();
+  }
+
 
   //draw pieces
   for(var i = 0; i < w; i++) {
@@ -144,9 +220,9 @@ var drawBoard = function(){
         if(board[i][j].id == 1) { ctx.fillStyle = "rgba(0,0,0,0.8)"; }
         else { ctx.fillStyle = Player.list[board[i][j].id].color; }
 
-        var x = (i+0.1 - board[i][j].prev.dx*board[i][j].prev.count/slide)*squareW;
-        var y = (j+0.1 - board[i][j].prev.dy*board[i][j].prev.count/slide)*squareH;
-        roundRect(x,y,squareW*0.8,squareH*0.8,squareW*0.2,true,false);
+        var x = (i+0.1 - board[i][j].prev.dx*board[i][j].prev.count/slide)*size;
+        var y = (j+0.1 - board[i][j].prev.dy*board[i][j].prev.count/slide)*size;
+        roundRect(x+offsetX,y+offsetY,size*0.8,size*0.8,size*0.2,true,false);
       }
     }
   }
@@ -157,9 +233,9 @@ var drawBoard = function(){
 
     var i = selected.i;
     var j = selected.j;
-    var x = (i+0.2 - board[i][j].prev.dx*board[i][j].prev.count/slide)*squareW;
-    var y = (j+0.2 - board[i][j].prev.dy*board[i][j].prev.count/slide)*squareH;
-    roundRect(x,y,squareW*0.6,squareH*0.6,squareW*0.15,true,false);
+    var x = (i+0.2 - board[i][j].prev.dx*board[i][j].prev.count/slide)*size;
+    var y = (j+0.2 - board[i][j].prev.dy*board[i][j].prev.count/slide)*size;
+    roundRect(x+offsetX,y+offsetY,size*0.6,size*0.6,size*0.15,true,false);
   }
 }
 
@@ -173,25 +249,16 @@ var drawUI = function(){
 
 //helper to draw rounded rectangle
 function roundRect(x, y, width, height, radius, fill, stroke) {
-  if (typeof stroke == 'undefined') { stroke = true; }
-  if (typeof radius === 'undefined') { radius = 5; }
-  if (typeof radius === 'number') { radius = {tl: radius, tr: radius, br: radius, bl: radius }; }
-  else {
-    var defaultRadius = {tl: 0, tr: 0, br: 0, bl: 0};
-    for (var side in defaultRadius) {
-      radius[side] = radius[side] || defaultRadius[side];
-    }
-  }
   ctx.beginPath();
-  ctx.moveTo(x + radius.tl, y);
-  ctx.lineTo(x + width - radius.tr, y);
-  ctx.quadraticCurveTo(x + width, y, x + width, y + radius.tr);
-  ctx.lineTo(x + width, y + height - radius.br);
-  ctx.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height);
-  ctx.lineTo(x + radius.bl, y + height);
-  ctx.quadraticCurveTo(x, y + height, x, y + height - radius.bl);
-  ctx.lineTo(x, y + radius.tl);
-  ctx.quadraticCurveTo(x, y, x + radius.tl, y);
+  ctx.moveTo(x + radius, y);
+  ctx.lineTo(x + width - radius, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+  ctx.lineTo(x + width, y + height - radius);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+  ctx.lineTo(x + radius, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+  ctx.lineTo(x, y + radius);
+  ctx.quadraticCurveTo(x, y, x + radius, y);
   ctx.closePath();
 
   if (fill) { ctx.fill(); }
@@ -209,13 +276,12 @@ function updateLeaderboard() {
 
 //helper function for creating nd arrays
 function createArray(length) {
-    var arr = new Array(length || 0),
-        i = length;
+  var arr = new Array(length || 0),
+    i = length;
 
-    if (arguments.length > 1) {
-        var args = Array.prototype.slice.call(arguments, 1);
-        while(i--) arr[length-1 - i] = createArray.apply(this, args);
-    }
-
-    return arr;
+  if (arguments.length > 1) {
+    var args = Array.prototype.slice.call(arguments, 1);
+    while(i--) arr[length-1 - i] = createArray.apply(this, args);
+  }
+  return arr;
 }

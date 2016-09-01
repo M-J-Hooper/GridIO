@@ -15,8 +15,8 @@ var SOCKET_LIST = {};
 
 //board settings
 var slide = 5;
-var w = 16;
-var h = 16;
+var w = 20;
+var h = w;
 
 var Board = function(w,h,slide){
 	var self = createArray(w,h)
@@ -366,13 +366,12 @@ startProfiling(10000);
 */
 
 function createArray(length) {
-    var arr = new Array(length || 0),
-        i = length;
+  var arr = new Array(length || 0),
+    i = length;
 
-    if (arguments.length > 1) {
-        var args = Array.prototype.slice.call(arguments, 1);
-        while(i--) arr[length-1 - i] = createArray.apply(this, args);
-    }
-
-    return arr;
+  if (arguments.length > 1) {
+    var args = Array.prototype.slice.call(arguments, 1);
+    while(i--) arr[length-1 - i] = createArray.apply(this, args);
+  }
+  return arr;
 }
