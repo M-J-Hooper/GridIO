@@ -122,13 +122,21 @@ var drawUI = function(){
 document.onkeydown = function(event){
   if(selected.i != null) {
     if(event.keyCode === 68)	//d
-      socket.emit('keyPress',{inputId:'right',selected:selected});
+      socket.emit('keyPress',{inputId:'right',selected:selected},keyPressResponse);
     else if(event.keyCode === 83)	//s
-      socket.emit('keyPress',{inputId:'down',selected:selected});
+      socket.emit('keyPress',{inputId:'down',selected:selected},keyPressResponse);
     else if(event.keyCode === 65) //a
-      socket.emit('keyPress',{inputId:'left',selected:selected});
+      socket.emit('keyPress',{inputId:'left',selected:selected},keyPressResponse);
     else if(event.keyCode === 87) // w
-      socket.emit('keyPress',{inputId:'up',selected:selected});
+      socket.emit('keyPress',{inputId:'up',selected:selected},keyPressResponse);
+  }
+}
+
+//needs fix for weird behavior (not synched properly?!)
+function keyPressResponse(ok,dx,dy) {
+  if(ok && board[selected.i+dx][selected.j+dy] == selfId) {
+    selected.i += dx;
+    selected.j +=dy;
   }
 }
 

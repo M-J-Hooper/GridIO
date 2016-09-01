@@ -141,16 +141,18 @@ var Board = function(w,h){
 					if(groups[n][m]) {
 						for(var v in captured) {
 							if(v == groups[n][m]) {
-								if(captured[v] != 1) {
-									Player.list[captured[v]].score++;
-									updatePack.player.push(Player.list[captured[v]]);
-								}
+
 								if(self[n][m] != 1) {
 									Player.list[self[n][m]].score--;
 									updatePack.player.push(Player.list[self[n][m]]);
 								}
+								
+								if(captured[v] != 1) {
+									Player.list[captured[v]].score++;
+									updatePack.player.push(Player.list[captured[v]]);
 
-								self[n][m] = captured[v];
+									self[n][m] = captured[v];
+								}
 							}
 						}
 					}
@@ -188,6 +190,7 @@ var Board = function(w,h){
 			}
 			updatePack.board = self;
 		}
+		return ok;
 	}
 
 	return self;
@@ -251,12 +254,25 @@ Player.onConnect = function(socket){
 	var player = Player(socket.id);
 	console.log(socket.id+" connected.")
 
-	socket.on('keyPress',function(data){
+	socket.on('keyPress',function(data,callback){
 		if(socket.id == board[data.selected.i][data.selected.j]) {
-			if(data.inputId === 'left'){ board.makeMove(socket.id,data.selected.i,data.selected.j,-1,0); }
-			else if(data.inputId === 'right'){ board.makeMove(socket.id,data.selected.i,data.selected.j,1,0); }
-			else if(data.inputId === 'up'){ board.makeMove(socket.id,data.selected.i,data.selected.j,0,-1); }
-			else if(data.inputId === 'down'){ board.makeMove(socket.id,data.selected.i,data.selected.j,0,1); }
+			var ok;
+			if(data.inputId === 'left'){
+				ok = board.makeMove(socket.id,data.selected.i,data.selected.j,-1,0);
+				callback(ok,-1,0);
+			}
+			else if(data.inputId === 'right'){
+				ok = board.makeMove(socket.id,data.selected.i,data.selected.j,1,0);
+				callback(ok,1,0);
+			}
+			else if(data.inputId === 'up'){
+				ok = board.makeMove(socket.id,data.selected.i,data.selected.j,0,-1);
+				callback(ok,0,-1);
+			}
+			else if(data.inputId === 'down'){
+				ok = board.makeMove(socket.id,data.selected.i,data.selected.j,0,1);
+				callback(ok,0,1);
+			}
 		}
 	});
 
