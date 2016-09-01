@@ -204,7 +204,6 @@ var Board = function(w,h,slide){
 			}
 			updatePack.board = self;
 		}
-		console.log(ok);
 		return ok;
 	}
 	return self;

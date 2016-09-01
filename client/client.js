@@ -10,7 +10,10 @@ var leaderboard = [];
 
 var socket = io();
 
-var ctx = document.getElementById("ctx").getContext("2d");
+var canvas = document.getElementById("canvas");
+canvas.style.background = 'rgb(200,200,200)'; //set canvas background
+var ctx = canvas.getContext("2d");
+
 
 var Player = function(initPack){
   var self = {};
@@ -123,53 +126,79 @@ setInterval(function(){
 },40);
 
 var drawBoard = function(){
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = "rgb(200,200,200)";
+
+  //draw board design
+  ctx.fillStyle = "rgb(255,255,255)";
+  for(var i = 0; i < w; i++) {
+    for(var j = 0; j < h; j++) {
+      roundRect(i*squareW,j*squareH,squareW,squareH,squareW*0.25,true);
+    }
+  }
+
+  //draw pieces
   for(var i = 0; i < w; i++) {
     for(var j = 0; j < h; j++) {
       if(board[i][j].id) {
         if(board[i][j].id == 1) { ctx.fillStyle = "rgba(0,0,0,0.8)"; }
         else { ctx.fillStyle = Player.list[board[i][j].id].color; }
 
-        var x = (i - board[i][j].prev.dx*board[i][j].prev.count/slide)*squareW;
-        var y = (j - board[i][j].prev.dy*board[i][j].prev.count/slide)*squareH;
-        ctx.fillRect(x,y,squareW,squareH);
+        var x = (i+0.1 - board[i][j].prev.dx*board[i][j].prev.count/slide)*squareW;
+        var y = (j+0.1 - board[i][j].prev.dy*board[i][j].prev.count/slide)*squareH;
+        roundRect(x,y,squareW*0.8,squareH*0.8,squareW*0.2,true,false);
       }
     }
   }
 
+  //draw selected piece indicator
   if(selected.i != null) {
-    ctx.fillStyle = "rgba(255,255,255,0.5)";
+    ctx.fillStyle = "rgba(255,255,255,0.3)";
 
     var i = selected.i;
     var j = selected.j;
-    var x = (i+0.25 - board[i][j].prev.dx*board[i][j].prev.count/slide)*squareW;
-    var y = (j+0.25 - board[i][j].prev.dy*board[i][j].prev.count/slide)*squareH;
-    ctx.fillRect(x,y,squareW/2,squareH/2);
-  }
-
-  for(var i = 0; i <= w; i++) {
-    ctx.beginPath();
-    ctx.moveTo(squareW*i,0);
-    ctx.lineTo(squareW*i,HEIGHT);
-    ctx.closePath();
-    ctx.stroke();
-  }
-
-  for(var j = 0; j <= h; j++) {
-    ctx.beginPath();
-    ctx.moveTo(0,squareH*j);
-    ctx.lineTo(WIDTH,squareH*j);
-    ctx.closePath();
-    ctx.stroke();
+    var x = (i+0.2 - board[i][j].prev.dx*board[i][j].prev.count/slide)*squareW;
+    var y = (j+0.2 - board[i][j].prev.dy*board[i][j].prev.count/slide)*squareH;
+    roundRect(x,y,squareW*0.6,squareH*0.6,squareW*0.15,true,false);
   }
 }
 
 var drawUI = function(){
+  //draw leaderboard
   for(var i = 0; i < leaderboard.length; i++) {
     ctx.fillStyle = Player.list[leaderboard[i][0]].color;
     ctx.fillText((i+1) + ". ::: " + leaderboard[i][0] + " ::: " + leaderboard[i][1],20,20*(i+1));
   }
 }
 
+//helper to draw rounded rectangle
+function roundRect(x, y, width, height, radius, fill, stroke) {
+  if (typeof stroke == 'undefined') { stroke = true; }
+  if (typeof radius === 'undefined') { radius = 5; }
+  if (typeof radius === 'number') { radius = {tl: radius, tr: radius, br: radius, bl: radius }; }
+  else {
+    var defaultRadius = {tl: 0, tr: 0, br: 0, bl: 0};
+    for (var side in defaultRadius) {
+      radius[side] = radius[side] || defaultRadius[side];
+    }
+  }
+  ctx.beginPath();
+  ctx.moveTo(x + radius.tl, y);
+  ctx.lineTo(x + width - radius.tr, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + radius.tr);
+  ctx.lineTo(x + width, y + height - radius.br);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height);
+  ctx.lineTo(x + radius.bl, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - radius.bl);
+  ctx.lineTo(x, y + radius.tl);
+  ctx.quadraticCurveTo(x, y, x + radius.tl, y);
+  ctx.closePath();
+
+  if (fill) { ctx.fill(); }
+  if (stroke) { ctx.stroke(); }
+}
+
+//reorder leaderboard based on score
 function updateLeaderboard() {
   newBoard = [];
   for(var i in Player.list) { newBoard.push([i,Player.list[i].score]); }
@@ -178,6 +207,7 @@ function updateLeaderboard() {
   leaderboard = newBoard.reverse();
 }
 
+//helper function for creating nd arrays
 function createArray(length) {
     var arr = new Array(length || 0),
         i = length;
