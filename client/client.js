@@ -2,6 +2,7 @@ var WIDTH = 500;
 var HEIGHT = 500;
 var w = 0;
 var h = 0;
+var slide = 1;
 var squareW = 0;
 var squareH = 0;
 
@@ -36,6 +37,7 @@ var selected = {i:null,j:null};
 
 socket.on('init',function(data){
   if(data.selfId) { selfId = data.selfId; }
+  if(data.slide) { slide = data.slide; }
   if(data.board) {
     if(!board) {
       w = data.board.length;
@@ -67,12 +69,53 @@ socket.on('remove',function(data){
   for(var i = 0 ; i < data.player.length; i++){
     delete Player.list[data.player[i]];
   }
-
   updateLeaderboard();
 });
 
+document.onkeyup = function(event){
+  if(selected.i != null) {
+    if(event.keyCode === 68)	//d
+      socket.emit('keyPress',{inputId:'right',selected:selected},keyPressResponse);
+    else if(event.keyCode === 83)	//s
+      socket.emit('keyPress',{inputId:'down',selected:selected},keyPressResponse);
+    else if(event.keyCode === 65) //a
+      socket.emit('keyPress',{inputId:'left',selected:selected},keyPressResponse);
+    else if(event.keyCode === 87) // w
+      socket.emit('keyPress',{inputId:'up',selected:selected},keyPressResponse);
+  }
+}
+
+//needs fix for weird behavior (not synched properly?!)
+function keyPressResponse(ok,dx,dy) {
+  if(ok && board[selected.i+dx][selected.j+dy].id == selfId) {
+    selected.i += dx;
+    selected.j +=dy;
+  }
+}
+
+document.onmouseup = function(event){
+  var i = Math.floor(event.clientX/squareW);
+  var j = Math.floor(event.clientY/squareH);
+  if(i>=0 && i<w && j>=0 && j<h && board[i][j].id == selfId) {
+    selected.i = i;
+    selected.j = j;
+  }
+  else {
+    selected.i = null;
+    selected.j = null;
+  }
+
+  console.log(JSON.stringify(selected));
+}
+
 setInterval(function(){
   if(!selfId || !board) return;
+
+  for(var i = 0; i < w; i++) {
+		for(var j = 0; j < h; j++) {
+			if(board[i][j].prev.count > 0) { board[i][j].prev.count--; }
+		}
+	}
 
   ctx.clearRect(0,0,WIDTH,HEIGHT);
   drawBoard();
@@ -82,17 +125,25 @@ setInterval(function(){
 var drawBoard = function(){
   for(var i = 0; i < w; i++) {
     for(var j = 0; j < h; j++) {
-      if(board[i][j]) {
-        if(board[i][j] == 1) { ctx.fillStyle = "black"; }
-        else { ctx.fillStyle = Player.list[board[i][j]].color; }
-        ctx.fillRect(i*squareW,j*squareH,squareW,squareH);
+      if(board[i][j].id) {
+        if(board[i][j].id == 1) { ctx.fillStyle = "black"; }
+        else { ctx.fillStyle = Player.list[board[i][j].id].color; }
+
+        var x = (i - board[i][j].prev.dx*board[i][j].prev.count/slide)*squareW;
+        var y = (j - board[i][j].prev.dy*board[i][j].prev.count/slide)*squareH;
+        ctx.fillRect(x,y,squareW,squareH);
       }
     }
   }
 
   if(selected.i != null) {
     ctx.fillStyle = "white";
-    ctx.fillRect((selected.i+0.25)*squareW,(selected.j+0.25)*squareH,squareW/2,squareH/2);
+
+    var i = selected.i;
+    var j = selected.j;
+    var x = (i+0.25 - board[i][j].prev.dx*board[i][j].prev.count/slide)*squareW;
+    var y = (j+0.25 - board[i][j].prev.dy*board[i][j].prev.count/slide)*squareH;
+    ctx.fillRect(x,y,squareW/2,squareH/2);
   }
 
   for(var i = 0; i <= w; i++) {
@@ -117,42 +168,6 @@ var drawUI = function(){
     ctx.fillStyle = Player.list[leaderboard[i][0]].color;
     ctx.fillText((i+1) + ". ::: " + leaderboard[i][0] + " ::: " + leaderboard[i][1],20,20*(i+1));
   }
-}
-
-document.onkeydown = function(event){
-  if(selected.i != null) {
-    if(event.keyCode === 68)	//d
-      socket.emit('keyPress',{inputId:'right',selected:selected},keyPressResponse);
-    else if(event.keyCode === 83)	//s
-      socket.emit('keyPress',{inputId:'down',selected:selected},keyPressResponse);
-    else if(event.keyCode === 65) //a
-      socket.emit('keyPress',{inputId:'left',selected:selected},keyPressResponse);
-    else if(event.keyCode === 87) // w
-      socket.emit('keyPress',{inputId:'up',selected:selected},keyPressResponse);
-  }
-}
-
-//needs fix for weird behavior (not synched properly?!)
-function keyPressResponse(ok,dx,dy) {
-  if(ok && board[selected.i+dx][selected.j+dy] == selfId) {
-    selected.i += dx;
-    selected.j +=dy;
-  }
-}
-
-document.onmouseup = function(event){
-  var i = Math.floor(event.clientX/squareW);
-  var j = Math.floor(event.clientY/squareH);
-  if(i>=0 && i<w && j>=0 && j<h && board[i][j] == selfId) {
-    selected.i = i;
-    selected.j = j;
-  }
-  else {
-    selected.i = null;
-    selected.j = null;
-  }
-
-  console.log(JSON.stringify(selected));
 }
 
 function updateLeaderboard() {

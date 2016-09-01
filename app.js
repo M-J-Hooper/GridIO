@@ -13,8 +13,18 @@ console.log("Server started.");
 
 var SOCKET_LIST = {};
 
-var Board = function(w,h){
+//board settings
+var slide = 5;
+var w = 16;
+var h = 16;
+
+var Board = function(w,h,slide){
 	var self = createArray(w,h)
+	for(var n = 0; n < w; n++) {
+		for(var m = 0; m < h; m++) {
+			self[n][m] = {id:null,prev:{count:0,dx:0,dy:0}};
+		}
+	}
 
 	self.addPlayer = function(id) {
 		var ok = false;
@@ -30,7 +40,7 @@ var Board = function(w,h){
 			var check = 0;
 			for(var i = -3; i < 4; i++) {
 				for(var j = -3; j < 4; j++) {
-					if(self[x+i][y+j]) { check++; }
+					if(self[x+i][y+j].id) { check++; break }
 				}
 			}
 			if(!check) { ok = true; }
@@ -39,7 +49,7 @@ var Board = function(w,h){
 		//add pieces and get score change
 		for(var i = -1; i < 2; i++) {
 			for(var j = -1; j < 2; j++) {
-				self[x+i][y+j] = id;
+				self[x+i][y+j].id = id;
 				Player.list[id].score++;
 			}
 		}
@@ -55,9 +65,9 @@ var Board = function(w,h){
 		//how many pieces ahead of move and can they be moved
 		for(var n = 1; n < w + h; n++) {
 			if(i+n*dx < 0 || i+n*dx >= w || j+n*dy < 0 || j+n*dy >= h) { ok = false; break; }
-			else if(!self[i+n*dx][j+n*dy]) { break; }
+			else if(!self[i+n*dx][j+n*dy].id) { break; }
 			else {
-				if(self[i+n*dx][j+n*dy] == id && otherCount == 0) { selfCount++; }
+				if(self[i+n*dx][j+n*dy].id == id && otherCount == 0) { selfCount++; }
 				else {
 					otherCount++;
 					if(selfCount == otherCount) { ok = false; break; }
@@ -68,9 +78,13 @@ var Board = function(w,h){
 		//when move is allowed
 		if(ok) {
 			for(var n = n; n > 0; n--) {
-				self[i+n*dx][j+n*dy] = self[i+(n-1)*dx][j+(n-1)*dy]*1; //update board
+				self[i+n*dx][j+n*dy].id = self[i+(n-1)*dx][j+(n-1)*dy].id*1; //update board
+				self[i+n*dx][j+n*dy].prev.count = slide;
+				self[i+n*dx][j+n*dy].prev.dx = dx;
+				self[i+n*dx][j+n*dy].prev.dy = dy;
 			}
-			self[i][j] = undefined; //clear space behind move
+			self[i][j].id = null; //clear space behind move
+			self[i][j].prev.count = 100;
 
 
 			var groups = createArray(w,h);
@@ -80,10 +94,10 @@ var Board = function(w,h){
 			//get array of grouped pieces
 			for(var n = 0; n < w; n++) {
 				for(var m = 0; m < h; m++) {
-					if(self[n][m] && !groups[n][m]) {
+					if(self[n][m].id && !groups[n][m]) {
 						groupNum++;
 						groupList[groupNum] = {id:id,perimeter:0,neighbours:[]};
-						groups = findGroups(self,self[n][m],groups,n,m,groupNum);
+						groups = findGroups(self,self[n][m].id,groups,n,m,groupNum);
 					}
 				}
 			}
@@ -105,7 +119,7 @@ var Board = function(w,h){
 								if(Math.abs(a) + Math.abs(b) == 1) {
 									if(groups[n+a][m+b] != groupNum) {
 										groupList[groupNum].perimeter++;
-										if(groups[n+a][m+b]) { groupList[groupNum].neighbours.push(self[n+a][m+b]); }
+										if(groups[n+a][m+b]) { groupList[groupNum].neighbours.push(self[n+a][m+b].id); }
 									}
 								}
 							}
@@ -142,16 +156,16 @@ var Board = function(w,h){
 						for(var v in captured) {
 							if(v == groups[n][m]) {
 
-								if(self[n][m] != 1) {
+								if(self[n][m].id != 1) {
 									Player.list[self[n][m]].score--;
-									updatePack.player.push(Player.list[self[n][m]]);
+									updatePack.player.push(Player.list[self[n][m].id]);
 								}
-								
+
 								if(captured[v] != 1) {
 									Player.list[captured[v]].score++;
 									updatePack.player.push(Player.list[captured[v]]);
 
-									self[n][m] = captured[v];
+									self[n][m].id = captured[v];
 								}
 							}
 						}
@@ -162,7 +176,7 @@ var Board = function(w,h){
 			//kill isolated pieces (MORE EFFICIENT WAY!!!!!!!)
 			for(var n = 0; n < w; n++) {
 				for(var m = 0; m < h; m++) {
-					var currId = self[n][m];
+					var currId = self[n][m].id;
 
 					//careful of board edges
 					var maxA = n == w-1 ? 1 : 2;
@@ -175,13 +189,13 @@ var Board = function(w,h){
 						for(var a = minA; a < maxA; a++) {
 							for(var b = minB; b < maxB; b++) {
 								if(Math.abs(a) + Math.abs(b) == 1) {
-									if(self[n+a][m+b] == currId) { check++; }
+									if(self[n+a][m+b].id == currId) { check++; }
 								}
 							}
 						}
 
 						if(!check) {
-							self[n][m] = 1;
+							self[n][m].id = 1;
 							Player.list[currId].score--;
 							updatePack.player.push(Player.list[currId]);
 						}
@@ -192,9 +206,9 @@ var Board = function(w,h){
 		}
 		return ok;
 	}
-
 	return self;
 }
+var board = new Board(w,h,slide);
 
 //helper function to loop through when calculating groups
 function findGroups(board,id,groups,n,m,groupNum) {
@@ -209,7 +223,7 @@ function findGroups(board,id,groups,n,m,groupNum) {
 	for(var a = minA; a < maxA; a++) {
 		for(var b = minB; b < maxB; b++) {
 			if(Math.abs(a) + Math.abs(b) == 1) {
-				if(board[n+a][m+b] == id && !groups[n+a][m+b]) {
+				if(board[n+a][m+b].id == id && !groups[n+a][m+b]) {
 					groups = findGroups(board,id,groups,n+a,m+b,groupNum);
 				}
 			}
@@ -217,11 +231,6 @@ function findGroups(board,id,groups,n,m,groupNum) {
 	}
 	return groups;
 }
-
-//create board
-var w = 16;
-var h = 16;
-var board = new Board(w,h);
 
 var Player = function(id){
 	var self = {};
@@ -255,7 +264,7 @@ Player.onConnect = function(socket){
 	console.log(socket.id+" connected.")
 
 	socket.on('keyPress',function(data,callback){
-		if(socket.id == board[data.selected.i][data.selected.j]) {
+		if(socket.id == board[data.selected.i][data.selected.j].id) {
 			var ok;
 			if(data.inputId === 'left'){
 				ok = board.makeMove(socket.id,data.selected.i,data.selected.j,-1,0);
@@ -279,6 +288,7 @@ Player.onConnect = function(socket){
 	//get all info on connect
 	socket.emit('init',{
 		selfId:socket.id,
+		slide:slide,
 		player:Player.getAll(),
 		board:board
 	});
@@ -291,7 +301,7 @@ Player.onDisconnect = function(socket){
 
 	for(var i = 0; i < w; i++) {
 		for(var j = 0; j < h; j++) {
-			if(board[i][j] == socket.id) { board[i][j] = undefined; } // 1 to kill pieces when disconnected
+			if(board[i][j].id == socket.id) { board[i][j].id = null; } // 1 to kill pieces when disconnected
 		}
 	}
 	removePack.board = board;
@@ -318,6 +328,12 @@ var updatePack = {player:[]};
 
 setInterval(function(){
 	if(!board) return;
+
+	for(var i = 0; i < w; i++) {
+		for(var j = 0; j < h; j++) {
+			if(board[i][j].prev.count > 0) { board[i][j].prev.count--; }
+		}
+	}
 
 	for(var i in SOCKET_LIST){
 		var socket = SOCKET_LIST[i];
