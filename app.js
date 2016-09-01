@@ -18,7 +18,7 @@ var slide = 5;
 var w = 20;
 var h = w;
 
-var Board = function(w,h,slide){
+var Board = function(w,h){
 	var self = createArray(w,h)
 	for(var n = 0; n < w; n++) {
 		for(var m = 0; m < h; m++) {
@@ -208,7 +208,7 @@ var Board = function(w,h,slide){
 	}
 	return self;
 }
-var board = new Board(w,h,slide);
+var board = new Board(w,h);
 
 //helper function to loop through when calculating groups
 function findGroups(board,id,groups,n,m,groupNum) {

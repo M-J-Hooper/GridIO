@@ -8,9 +8,6 @@ var size = 50;
 var viewX = 0;
 var viewY = 0;
 
-var viewSmooth = 100;
-var viewDist = 4;
-
 var leaderboard = [];
 
 var socket = io();
@@ -161,7 +158,10 @@ function getView() {
 
   var playerSizeX = (maxI - minI + 1)*size;
   var playerSizeY = (maxJ - minJ + 1)*size;
-  console.log(playerSizeX/size,playerSizeX/size+viewDist*2);
+
+  var viewDist = Math.sqrt(count)+2;
+  var viewSmooth = 100;
+
   var r = Math.min(width/(playerSizeX+viewDist*size*2),height/(playerSizeY+viewDist*size*2));
   size += size*(r-1)/viewSmooth;
 
