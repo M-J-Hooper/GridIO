@@ -161,9 +161,9 @@ function getView() {
 
   var playerSizeX = (maxI - minI + 1)*size;
   var playerSizeY = (maxJ - minJ + 1)*size;
-
-  var r = Math.min(width/(playerSizeX*viewDist),height/(playerSizeY*viewDist));
-  //size = size*r;
+  console.log(playerSizeX/size,playerSizeX/size+viewDist*2);
+  var r = Math.min(width/(playerSizeX+viewDist*size*2),height/(playerSizeY+viewDist*size*2));
+  size += size*(r-1)/viewSmooth;
 
 
   avI = avI/count;
@@ -189,6 +189,7 @@ var drawBoard = function(){
   ctx.strokeStyle = "rgb(200,200,200)";
 
   //draw board design
+  //rounded edges on tiles (slow round rect function)
   /*ctx.fillStyle = "rgb(255,255,255)";
   for(var i = 0; i < w; i++) {
     for(var j = 0; j < h; j++) {
