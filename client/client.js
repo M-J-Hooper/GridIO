@@ -2,7 +2,7 @@ var WIDTH = 500;
 var HEIGHT = 500;
 var w = 0;
 var h = 0;
-var slide = 1;
+var slide = 0;
 var squareW = 0;
 var squareH = 0;
 
@@ -126,7 +126,7 @@ var drawBoard = function(){
   for(var i = 0; i < w; i++) {
     for(var j = 0; j < h; j++) {
       if(board[i][j].id) {
-        if(board[i][j].id == 1) { ctx.fillStyle = "black"; }
+        if(board[i][j].id == 1) { ctx.fillStyle = "rgba(0,0,0,0.8)"; }
         else { ctx.fillStyle = Player.list[board[i][j].id].color; }
 
         var x = (i - board[i][j].prev.dx*board[i][j].prev.count/slide)*squareW;
@@ -137,7 +137,7 @@ var drawBoard = function(){
   }
 
   if(selected.i != null) {
-    ctx.fillStyle = "white";
+    ctx.fillStyle = "rgba(255,255,255,0.5)";
 
     var i = selected.i;
     var j = selected.j;

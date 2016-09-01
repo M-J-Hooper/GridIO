@@ -56,15 +56,15 @@ var Board = function(w,h,slide){
 	}
 
 	self.makeMove = function(id,i,j,dx,dy) {
-		var selfCount = 1;
+		var selfCount = 0;
 		var otherCount = 0;
-		var n = 1;
 		var ok = true;
 		var take = false;
 
 		//how many pieces ahead of move and can they be moved
-		for(var n = 1; n < w + h; n++) {
+		for(var n = 0; n < w + h; n++) {
 			if(i+n*dx < 0 || i+n*dx >= w || j+n*dy < 0 || j+n*dy >= h) { ok = false; break; }
+			else if(self[i+n*dx][j+n*dy].prev.count > 0) { ok = false; break; }
 			else if(!self[i+n*dx][j+n*dy].id) { break; }
 			else {
 				if(self[i+n*dx][j+n*dy].id == id && otherCount == 0) { selfCount++; }
@@ -84,7 +84,7 @@ var Board = function(w,h,slide){
 				self[i+n*dx][j+n*dy].prev.dy = dy;
 			}
 			self[i][j].id = null; //clear space behind move
-			self[i][j].prev.count = 100;
+			self[i][j].prev.count = slide;
 
 
 			var groups = createArray(w,h);
@@ -157,7 +157,7 @@ var Board = function(w,h,slide){
 							if(v == groups[n][m]) {
 
 								if(self[n][m].id != 1) {
-									Player.list[self[n][m]].score--;
+									Player.list[self[n][m].id].score--;
 									updatePack.player.push(Player.list[self[n][m].id]);
 								}
 
@@ -204,6 +204,7 @@ var Board = function(w,h,slide){
 			}
 			updatePack.board = self;
 		}
+		console.log(ok);
 		return ok;
 	}
 	return self;
