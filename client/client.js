@@ -88,10 +88,8 @@ socket.on('update',function(data){
         }
       }
     }
-    console.log(max.i,max.j)
     if(max.i) { selectPiece(max.i,max.j); }
   }
-  if(data.player.length) { console.log(JSON.stringify(data.player)); }
   for(var i = 0 ; i < data.player.length; i++){
     Player.list[data.player[i].id].score = data.player[i].score;
   }
@@ -225,7 +223,7 @@ var drawBoard = function(){
   for(var i = 0; i < w; i++) {
     for(var j = 0; j < h; j++) {
       if(board[i][j].id) {
-        if(board[i][j].id == 1) { ctx.fillStyle = "rgba(0,0,0,0.5)"; }
+        if(board[i][j].id == 1) { ctx.fillStyle = "rgba(0,0,0,0.8)"; }
         else { ctx.fillStyle = Player.list[board[i][j].id].color; }
 
         var x = (i+0.1 - board[i][j].prev.dx*board[i][j].prev.count/slide)*size;
