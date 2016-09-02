@@ -17,7 +17,7 @@ var SOCKET_LIST = {};
 
 //board settings
 var slide = 5;
-var w = 50;
+var w = 10;
 var h = w;
 
 var Board = function(w,h){
@@ -58,6 +58,7 @@ var Board = function(w,h){
 	}
 
 	self.makeMove = function(id,i,j,dx,dy) {
+		console.log("move");
 		var selfCount = 0;
 		var otherCount = 0;
 		var ok = true;
