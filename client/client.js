@@ -10,6 +10,7 @@ var viewY = 0;
 var fontSize = 16;
 
 var leaderboard = [];
+var rank = 0;
 
 var socket = io();
 
@@ -118,7 +119,7 @@ document.onmouseup = function(event){
     selected.i = null;
     selected.j = null;
   }
-  console.log(JSON.stringify(Player.list));
+  console.log(JSON.stringify(rank));
 }
 
 //client side update loop for drawing
@@ -263,11 +264,13 @@ var drawUi = function() {
   //draw leaderboard
   var leaderLength = leaderboard.length < 10 ? leaderboard.length : 10;
 
+  //draw leaderboard outlines in top left
   ctxUi.fillStyle = "rgba(0,0,0,0.5)";
   roundRect(ctxUi, 10, 10, 200, 30+(fontSize+20)*leaderLength, 20, true, false);
   ctxUi.fillStyle = "rgb(255,255,255)";
   roundRect(ctxUi, 20, 20, 180, 10+(fontSize+20)*leaderLength, 10, true, false);
 
+  //draw each player in top 10 with text
   for(var i = 0; i < leaderLength; i++) {
     ctxUi.fillStyle = Player.list[leaderboard[i][0]].color;
     roundRect(ctxUi, 30, 30+i*(fontSize+20), 160, 10+fontSize, 5, true, false);
@@ -279,6 +282,22 @@ var drawUi = function() {
     ctxUi.textAlign = "right";
     ctxUi.fillText(leaderboard[i][2], 185, 35+(i+1)*fontSize+i*20 - 2);
   }
+
+  //draw info outline and text in bottom left
+  ctxUi.fillStyle = "rgba(0,0,0,0.5)";
+  roundRect(ctxUi, 10, height - (fontSize+60), 300, 50+fontSize, 20, true, false);
+  ctxUi.fillStyle = "rgb(255,255,255)";
+  roundRect(ctxUi, 20, height - (fontSize+50), 280, 30+fontSize, 10, true, false);
+  ctxUi.fillStyle = Player.list[selfId].color;
+  roundRect(ctxUi, 30, height - (fontSize+40), 260, 10+fontSize, 5, true, false);
+
+  ctxUi.fillStyle = "rgb(255,255,255)";
+  ctxUi.textAlign = "left";
+  ctxUi.fillText(Player.list[selfId].name, 35, height - 35 - 2);
+  ctxUi.textAlign = "center";
+  ctxUi.fillText("Score: " + Player.list[selfId].score, 160, height - 35 - 2);
+  ctxUi.textAlign = "right";
+  ctxUi.fillText("Rank: " + rank + "/" + leaderboard.length, 285, height - 35 - 2);
 }
 
 //helper to draw rounded rectangle
@@ -304,8 +323,11 @@ function updateLeaderboard() {
   newBoard = [];
   for(var i in Player.list) { newBoard.push([i,Player.list[i].name,Player.list[i].score]); }
   newBoard.sort(function(a,b) { return a[2] - b[2] });
-
   leaderboard = newBoard.reverse();
+
+  for(var i = 0; i < leaderboard.length; i++) {
+    if(leaderboard[i][0] == selfId) { rank = i+1; }
+  }
 }
 
 //helper function for creating nd arrays
