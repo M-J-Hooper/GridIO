@@ -35,17 +35,6 @@ var Player = function(initPack){
 }
 Player.list = {};
 
-var Board = function(w,h){
-	var self = createArray(w,h)
-  for(var n = 0; n < w; n++) {
-		for(var m = 0; m < h; m++) {
-			self[n][m] = {id:null,prev:{count:0,dx:0,dy:0}};
-		}
-	}
-
-	return self;
-}
-
 var board = null;
 var selfId = null;
 var selected = {i:null,j:null};
@@ -77,7 +66,7 @@ socket.on('init',function(data){
 
 socket.on('update',function(data){
   if(data.piece.length > 0) {
-    for(var n = 0; n < data.piece.length; i++) {
+    for(var n = 0; n < data.piece.length; n++) {
       var i = data.piece[n].i;
       var j = data.piece[n].j;
       board[i][j].id = data.piece[n].id;
@@ -117,7 +106,7 @@ socket.on('remove',function(data){
   }
   updateLeaderboard();
 
-  for(var n = 0; n < data.piece.length; i++) {
+  for(var n = 0; n < data.piece.length; n++) {
     board[data.piece[n].i][data.piece[n].j].id = null;
   }
 });
