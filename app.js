@@ -86,10 +86,9 @@ var Board = function(w,h){
 		if(ok) {
 			for(var n = n; n > 0; n--) {
 				self[i+n*dx][j+n*dy].id = self[i+(n-1)*dx][j+(n-1)*dy].id; //update board
-				self[i+n*dx][j+n*dy].prev.count = slide;
-				self[i+n*dx][j+n*dy].prev.dx = dx;
-				self[i+n*dx][j+n*dy].prev.dy = dy;
-				updatePack.piece.push({i:i+n*dx,j:j+n*dy,id:self[i+(n-1)*dx][j+(n-1)*dy].id,prev:self[i+n*dx][j+n*dy].prev});
+				var prev = {count:slide,dx:dx,dy:dy};
+				self[i+n*dx][j+n*dy].prev = prev;
+				updatePack.piece.push({i:i+n*dx,j:j+n*dy,id:self[i+(n-1)*dx][j+(n-1)*dy].id,prev:prev});
 			}
 			self[i][j].id = null; //clear space behind move
 			self[i][j].prev.count = slide;
@@ -168,11 +167,11 @@ var Board = function(w,h){
 								if(v == groups[n][m]) {
 									if(self[n][m].id != 1) {
 										Player.list[self[n][m].id].score--;
-										updatePack.player.push(Player.list[self[n][m].id]);
+										updatePack.player.push(Player.list[self[n][m].id].getUpdatePack());
 									}
 
 									Player.list[captured[v]].score++;
-									updatePack.player.push(Player.list[captured[v]]);
+									updatePack.player.push(Player.list[captured[v]].getUpdatePack());
 
 									self[n][m].id = captured[v];
 									updatePack.piece.push({i:n,j:m,id:captured[v]});
@@ -209,12 +208,11 @@ var Board = function(w,h){
 							updatePack.piece.push({i:n,j:m,id:1});
 
 							Player.list[currId].score--;
-							updatePack.player.push(Player.list[currId]);
+							updatePack.player.push(Player.list[currId].getUpdatePack());
 						}
 					}
 				}
 			}
-			updatePack.board = self;
 		}
 		return ok;
 	}
@@ -263,6 +261,10 @@ var Player = function(id){
 	board.addPlayer(id);
 	initPack.board = board;
 
+	self.getUpdatePack = function() {
+		return {id:self.id,score:self.score};
+	}
+
 	return self;
 }
 Player.list = {};
@@ -270,8 +272,7 @@ Player.list = {};
 //get array instead of list for first init on connect
 Player.getAll = function(){
 	var players = [];
-	for(var i in Player.list)
-		players.push(Player.list[i]);
+	for(var i in Player.list) { players.push(Player.list[i]); }
 	return players;
 }
 

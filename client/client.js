@@ -91,7 +91,7 @@ socket.on('update',function(data){
   }
 
   for(var i = 0 ; i < data.player.length; i++){
-    new Player(data.player[i]);
+    Player.list[data.player[i].id].score = data.player[i].score;
   }
   if(data.player.length > 0) { updateLeaderboard(); }
 });
@@ -111,7 +111,6 @@ socket.on('remove',function(data){
 
 //client side update loop for drawing
 setInterval(function(){
-  console.log("lol");
   width = window.innerWidth;
   height = window.innerHeight;
   ctx.canvas.width  = width;
@@ -224,7 +223,7 @@ var drawBoard = function(){
   for(var i = 0; i < w; i++) {
     for(var j = 0; j < h; j++) {
       if(board[i][j].id) {
-        if(board[i][j].id == 1) { ctx.fillStyle = "rgba(0,0,0,0.8)"; }
+        if(board[i][j].id == 1) { ctx.fillStyle = "rgba(0,0,0,0.5)"; }
         else { ctx.fillStyle = Player.list[board[i][j].id].color; }
 
         var x = (i+0.1 - board[i][j].prev.dx*board[i][j].prev.count/slide)*size;
@@ -261,7 +260,7 @@ var drawUi = function() {
   //draw each player in top 10 with text
   for(var i = 0; i < leaderLength; i++) {
     ctxUi.fillStyle = Player.list[leaderboard[i].id].color;
-    roundRect(ctxUi, 30, 30+i*(fontSize+20), 160, 10+fontSize, 5, true, false);
+    roundRect(ctxUi, 30, 30+i*(fontSize+20), 160, 10+fontSize, (10+fontSize)*0.2, true, false);
 
     ctxUi.fillStyle = "rgb(255,255,255)";
     ctxUi.textAlign = "left";
@@ -277,7 +276,7 @@ var drawUi = function() {
   ctxUi.fillStyle = "rgb(255,255,255)";
   roundRect(ctxUi, 20, height - (fontSize+50), 280, 30+fontSize, 10, true, false);
   ctxUi.fillStyle = Player.list[selfId].color;
-  roundRect(ctxUi, 30, height - (fontSize+40), 260, 10+fontSize, 5, true, false);
+  roundRect(ctxUi, 30, height - (fontSize+40), 260, 10+fontSize, (10+fontSize)*0.2, true, false);
 
   ctxUi.fillStyle = "rgb(255,255,255)";
   ctxUi.textAlign = "left";
