@@ -92,41 +92,42 @@ var Board = function(w,h){
 			self[i][j].id = null; //clear space behind move
 			self[i][j].prev.count = slide;
 
+			do {
+				var groups = createArray(w,h);
+				var groupList = {};
+				groupNum = 0;
 
-			var groups = createArray(w,h);
-			var groupList = {};
-			groupNum = 0;
-
-			//get array of grouped pieces
-			for(var n = 0; n < w; n++) {
-				for(var m = 0; m < h; m++) {
-					if(self[n][m].id && !groups[n][m]) {
-						groupNum++;
-						groupList[groupNum] = {id:id,perimeter:0,neighbours:[]};
-						groups = findGroups(self,self[n][m].id,groups,n,m,groupNum);
+				//get array of grouped pieces
+				for(var n = 0; n < w; n++) {
+					for(var m = 0; m < h; m++) {
+						if(self[n][m].id && !groups[n][m]) {
+							groupNum++;
+							groupList[groupNum] = {id:id,perimeter:0,neighbours:[]};
+							groups = findGroups(self,self[n][m].id,groups,n,m,groupNum);
+						}
 					}
 				}
-			}
 
-			//make list of groups with perimeter and neighbours
-			for(var n = 0; n < w; n++) {
-				for(var m = 0; m < h; m++) {
-					if(groups[n][m]) {
-						groupNum = groups[n][m];
+				//make list of groups with perimeter and neighbours
+				for(var n = 0; n < w; n++) {
+					for(var m = 0; m < h; m++) {
+						if(groups[n][m]) {
+							groupNum = groups[n][m];
 
-						//careful of board edges
-						var maxA = n == w-1 ? 1 : 2;
-						var minA = n == 0 ? 0 : -1;
-						var maxB = m == h-1 ? 1 : 2;
-						var minB = m == 0 ? 0 : -1;
+							//careful of board edges
+							var maxA = n == w-1 ? 1 : 2;
+							var minA = n == 0 ? 0 : -1;
+							var maxB = m == h-1 ? 1 : 2;
+							var minB = m == 0 ? 0 : -1;
 
-						for(var a = minA; a < maxA; a++) {
-							for(var b = minB; b < maxB; b++) {
-								if(Math.abs(a) + Math.abs(b) == 1) {
-									if(groups[n+a][m+b] != groupNum) {
-										groupList[groupNum].perimeter++;
-										if(groups[n+a][m+b] && self[n+a][m+b].id != 1) {
-											groupList[groupNum].neighbours.push(self[n+a][m+b].id);
+							for(var a = minA; a < maxA; a++) {
+								for(var b = minB; b < maxB; b++) {
+									if(Math.abs(a) + Math.abs(b) == 1) {
+										if(groups[n+a][m+b] != groupNum) {
+											groupList[groupNum].perimeter++;
+											if(groups[n+a][m+b] && self[n+a][m+b].id != 1) {
+												groupList[groupNum].neighbours.push(self[n+a][m+b].id);
+											}
 										}
 									}
 								}
@@ -134,49 +135,49 @@ var Board = function(w,h){
 						}
 					}
 				}
-			}
 
-			//decide if there are enough neighbours for a capture for each group
-			var captured = {};
-			for(var n in groupList) {
+				//decide if there are enough neighbours for a capture for each group
+				var captured = {};
+				for(var n in groupList) {
 
-				//algorithm for finding the maximum occuring neighbour id
-				var store = groupList[n].neighbours;
-				var frequency = {};
-				var max = 0;
-				var result = 0;
+					//algorithm for finding the maximum occuring neighbour id
+					var store = groupList[n].neighbours;
+					var frequency = {};
+					var max = 0;
+					var result = 0;
 
-				for(var v in store) {
-	        frequency[store[v]]=(frequency[store[v]] || 0)+1;
-	        if(frequency[store[v]] > max) {
-            max = frequency[store[v]];
-            result = store[v];
-	        }
+					for(var v in store) {
+		        frequency[store[v]]=(frequency[store[v]] || 0)+1;
+		        if(frequency[store[v]] > max) {
+	            max = frequency[store[v]];
+	            result = store[v];
+		        }
+					}
+
+					if(max/groupList[n].perimeter >= 0.5) { captured[n] = result; }
 				}
 
-				if(max/groupList[n].perimeter >= 0.5) { captured[n] = result; }
-			}
+				//transfer pieces between players for any captures
+				for(var n = 0; n < w; n++) {
+					for(var m = 0; m < h; m++) {
+						if(groups[n][m]) {
+							for(var v in captured) {
+								if(v == groups[n][m]) {
+									if(self[n][m].id != 1) {
+										Player.list[self[n][m].id].score--;
+										updatePack.player.push(Player.list[self[n][m].id]);
+									}
 
-			//transfer pieces between players for any captures
-			for(var n = 0; n < w; n++) {
-				for(var m = 0; m < h; m++) {
-					if(groups[n][m]) {
-						for(var v in captured) {
-							if(v == groups[n][m]) {
-								if(self[n][m].id != 1) {
-									Player.list[self[n][m].id].score--;
-									updatePack.player.push(Player.list[self[n][m].id]);
+									Player.list[captured[v]].score++;
+									updatePack.player.push(Player.list[captured[v]]);
+
+									self[n][m].id = captured[v];
 								}
-
-								Player.list[captured[v]].score++;
-								updatePack.player.push(Player.list[captured[v]]);
-
-								self[n][m].id = captured[v];
 							}
 						}
 					}
 				}
-			}
+			} while(Object.getOwnPropertyNames(captured).length != 0);
 
 			//kill isolated pieces (MORE EFFICIENT WAY!!!!!!!)
 			for(var n = 0; n < w; n++) {
@@ -274,18 +275,10 @@ Player.onConnect = function(socket){
 	socket.on('keyPress',function(data,callback){
 		if(socket.id == board[data.selected.i][data.selected.j].id) {
 			var ok;
-			if(data.inputId === 'left'){
-				ok = board.makeMove(socket.id,data.selected.i,data.selected.j,-1,0);
-			}
-			else if(data.inputId === 'right'){
-				ok = board.makeMove(socket.id,data.selected.i,data.selected.j,1,0);
-			}
-			else if(data.inputId === 'up'){
-				ok = board.makeMove(socket.id,data.selected.i,data.selected.j,0,-1);
-			}
-			else if(data.inputId === 'down'){
-				ok = board.makeMove(socket.id,data.selected.i,data.selected.j,0,1);
-			}
+			if(data.inputId == 'left'){ ok = board.makeMove(socket.id,data.selected.i,data.selected.j,-1,0); }
+			else if(data.inputId == 'right'){ ok = board.makeMove(socket.id,data.selected.i,data.selected.j,1,0); }
+			else if(data.inputId == 'up'){ ok = board.makeMove(socket.id,data.selected.i,data.selected.j,0,-1); }
+			else if(data.inputId == 'down'){ ok = board.makeMove(socket.id,data.selected.i,data.selected.j,0,1); }
 		}
 	});
 
@@ -333,6 +326,12 @@ var updatePack = {player:[]};
 setInterval(function(){
 	if(!board) return;
 
+	for(var i = 0; i < w; i++) {
+		for(var j = 0; j < h; j++) {
+			if(board[i][j].prev.count > 0) { board[i][j].prev.count--; }
+		}
+	}
+
 	for(var i in SOCKET_LIST){
 		var socket = SOCKET_LIST[i];
 		socket.emit('init',initPack);
@@ -343,17 +342,7 @@ setInterval(function(){
 	removePack = {player:[]};
 	updatePack = {player:[]};
 
-	boardSlide();
 },1000/25);
-
-//server side sliding
-function boardSlide() {
-  for(var i = 0; i < w; i++) {
-		for(var j = 0; j < h; j++) {
-			if(board[i][j].prev.count > 0) { board[i][j].prev.count--; }
-    }
-  }
-}
 
 /*
 var profiler = require('v8-profiler');
