@@ -17,7 +17,7 @@ var SOCKET_LIST = {};
 
 //board settings
 var slide = 5;
-var w = 20;
+var w = 50;
 var h = w;
 
 var Board = function(w,h){

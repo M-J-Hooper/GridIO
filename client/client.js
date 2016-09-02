@@ -84,44 +84,6 @@ socket.on('remove',function(data){
   updateLeaderboard();
 });
 
-document.onkeyup = function(event){
-  if(selected.i != null) {
-    if(event.keyCode === 68)	//d
-      socket.emit('keyPress',{inputId:'right',selected:selected},keyPressResponse);
-    else if(event.keyCode === 83)	//s
-      socket.emit('keyPress',{inputId:'down',selected:selected},keyPressResponse);
-    else if(event.keyCode === 65) //a
-      socket.emit('keyPress',{inputId:'left',selected:selected},keyPressResponse);
-    else if(event.keyCode === 87) // w
-      socket.emit('keyPress',{inputId:'up',selected:selected},keyPressResponse);
-  }
-}
-
-//needs fix for weird behavior (not synched properly?!)
-function keyPressResponse(ok,dx,dy) {
-  if(ok && board[selected.i+dx][selected.j+dy].id == selfId) {
-    selected.i += dx;
-    selected.j += dy;
-  }
-}
-
-document.onmouseup = function(event){
-  var offsetX = width/2 - viewX;
-  var offsetY = height/2 - viewY;
-
-  var i = Math.floor((event.clientX-offsetX)/size);
-  var j = Math.floor((event.clientY-offsetY)/size);
-  if(i>=0 && i<w && j>=0 && j<h && board[i][j].id == selfId) {
-    selected.i = i;
-    selected.j = j;
-  }
-  else {
-    selected.i = null;
-    selected.j = null;
-  }
-  console.log(JSON.stringify(rank));
-}
-
 //client side update loop for drawing
 setInterval(function(){
   width = window.innerWidth;
@@ -295,27 +257,9 @@ var drawUi = function() {
   ctxUi.textAlign = "left";
   ctxUi.fillText(Player.list[selfId].name, 35, height - 35 - 2);
   ctxUi.textAlign = "center";
-  ctxUi.fillText("Score: " + Player.list[selfId].score, 160, height - 35 - 2);
+  ctxUi.fillText("Score: " + Player.list[selfId].score, 150, height - 35 - 2);
   ctxUi.textAlign = "right";
   ctxUi.fillText("Rank: " + rank + "/" + leaderboard.length, 285, height - 35 - 2);
-}
-
-//helper to draw rounded rectangle
-function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
-  ctx.beginPath();
-  ctx.moveTo(x + radius, y);
-  ctx.lineTo(x + width - radius, y);
-  ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-  ctx.lineTo(x + width, y + height - radius);
-  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-  ctx.lineTo(x + radius, y + height);
-  ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-  ctx.lineTo(x, y + radius);
-  ctx.quadraticCurveTo(x, y, x + radius, y);
-  ctx.closePath();
-
-  if(fill) { ctx.fill(); }
-  if(stroke) { ctx.stroke(); }
 }
 
 //reorder leaderboard based on score
@@ -334,6 +278,62 @@ function updateLeaderboard() {
 
     if(leaderboard[i].id == selfId) { rank = prevRank; }
   }
+}
+
+document.onkeyup = function(event){
+  if(selected.i != null) {
+    if(event.keyCode === 68)	//d
+      socket.emit('keyPress',{inputId:'right',selected:selected},keyPressResponse);
+    else if(event.keyCode === 83)	//s
+      socket.emit('keyPress',{inputId:'down',selected:selected},keyPressResponse);
+    else if(event.keyCode === 65) //a
+      socket.emit('keyPress',{inputId:'left',selected:selected},keyPressResponse);
+    else if(event.keyCode === 87) // w
+      socket.emit('keyPress',{inputId:'up',selected:selected},keyPressResponse);
+  }
+}
+
+//needs fix for weird behavior (not synched properly?!)
+function keyPressResponse(ok,dx,dy) {
+  if(ok && board[selected.i+dx][selected.j+dy].id == selfId) {
+    selected.i += dx;
+    selected.j += dy;
+  }
+}
+
+document.onmouseup = function(event){
+  var offsetX = width/2 - viewX;
+  var offsetY = height/2 - viewY;
+
+  var i = Math.floor((event.clientX-offsetX)/size);
+  var j = Math.floor((event.clientY-offsetY)/size);
+  if(i>=0 && i<w && j>=0 && j<h && board[i][j].id == selfId) {
+    selected.i = i;
+    selected.j = j;
+  }
+  else {
+    selected.i = null;
+    selected.j = null;
+  }
+  //console.log(JSON.stringify());
+}
+
+//helper to draw rounded rectangle
+function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.lineTo(x + width - radius, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+  ctx.lineTo(x + width, y + height - radius);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+  ctx.lineTo(x + radius, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+  ctx.lineTo(x, y + radius);
+  ctx.quadraticCurveTo(x, y, x + radius, y);
+  ctx.closePath();
+
+  if(fill) { ctx.fill(); }
+  if(stroke) { ctx.stroke(); }
 }
 
 //helper function for creating nd arrays
