@@ -70,23 +70,25 @@ socket.on('update',function(data){
   if(data.board) {
     board = data.board;
 
+    //decide where the selected piece has moved when the board updates
     var max = {i:null,j:null};
     for(var i = 0; i < w; i++) {
   		for(var j = 0; j < h; j++) {
         if(board[i][j].id) {
           if(i-board[i][j].prev.dx == selected.i && j-board[i][j].prev.dy == selected.j) {
-             if(max.i == null || board[i][j].prev.count > board[max.i][max.j].prev.count) { max.i = i; max.j = j; }
+             if(!max.i || board[i][j].prev.count > board[max.i][max.j].prev.count) { max.i = i; max.j = j; }
           }
         }
       }
     }
-    selectPiece(max.i,max.j);
+    console.log(max.i,max.j)
+    if(max.i) { selectPiece(max.i,max.j); }
   }
-
+  if(data.player.length) { console.log(JSON.stringify(data.player)); }
   for(var i = 0 ; i < data.player.length; i++){
     new Player(data.player[i]);
   }
-  if(data.player.length > 0) { updateLeaderboard(); }
+  if(data.player.length) { updateLeaderboard(); }
 });
 
 socket.on('remove',function(data){
