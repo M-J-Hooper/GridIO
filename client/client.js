@@ -35,12 +35,6 @@ var Player = function(initPack){
 }
 Player.list = {};
 
-var Board = function(w,h){
-	var self = createArray(w,h)
-
-	return self;
-}
-
 var board = null;
 var selfId = null;
 var selected = {i:null,j:null};
@@ -55,6 +49,10 @@ socket.on('init',function(data){
     updateLeaderboard();
   }
 
+  for(var n = 0; n < data.piece.length; n++) {
+    board[data.piece[n].i][data.piece[n].j] = {id:data.piece[n].id,prev:{count:0,dx:0,dy:0}};
+  }
+
   if(data.board) {
     if(!board) {
       w = data.board.length;
@@ -67,8 +65,17 @@ socket.on('init',function(data){
 });
 
 socket.on('update',function(data){
-  if(data.board) {
-    board = data.board;
+  if(data.piece.length) {
+    for(var n = 0; n < data.piece.length; n++) {
+      var i = data.piece[n].i;
+      var j = data.piece[n].j;
+      board[i][j].id = data.piece[n].id;
+      if(data.piece[n].prev) {
+        if(data.piece[n].prev.count) { board[i][j].prev.count = data.piece[n].prev.count; }
+        if(data.piece[n].prev.dx != null) { board[i][j].prev.dx = data.piece[n].prev.dx; }
+        if(data.piece[n].prev.dy != null) { board[i][j].prev.dy = data.piece[n].prev.dy; }
+      }
+    }
 
     //decide where the selected piece has moved when the board updates
     var max = {i:null,j:null};
@@ -86,7 +93,7 @@ socket.on('update',function(data){
   }
   if(data.player.length) { console.log(JSON.stringify(data.player)); }
   for(var i = 0 ; i < data.player.length; i++){
-    new Player(data.player[i]);
+    Player.list[data.player[i].id].score = data.player[i].score;
   }
   if(data.player.length) { updateLeaderboard(); }
 });
@@ -94,10 +101,14 @@ socket.on('update',function(data){
 socket.on('remove',function(data){
   if(data.board) board = data.board;
 
-  for(var i = 0 ; i < data.player.length; i++){
+  for(var i = 0; i < data.player.length; i++) {
     delete Player.list[data.player[i]];
   }
   updateLeaderboard();
+
+  for(var n = 0; n < data.piece.length; n++) {
+    board[data.piece[n].i][data.piece[n].j].id = null;
+  }
 });
 
 //client side update loop for drawing
@@ -214,7 +225,7 @@ var drawBoard = function(){
   for(var i = 0; i < w; i++) {
     for(var j = 0; j < h; j++) {
       if(board[i][j].id) {
-        if(board[i][j].id == 1) { ctx.fillStyle = "rgba(0,0,0,0.8)"; }
+        if(board[i][j].id == 1) { ctx.fillStyle = "rgba(0,0,0,0.5)"; }
         else { ctx.fillStyle = Player.list[board[i][j].id].color; }
 
         var x = (i+0.1 - board[i][j].prev.dx*board[i][j].prev.count/slide)*size;
@@ -251,7 +262,7 @@ var drawUi = function() {
   //draw each player in top 10 with text
   for(var i = 0; i < leaderLength; i++) {
     ctxUi.fillStyle = Player.list[leaderboard[i].id].color;
-    roundRect(ctxUi, 30, 30+i*(fontSize+20), 160, 10+fontSize, 5, true, false);
+    roundRect(ctxUi, 30, 30+i*(fontSize+20), 160, 10+fontSize, (10+fontSize)*0.2, true, false);
 
     ctxUi.fillStyle = "rgb(255,255,255)";
     ctxUi.textAlign = "left";
@@ -267,7 +278,7 @@ var drawUi = function() {
   ctxUi.fillStyle = "rgb(255,255,255)";
   roundRect(ctxUi, 20, height - (fontSize+50), 280, 30+fontSize, 10, true, false);
   ctxUi.fillStyle = Player.list[selfId].color;
-  roundRect(ctxUi, 30, height - (fontSize+40), 260, 10+fontSize, 5, true, false);
+  roundRect(ctxUi, 30, height - (fontSize+40), 260, 10+fontSize, (10+fontSize)*0.2, true, false);
 
   ctxUi.fillStyle = "rgb(255,255,255)";
   ctxUi.textAlign = "left";
