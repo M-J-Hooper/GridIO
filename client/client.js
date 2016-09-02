@@ -272,15 +272,15 @@ var drawUi = function() {
 
   //draw each player in top 10 with text
   for(var i = 0; i < leaderLength; i++) {
-    ctxUi.fillStyle = Player.list[leaderboard[i][0]].color;
+    ctxUi.fillStyle = Player.list[leaderboard[i].id].color;
     roundRect(ctxUi, 30, 30+i*(fontSize+20), 160, 10+fontSize, 5, true, false);
 
     ctxUi.fillStyle = "rgb(255,255,255)";
     ctxUi.textAlign = "left";
-    ctxUi.fillText((i+1) + ".", 35, 35+(i+1)*fontSize+i*20 - 2);
-    ctxUi.fillText(leaderboard[i][1], 55, 35+(i+1)*fontSize+i*20 - 2);
+    ctxUi.fillText(leaderboard[i].rank + ".", 35, 35+(i+1)*fontSize+i*20 - 2);
+    ctxUi.fillText(leaderboard[i].name, 55, 35+(i+1)*fontSize+i*20 - 2);
     ctxUi.textAlign = "right";
-    ctxUi.fillText(leaderboard[i][2], 185, 35+(i+1)*fontSize+i*20 - 2);
+    ctxUi.fillText(leaderboard[i].score, 185, 35+(i+1)*fontSize+i*20 - 2);
   }
 
   //draw info outline and text in bottom left
@@ -314,19 +314,25 @@ function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
   ctx.quadraticCurveTo(x, y, x + radius, y);
   ctx.closePath();
 
-  if (fill) { ctx.fill(); }
-  if (stroke) { ctx.stroke(); }
+  if(fill) { ctx.fill(); }
+  if(stroke) { ctx.stroke(); }
 }
 
 //reorder leaderboard based on score
 function updateLeaderboard() {
   newBoard = [];
-  for(var i in Player.list) { newBoard.push([i,Player.list[i].name,Player.list[i].score]); }
-  newBoard.sort(function(a,b) { return a[2] - b[2] });
+  for(var i in Player.list) { newBoard.push({id:i,name:Player.list[i].name,score:Player.list[i].score,rank:0}); }
+  newBoard.sort(function(a,b) { return a.score - b.score });
   leaderboard = newBoard.reverse();
 
+  var prevRank = 1;
+  var prevScore = 0;
   for(var i = 0; i < leaderboard.length; i++) {
-    if(leaderboard[i][0] == selfId) { rank = i+1; }
+    if(leaderboard[i].score != prevScore) { prevRank = i+1; }
+    prevScore = leaderboard[i].score;
+    leaderboard[i].rank = prevRank;
+
+    if(leaderboard[i].id == selfId) { rank = prevRank; }
   }
 }
 
