@@ -49,7 +49,7 @@ socket.on('init',function(data){
     updateLeaderboard();
   }
 
-  for(var n = 0; n < data.piece.length; i++) {
+  for(var n = 0; n < data.piece.length; n++) {
     board[data.piece[n].i][data.piece[n].j] = {id:data.piece[n].id,prev:{count:0,dx:0,dy:0}};
   }
 
@@ -65,17 +65,15 @@ socket.on('init',function(data){
 });
 
 socket.on('update',function(data){
-  if(data.piece.length > 0) {
+  if(data.piece.length) {
     for(var n = 0; n < data.piece.length; n++) {
       var i = data.piece[n].i;
       var j = data.piece[n].j;
       board[i][j].id = data.piece[n].id;
       if(data.piece[n].prev) {
         if(data.piece[n].prev.count) { board[i][j].prev.count = data.piece[n].prev.count; }
-        if(data.piece[n].prev.dx) {
-          board[i][j].prev.dx = data.piece[n].prev.dx;
-          board[i][j].prev.dy = data.piece[n].prev.dy;
-        }
+        if(data.piece[n].prev.dx != null) { board[i][j].prev.dx = data.piece[n].prev.dx; }
+        if(data.piece[n].prev.dy != null) { board[i][j].prev.dy = data.piece[n].prev.dy; }
       }
     }
 

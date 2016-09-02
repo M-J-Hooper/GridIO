@@ -85,11 +85,11 @@ var Board = function(w,h){
 		//when move is allowed
 		if(ok) {
 			for(var n = n; n > 0; n--) {
-				self[i+n*dx][j+n*dy].id = self[i+(n-1)*dx][j+(n-1)*dy].id*1; //update board
+				self[i+n*dx][j+n*dy].id = self[i+(n-1)*dx][j+(n-1)*dy].id; //update board
 				self[i+n*dx][j+n*dy].prev.count = slide;
 				self[i+n*dx][j+n*dy].prev.dx = dx;
 				self[i+n*dx][j+n*dy].prev.dy = dy;
-				updatePack.piece.push({i:i,j:j,id:self[i+(n-1)*dx][j+(n-1)*dy].id*1,prev:self[i+n*dx][j+n*dy].prev});
+				updatePack.piece.push({i:i+n*dx,j:j+n*dy,id:self[i+(n-1)*dx][j+(n-1)*dy].id,prev:self[i+n*dx][j+n*dy].prev});
 			}
 			self[i][j].id = null; //clear space behind move
 			self[i][j].prev.count = slide;
