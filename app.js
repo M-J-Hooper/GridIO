@@ -276,19 +276,15 @@ Player.onConnect = function(socket){
 			var ok;
 			if(data.inputId === 'left'){
 				ok = board.makeMove(socket.id,data.selected.i,data.selected.j,-1,0);
-				callback(ok,-1,0);
 			}
 			else if(data.inputId === 'right'){
 				ok = board.makeMove(socket.id,data.selected.i,data.selected.j,1,0);
-				callback(ok,1,0);
 			}
 			else if(data.inputId === 'up'){
 				ok = board.makeMove(socket.id,data.selected.i,data.selected.j,0,-1);
-				callback(ok,0,-1);
 			}
 			else if(data.inputId === 'down'){
 				ok = board.makeMove(socket.id,data.selected.i,data.selected.j,0,1);
-				callback(ok,0,1);
 			}
 		}
 	});
@@ -337,12 +333,6 @@ var updatePack = {player:[]};
 setInterval(function(){
 	if(!board) return;
 
-	for(var i = 0; i < w; i++) {
-		for(var j = 0; j < h; j++) {
-			if(board[i][j].prev.count > 0) { board[i][j].prev.count--; }
-		}
-	}
-
 	for(var i in SOCKET_LIST){
 		var socket = SOCKET_LIST[i];
 		socket.emit('init',initPack);
@@ -353,7 +343,17 @@ setInterval(function(){
 	removePack = {player:[]};
 	updatePack = {player:[]};
 
+	boardSlide();
 },1000/25);
+
+//server side sliding
+function boardSlide() {
+  for(var i = 0; i < w; i++) {
+		for(var j = 0; j < h; j++) {
+			if(board[i][j].prev.count > 0) { board[i][j].prev.count--; }
+    }
+  }
+}
 
 /*
 var profiler = require('v8-profiler');

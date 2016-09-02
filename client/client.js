@@ -67,7 +67,21 @@ socket.on('init',function(data){
 });
 
 socket.on('update',function(data){
-  if(data.board) { board = data.board; }
+  if(data.board) {
+    board = data.board;
+
+    var max = {i:null,j:null};
+    for(var i = 0; i < w; i++) {
+  		for(var j = 0; j < h; j++) {
+        if(board[i][j].id) {
+          if(i-board[i][j].prev.dx == selected.i && j-board[i][j].prev.dy == selected.j) {
+             if(max.i == null || board[i][j].prev.count > board[max.i][max.j].prev.count) { max.i = i; max.j = j; }
+          }
+        }
+      }
+    }
+    selectPiece(max.i,max.j);
+  }
 
   for(var i = 0 ; i < data.player.length; i++){
     new Player(data.player[i]);
@@ -101,6 +115,15 @@ setInterval(function(){
   drawBoard();
   drawUi();
 },40);
+
+//client side sliding
+function boardSlide() {
+  for(var i = 0; i < w; i++) {
+		for(var j = 0; j < h; j++) {
+			if(board[i][j].prev.count > 0) { board[i][j].prev.count--; }
+    }
+  }
+}
 
 //get info on own pieces for size and view
 function getView(smooth) {
@@ -149,15 +172,6 @@ function getView(smooth) {
 
     viewX = avI*size;
     viewY = avJ*size;
-  }
-}
-
-//client side sliding
-function boardSlide() {
-  for(var i = 0; i < w; i++) {
-		for(var j = 0; j < h; j++) {
-			if(board[i][j].prev.count > 0) { board[i][j].prev.count--; }
-    }
   }
 }
 
@@ -283,21 +297,13 @@ function updateLeaderboard() {
 document.onkeyup = function(event){
   if(selected.i != null) {
     if(event.keyCode === 68)	//d
-      socket.emit('keyPress',{inputId:'right',selected:selected},keyPressResponse);
+      socket.emit('keyPress',{inputId:'right',selected:selected});
     else if(event.keyCode === 83)	//s
-      socket.emit('keyPress',{inputId:'down',selected:selected},keyPressResponse);
+      socket.emit('keyPress',{inputId:'down',selected:selected});
     else if(event.keyCode === 65) //a
-      socket.emit('keyPress',{inputId:'left',selected:selected},keyPressResponse);
+      socket.emit('keyPress',{inputId:'left',selected:selected});
     else if(event.keyCode === 87) // w
-      socket.emit('keyPress',{inputId:'up',selected:selected},keyPressResponse);
-  }
-}
-
-//needs fix for weird behavior (not synched properly?!)
-function keyPressResponse(ok,dx,dy) {
-  if(ok && board[selected.i+dx][selected.j+dy].id == selfId) {
-    selected.i += dx;
-    selected.j += dy;
+      socket.emit('keyPress',{inputId:'up',selected:selected});
   }
 }
 
@@ -307,6 +313,13 @@ document.onmouseup = function(event){
 
   var i = Math.floor((event.clientX-offsetX)/size);
   var j = Math.floor((event.clientY-offsetY)/size);
+
+  selectPiece(i,j);
+  //console.log(JSON.stringify());
+}
+
+//attempt to set selected piece to certain index
+function selectPiece(i,j) {
   if(i>=0 && i<w && j>=0 && j<h && board[i][j].id == selfId) {
     selected.i = i;
     selected.j = j;
@@ -315,7 +328,6 @@ document.onmouseup = function(event){
     selected.i = null;
     selected.j = null;
   }
-  //console.log(JSON.stringify());
 }
 
 //helper to draw rounded rectangle
