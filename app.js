@@ -17,7 +17,7 @@ var SOCKET_LIST = {};
 
 //board settings
 var slide = 5;
-var w = 10;
+var w = 20;
 var h = w;
 
 var Board = function(w,h){
@@ -33,6 +33,7 @@ var Board = function(w,h){
 		var x = 0;
 		var y = 0;
 		var scoreDiff = 0;
+		var tries = 0;
 
 		//find a space for the pieces to spawn
 		while(!ok) {
@@ -46,6 +47,9 @@ var Board = function(w,h){
 				}
 			}
 			if(!check) { ok = true; }
+
+			tries++;
+			if(tries > 100) { console.log("No room!"); return; }
 		}
 
 		//add pieces and get score change
@@ -58,7 +62,6 @@ var Board = function(w,h){
 	}
 
 	self.makeMove = function(id,i,j,dx,dy) {
-		console.log("move");
 		var selfCount = 0;
 		var otherCount = 0;
 		var ok = true;
