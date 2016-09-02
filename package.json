@@ -5,6 +5,7 @@
   "dependencies": {
     "express": "^4.13.4",
     "socket.io": "^1.4.5",
-    "randomcolor": "^0.4.4"
+    "randomcolor": "^0.4.4",
+    "chance": "^1.0.4"
   }
 }

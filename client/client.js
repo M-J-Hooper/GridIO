@@ -7,6 +7,7 @@ var slide = 0;
 var size = 50;
 var viewX = 0;
 var viewY = 0;
+var fontSize = 16;
 
 var leaderboard = [];
 
@@ -16,10 +17,14 @@ var canvas = document.getElementById("canvas");
 canvas.style.background = 'rgb(200,200,200)'; //set canvas background
 var ctx = canvas.getContext("2d");
 
+var canvasUi = document.getElementById("canvas-ui");
+var ctxUi = canvas.getContext("2d");
+
 
 var Player = function(initPack){
   var self = {};
   self.id = initPack.id;
+  self.name = initPack.name;
   self.score = initPack.score;
   self.color = initPack.color;
 
@@ -43,17 +48,20 @@ var selected = {i:null,j:null};
 socket.on('init',function(data){
   if(data.selfId) { selfId = data.selfId; }
   if(data.slide) { slide = data.slide; }
+
+  for(var i = 0 ; i < data.player.length; i++){
+    new Player(data.player[i]);
+    updateLeaderboard();
+  }
+
   if(data.board) {
     if(!board) {
       w = data.board.length;
       h = data.board[0].length;
     }
     board = data.board;
-  }
 
-  for(var i = 0 ; i < data.player.length; i++){
-    new Player(data.player[i]);
-    updateLeaderboard();
+    getView(false);
   }
 });
 
@@ -110,27 +118,29 @@ document.onmouseup = function(event){
     selected.i = null;
     selected.j = null;
   }
+  console.log(JSON.stringify(Player.list));
 }
 
 //client side update loop for drawing
 setInterval(function(){
-  if(!selfId || !board) return;
-
   width = window.innerWidth;
   height = window.innerHeight;
   ctx.canvas.width  = width;
   ctx.canvas.height = height;
 
+  if(!selfId || !board) return;
+
+
   boardSlide();
-  getView();
+  getView(true);
 
   ctx.clearRect(0,0,width,height);
   drawBoard();
-  drawUI();
+  drawUi();
 },40);
 
 //get info on own pieces for size and view
-function getView() {
+function getView(smooth) {
   var minI, maxI, minJ, maxJ;
   var first = true;
   var count = 0;
@@ -155,21 +165,28 @@ function getView() {
       }
 		}
 	}
-
-  var playerSizeX = (maxI - minI + 1)*size;
-  var playerSizeY = (maxJ - minJ + 1)*size;
-
-  var viewDist = Math.sqrt(count)+2;
-  var viewSmooth = 100;
-
-  var r = Math.min(width/(playerSizeX+viewDist*size*2),height/(playerSizeY+viewDist*size*2));
-  size += size*(r-1)/viewSmooth;
-
-
   avI = avI/count;
   avJ = avJ/count;
-  viewX += (avI*size - viewX)/viewSmooth;
-  viewY += (avJ*size - viewY)/viewSmooth;
+
+  var viewDist = Math.sqrt(count)+2;
+  var playerSizeX = (maxI - minI + 1)*size;
+  var playerSizeY = (maxJ - minJ + 1)*size;
+  var r = Math.min(width/(playerSizeX+viewDist*size*2),height/(playerSizeY+viewDist*size*2));
+
+  if(smooth) {
+    var viewSmooth = 100;
+
+    size += size*(r-1)/viewSmooth;
+
+    viewX += (avI*size - viewX)/viewSmooth;
+    viewY += (avJ*size - viewY)/viewSmooth;
+  }
+  else {
+    size  = size*r;
+
+    viewX = avI*size;
+    viewY = avJ*size;
+  }
 }
 
 //client side sliding
@@ -193,7 +210,7 @@ var drawBoard = function(){
   /*ctx.fillStyle = "rgb(255,255,255)";
   for(var i = 0; i < w; i++) {
     for(var j = 0; j < h; j++) {
-      roundRect(i*size+offsetX,j*size+offsetY,size,size,size*0.25,true,true);
+      roundRect(ctx,i*size+offsetX,j*size+offsetY,size,size,size*0.25,true,true);
     }
   }*/
 
@@ -223,7 +240,7 @@ var drawBoard = function(){
 
         var x = (i+0.1 - board[i][j].prev.dx*board[i][j].prev.count/slide)*size;
         var y = (j+0.1 - board[i][j].prev.dy*board[i][j].prev.count/slide)*size;
-        roundRect(x+offsetX,y+offsetY,size*0.8,size*0.8,size*0.2,true,false);
+        roundRect(ctx,x+offsetX,y+offsetY,size*0.8,size*0.8,size*0.2,true,false);
       }
     }
   }
@@ -236,20 +253,36 @@ var drawBoard = function(){
     var j = selected.j;
     var x = (i+0.2 - board[i][j].prev.dx*board[i][j].prev.count/slide)*size;
     var y = (j+0.2 - board[i][j].prev.dy*board[i][j].prev.count/slide)*size;
-    roundRect(x+offsetX,y+offsetY,size*0.6,size*0.6,size*0.15,true,false);
+    roundRect(ctx,x+offsetX,y+offsetY,size*0.6,size*0.6,size*0.15,true,false);
   }
 }
 
-var drawUI = function(){
+var drawUi = function() {
+  ctxUi.font = fontSize + "px bolder sans-serif";
+
   //draw leaderboard
-  for(var i = 0; i < leaderboard.length; i++) {
-    ctx.fillStyle = Player.list[leaderboard[i][0]].color;
-    ctx.fillText((i+1) + ". ::: " + leaderboard[i][0] + " ::: " + leaderboard[i][1],20,20*(i+1));
+  var leaderLength = leaderboard.length < 10 ? leaderboard.length : 10;
+
+  ctxUi.fillStyle = "rgba(0,0,0,0.5)";
+  roundRect(ctxUi, 10, 10, 200, 30+(fontSize+20)*leaderLength, 20, true, false);
+  ctxUi.fillStyle = "rgb(255,255,255)";
+  roundRect(ctxUi, 20, 20, 180, 10+(fontSize+20)*leaderLength, 10, true, false);
+
+  for(var i = 0; i < leaderLength; i++) {
+    ctxUi.fillStyle = Player.list[leaderboard[i][0]].color;
+    roundRect(ctxUi, 30, 30+i*(fontSize+20), 160, 10+fontSize, 5, true, false);
+
+    ctxUi.fillStyle = "rgb(255,255,255)";
+    ctxUi.textAlign = "left";
+    ctxUi.fillText((i+1) + ".", 35, 35+(i+1)*fontSize+i*20 - 2);
+    ctxUi.fillText(leaderboard[i][1], 55, 35+(i+1)*fontSize+i*20 - 2);
+    ctxUi.textAlign = "right";
+    ctxUi.fillText(leaderboard[i][2], 185, 35+(i+1)*fontSize+i*20 - 2);
   }
 }
 
 //helper to draw rounded rectangle
-function roundRect(x, y, width, height, radius, fill, stroke) {
+function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
   ctx.beginPath();
   ctx.moveTo(x + radius, y);
   ctx.lineTo(x + width - radius, y);
@@ -269,8 +302,8 @@ function roundRect(x, y, width, height, radius, fill, stroke) {
 //reorder leaderboard based on score
 function updateLeaderboard() {
   newBoard = [];
-  for(var i in Player.list) { newBoard.push([i,Player.list[i].score]); }
-  newBoard.sort(function(a,b) { return a[1] - b[1] });
+  for(var i in Player.list) { newBoard.push([i,Player.list[i].name,Player.list[i].score]); }
+  newBoard.sort(function(a,b) { return a[2] - b[2] });
 
   leaderboard = newBoard.reverse();
 }
@@ -285,4 +318,9 @@ function createArray(length) {
     while(i--) arr[length-1 - i] = createArray.apply(this, args);
   }
   return arr;
+}
+
+//helper for converting rgb to rgba
+function makeAlpha(rgb,alpha) {
+  return rgb.replace(')', ', ' + alpha + ')').replace('rgb', 'rgba');
 }

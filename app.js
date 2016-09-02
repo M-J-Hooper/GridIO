@@ -1,7 +1,9 @@
 var express = require('express');
 var app = express();
 var serv = require('http').Server(app);
+
 var rc = require('randomcolor');
+var chance = require('chance').Chance();
 
 app.get('/',function(req, res) {
 	res.sendFile(__dirname + '/client/index.html');
@@ -119,7 +121,9 @@ var Board = function(w,h){
 								if(Math.abs(a) + Math.abs(b) == 1) {
 									if(groups[n+a][m+b] != groupNum) {
 										groupList[groupNum].perimeter++;
-										if(groups[n+a][m+b]) { groupList[groupNum].neighbours.push(self[n+a][m+b].id); }
+										if(groups[n+a][m+b] && self[n+a][m+b].id != 1) {
+											groupList[groupNum].neighbours.push(self[n+a][m+b].id);
+										}
 									}
 								}
 							}
@@ -155,18 +159,15 @@ var Board = function(w,h){
 					if(groups[n][m]) {
 						for(var v in captured) {
 							if(v == groups[n][m]) {
-
 								if(self[n][m].id != 1) {
 									Player.list[self[n][m].id].score--;
 									updatePack.player.push(Player.list[self[n][m].id]);
 								}
 
-								if(captured[v] != 1) {
-									Player.list[captured[v]].score++;
-									updatePack.player.push(Player.list[captured[v]]);
+								Player.list[captured[v]].score++;
+								updatePack.player.push(Player.list[captured[v]]);
 
-									self[n][m].id = captured[v];
-								}
+								self[n][m].id = captured[v];
 							}
 						}
 					}
@@ -235,6 +236,9 @@ function findGroups(board,id,groups,n,m,groupNum) {
 var Player = function(id){
 	var self = {};
 	self.id = id;
+
+	var word = chance.word()
+	self.name = word.charAt(0).toUpperCase() + word.slice(1);
 	self.score = 0;
 	self.color = rc.randomColor({
 		luminosity:"dark",
