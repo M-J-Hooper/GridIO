@@ -56,6 +56,7 @@ var Board = function(w,h){
 		for(var i = -1; i < 2; i++) {
 			for(var j = -1; j < 2; j++) {
 				self[x+i][y+j].id = id;
+				initPack.piece.push({i:x+i,j:y+j,id:id});
 				Player.list[id].score++;
 			}
 		}
@@ -88,9 +89,11 @@ var Board = function(w,h){
 				self[i+n*dx][j+n*dy].prev.count = slide;
 				self[i+n*dx][j+n*dy].prev.dx = dx;
 				self[i+n*dx][j+n*dy].prev.dy = dy;
+				updatePack.piece.push({i:i,j:j,id:self[i+(n-1)*dx][j+(n-1)*dy].id*1,prev:self[i+n*dx][j+n*dy].prev});
 			}
 			self[i][j].id = null; //clear space behind move
 			self[i][j].prev.count = slide;
+			updatePack.piece.push({i:i,j:j,id:null,prev:{count:slide}});
 
 			do {
 				var groups = createArray(w,h);
@@ -172,6 +175,7 @@ var Board = function(w,h){
 									updatePack.player.push(Player.list[captured[v]]);
 
 									self[n][m].id = captured[v];
+									updatePack.piece.push({i:n,j:m,id:captured[v]});
 								}
 							}
 						}
@@ -202,6 +206,8 @@ var Board = function(w,h){
 
 						if(!check) {
 							self[n][m].id = 1;
+							updatePack.piece.push({i:n,j:m,id:1});
+
 							Player.list[currId].score--;
 							updatePack.player.push(Player.list[currId]);
 						}
@@ -250,6 +256,7 @@ var Player = function(id){
 		format:"rgb"
 	});
 
+	//TRY TO SEPERATE PLAYER AND BOARD MORE!!! CONFUSING!!!
 	Player.list[id] = self;
 	initPack.player.push(self);
 
@@ -287,6 +294,7 @@ Player.onConnect = function(socket){
 		selfId:socket.id,
 		slide:slide,
 		player:Player.getAll(),
+		piece:[],
 		board:board
 	});
 }
@@ -298,10 +306,12 @@ Player.onDisconnect = function(socket){
 
 	for(var i = 0; i < w; i++) {
 		for(var j = 0; j < h; j++) {
-			if(board[i][j].id == socket.id) { board[i][j].id = null; } // 1 to kill pieces when disconnected
+			if(board[i][j].id == socket.id) {
+				board[i][j].id = null; //1 to kill pieces when disconnected
+				removePack.piece.push({i:i,j:j});
+			}
 		}
 	}
-	removePack.board = board;
 }
 
 
@@ -319,9 +329,9 @@ io.sockets.on('connection', function(socket){
 });
 
 
-var initPack = {player:[]};
-var removePack = {player:[]};
-var updatePack = {player:[]};
+var initPack = {player:[],piece:[]};
+var removePack = {player:[],piece:[]};
+var updatePack = {player:[],piece:[]};
 
 setInterval(function(){
 	if(!board) return;
@@ -338,9 +348,9 @@ setInterval(function(){
 		socket.emit('update',updatePack);
 		socket.emit('remove',removePack);
 	}
-	initPack = {player:[]};
-	removePack = {player:[]};
-	updatePack = {player:[]};
+	initPack = {player:[],piece:[]};
+	removePack = {player:[],piece:[]};
+	updatePack = {player:[],piece:[]};
 
 },1000/25);
 

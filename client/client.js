@@ -37,6 +37,11 @@ Player.list = {};
 
 var Board = function(w,h){
 	var self = createArray(w,h)
+  for(var n = 0; n < w; n++) {
+		for(var m = 0; m < h; m++) {
+			self[n][m] = {id:null,prev:{count:0,dx:0,dy:0}};
+		}
+	}
 
 	return self;
 }
@@ -55,6 +60,10 @@ socket.on('init',function(data){
     updateLeaderboard();
   }
 
+  for(var n = 0; n < data.piece.length; i++) {
+    board[data.piece[n].i][data.piece[n].j] = {id:data.piece[n].id,prev:{count:0,dx:0,dy:0}};
+  }
+
   if(data.board) {
     if(!board) {
       w = data.board.length;
@@ -67,8 +76,19 @@ socket.on('init',function(data){
 });
 
 socket.on('update',function(data){
-  if(data.board) {
-    board = data.board;
+  if(data.piece.length > 0) {
+    for(var n = 0; n < data.piece.length; i++) {
+      var i = data.piece[n].i;
+      var j = data.piece[n].j;
+      board[i][j].id = data.piece[n].id;
+      if(data.piece[n].prev) {
+        if(data.piece[n].prev.count) { board[i][j].prev.count = data.piece[n].prev.count; }
+        if(data.piece[n].prev.dx) {
+          board[i][j].prev.dx = data.piece[n].prev.dx;
+          board[i][j].prev.dy = data.piece[n].prev.dy;
+        }
+      }
+    }
 
     var max = {i:null,j:null};
     for(var i = 0; i < w; i++) {
@@ -92,14 +112,19 @@ socket.on('update',function(data){
 socket.on('remove',function(data){
   if(data.board) board = data.board;
 
-  for(var i = 0 ; i < data.player.length; i++){
+  for(var i = 0; i < data.player.length; i++) {
     delete Player.list[data.player[i]];
   }
   updateLeaderboard();
+
+  for(var n = 0; n < data.piece.length; i++) {
+    board[data.piece[n].i][data.piece[n].j].id = null;
+  }
 });
 
 //client side update loop for drawing
 setInterval(function(){
+  console.log("lol");
   width = window.innerWidth;
   height = window.innerHeight;
   ctx.canvas.width  = width;
