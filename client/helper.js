@@ -1,4 +1,4 @@
-if(module) {
+if(typeof module != 'undefined') {
   module.exports = function() {
     this.createArray = createArray;
   }
