@@ -95,26 +95,17 @@ var Board = function(w,h){
 			updatePack.piece.push({i:i,j:j,id:null,prev:{count:slide}});
 
 			do {
-				var groups = createArray(w,h);
+				var groups = findGroups(board);
 				var groupList = {};
-				groupNum = 0;
-
-				//get array of grouped pieces
-				for(var n = 0; n < w; n++) {
-					for(var m = 0; m < h; m++) {
-						if(self[n][m].id && !groups[n][m]) {
-							groupNum++;
-							groupList[groupNum] = {id:id,perimeter:0,neighbours:[]};
-							groups = findGroups(self,self[n][m].id,groups,n,m,groupNum);
-						}
-					}
-				}
 
 				//make list of groups with perimeter and neighbours
 				for(var n = 0; n < w; n++) {
 					for(var m = 0; m < h; m++) {
 						if(groups[n][m]) {
 							groupNum = groups[n][m];
+							if(!groupList[groupNum]) {
+								groupList[groupNum] = {id:self[n][m].id,perimeter:0,neighbours:[]};
+							}
 
 							//careful of board edges
 							var maxA = n == w-1 ? 1 : 2;
@@ -220,8 +211,24 @@ var Board = function(w,h){
 }
 var board = new Board(w,h);
 
+function findGroups() {
+	var groups = createArray(w,h);
+	var groupNum = 0;
+
+	//get array of grouped pieces
+	for(var n = 0; n < w; n++) {
+		for(var m = 0; m < h; m++) {
+			if(board[n][m].id && !groups[n][m]) {
+				groupNum++;
+				groups = groupsLoop(board,board[n][m].id,groups,n,m,groupNum);
+			}
+		}
+	}
+	return groups;
+}
+
 //helper function to loop through when calculating groups
-function findGroups(board,id,groups,n,m,groupNum) {
+function groupsLoop(board,id,groups,n,m,groupNum) {
 	groups[n][m] = groupNum;
 
 	//careful of board edges
@@ -234,7 +241,7 @@ function findGroups(board,id,groups,n,m,groupNum) {
 		for(var b = minB; b < maxB; b++) {
 			if(Math.abs(a) + Math.abs(b) == 1) {
 				if(board[n+a][m+b].id == id && !groups[n+a][m+b]) {
-					groups = findGroups(board,id,groups,n+a,m+b,groupNum);
+					groups = groupsLoop(board,id,groups,n+a,m+b,groupNum);
 				}
 			}
 		}
@@ -249,10 +256,7 @@ var Player = function(id){
 	var word = chance.word()
 	self.name = word.charAt(0).toUpperCase() + word.slice(1);
 	self.score = 0;
-	self.color = rc.randomColor({
-		luminosity:"dark",
-		format:"rgb"
-	});
+	self.color = rc.randomColor({luminosity:"dark",format:"rgb"});
 
 	//TRY TO SEPERATE PLAYER AND BOARD MORE!!! CONFUSING!!!
 	Player.list[id] = self;
