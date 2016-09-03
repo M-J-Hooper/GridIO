@@ -95,7 +95,7 @@ var Board = function(w,h){
 			updatePack.piece.push({i:i,j:j,id:null,prev:{count:slide}});
 
 			do {
-				var groups = findGroups(board);
+				var groups = findGroups(self);
 				var groupList = {};
 
 				//make list of groups with perimeter and neighbours
@@ -174,7 +174,33 @@ var Board = function(w,h){
 			} while(Object.getOwnPropertyNames(captured).length != 0);
 
 			//kill isolated pieces (MORE EFFICIENT WAY!!!!!!!)
+			var groups = findGroups(self)
+			var groupCount = {};
 			for(var n = 0; n < w; n++) {
+				for(var m = 0; m < h; m++) {
+					if(groupCount[groups[n][m]]) { groupCount[groups[n][m]]++; }
+					else { groupCount[groups[n][m]] = 1; }
+				}
+			}
+			for(var n = 0; n < w; n++) {
+				for(var m = 0; m < h; m++) {
+					var currId = self[n][m].id;
+					if(groups[n][m] && currId != 1) {
+						for(var v in groupCount) {
+							if(groupCount[v] == 1 && v == groups[n][m]) {
+								self[n][m].id = 1;
+								updatePack.piece.push({i:n,j:m,id:1});
+
+								Player.list[currId].score--;
+								updatePack.player.push(Player.list[currId].getUpdatePack());
+							}
+						}
+					}
+				}
+			}
+
+			//old method for cell killing...
+			/*for(var n = 0; n < w; n++) {
 				for(var m = 0; m < h; m++) {
 					var currId = self[n][m].id;
 
@@ -203,7 +229,7 @@ var Board = function(w,h){
 						}
 					}
 				}
-			}
+			}*/
 		}
 		return ok;
 	}
