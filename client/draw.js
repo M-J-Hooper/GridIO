@@ -1,6 +1,6 @@
 var fontSize = 16;
 
-function drawBoard(ctx,width,height,size,viewX,viewY,game) {
+function drawBoard(ctx,width,height,size,viewX,viewY,game,selected) {
   var offsetX = width/2 - viewX;
   var offsetY = height/2 - viewY;
 
@@ -18,7 +18,7 @@ function drawBoard(ctx,width,height,size,viewX,viewY,game) {
 
   //more efficient board style
   ctx.fillStyle = "rgb(255,255,255)";
-  ctx.fillRect(offsetX,offsetY,size*w,size*h);
+  ctx.fillRect(offsetX,offsetY,size*game.w,size*game.h);
   for(var i = 1; i < game.w; i++) {
     ctx.beginPath();
     ctx.moveTo(i*size+offsetX,offsetY);
@@ -40,8 +40,8 @@ function drawBoard(ctx,width,height,size,viewX,viewY,game) {
         if(game.board[i][j].id == 1) { ctx.fillStyle = "rgba(0,0,0,0.8)"; }
         else { ctx.fillStyle = game.playerList[game.board[i][j].id].color; }
 
-        var x = (i+0.1 - game.board[i][j].prev.dx*game.board[i][j].prev.count/slide)*size;
-        var y = (j+0.1 - game.board[i][j].prev.dy*game.board[i][j].prev.count/slide)*size;
+        var x = (i+0.1 - game.board[i][j].prev.dx*game.board[i][j].prev.count/game.slide)*size;
+        var y = (j+0.1 - game.board[i][j].prev.dy*game.board[i][j].prev.count/game.slide)*size;
         roundRect(ctx,x+offsetX,y+offsetY,size*0.8,size*0.8,size*0.2,true,false);
       }
     }
@@ -53,8 +53,8 @@ function drawBoard(ctx,width,height,size,viewX,viewY,game) {
 
     var i = selected.i;
     var j = selected.j;
-    var x = (i+0.2 - game.board[i][j].prev.dx*game.board[i][j].prev.count/slide)*size;
-    var y = (j+0.2 - game.board[i][j].prev.dy*game.board[i][j].prev.count/slide)*size;
+    var x = (i+0.2 - game.board[i][j].prev.dx*game.board[i][j].prev.count/game.slide)*size;
+    var y = (j+0.2 - game.board[i][j].prev.dy*game.board[i][j].prev.count/game.slide)*size;
     roundRect(ctx,x+offsetX,y+offsetY,size*0.6,size*0.6,size*0.15,true,false);
   }
 }

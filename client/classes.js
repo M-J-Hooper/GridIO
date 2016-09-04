@@ -44,7 +44,7 @@ var Game = function(w,h,slide) {
 			if(!check) { ok = true; }
       else {
   			tries++;
-  			if(tries > 100) { console.log("No room!"); return; }
+  			if(tries > 100) { console.log("No room!"); break; }
       }
 		}
 
@@ -256,7 +256,7 @@ function findGroups(game) {
 
 	//get array of grouped pieces
 	for(var n = 0; n < game.w; n++) {
-		for(var m = 0; m < board.h; m++) {
+		for(var m = 0; m < game.h; m++) {
 			if(game.board[n][m].id && !groups[n][m]) {
 				groupNum++;
 				groups = groupsLoop(game,game.board[n][m].id,groups,n,m,groupNum);

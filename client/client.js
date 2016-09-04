@@ -1,7 +1,5 @@
 var width = 0;
 var height = 0;
-var w = 0;
-var h = 0;
 var slide = 0;
 
 var size = 50;
@@ -58,8 +56,8 @@ socket.on('update',function(data){
 
     //decide where the selected piece has moved when the board updates
     var max = {i:null,j:null};
-    for(var i = 0; i < w; i++) {
-  		for(var j = 0; j < h; j++) {
+    for(var i = 0; i < game.w; i++) {
+  		for(var j = 0; j < game.h; j++) {
         if(game.board[i][j].id) {
           if(i-game.board[i][j].prev.dx == selected.i && j-game.board[i][j].prev.dy == selected.j) {
              if(!max.i || game.board[i][j].prev.count > game.board[max.i][max.j].prev.count) { max.i = i; max.j = j; }
@@ -101,7 +99,7 @@ setInterval(function(){
   getView(true);
 
   ctx.clearRect(0,0,width,height);
-  drawBoard(ctx,width,height,size,viewX,viewY,game);
+  drawBoard(ctx,width,height,size,viewX,viewY,game,selected);
   drawUi(ctx,width,height,game,leaderboard,rank,selfId);
 },40);
 
@@ -115,8 +113,8 @@ function getView(smooth) {
   var avI = 0;
   var avJ = 0;
 
-  for(var i = 0; i < w; i++) {
-		for(var j = 0; j < h; j++) {
+  for(var i = 0; i < game.w; i++) {
+		for(var j = 0; j < game.h; j++) {
       if(game.board[i][j].id == selfId) {
         if(first) { minI = i; maxI = i; minJ = j; maxJ = j; first = false; }
         else {
@@ -195,12 +193,12 @@ document.onmouseup = function(event){
   var j = Math.floor((event.clientY-offsetY)/size);
 
   selectPiece(i,j);
-  console.log(JSON.stringify(game));
+  console.log(JSON.stringify(selected));
 }
 
 //attempt to set selected piece to certain index
 function selectPiece(i,j) {
-  if(i>=0 && i<w && j>=0 && j<h && board[i][j].id == selfId) {
+  if(i>=0 && i<game.w && j>=0 && j<game.h && game.board[i][j].id == selfId) {
     selected.i = i;
     selected.j = j;
   }

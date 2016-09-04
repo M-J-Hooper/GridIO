@@ -21,7 +21,7 @@ var gameList = {};
 
 //game settings
 var slide = 5;
-var w = 20;
+var w = 12;
 var h = w;
 var game = Game(w,h,slide);
 gameList[game.id] = game; //use when there are multiple games
