@@ -1,6 +1,7 @@
 if(typeof module != 'undefined') {
   module.exports = function() {
     this.createArray = createArray;
+    this.boardSlide = boardSlide;
   }
 }
 
@@ -13,4 +14,13 @@ function createArray(length) {
     while(i--) arr[length-1 - i] = createArray.apply(this, args);
   }
   return arr;
+}
+
+function boardSlide(game) {
+  for(var i = 0; i < game.w; i++) {
+		for(var j = 0; j < game.h; j++) {
+			if(game.board[i][j].prev.count > 0) { game.board[i][j].prev.count--; }
+    }
+  }
+  return game;
 }

@@ -1,4 +1,6 @@
-function drawBoard(ctx,width,height,size,viewX,viewY,list,board) {
+var fontSize = 16;
+
+function drawBoard(ctx,width,height,size,viewX,viewY,game) {
   var offsetX = width/2 - viewX;
   var offsetY = height/2 - viewY;
 
@@ -6,7 +8,7 @@ function drawBoard(ctx,width,height,size,viewX,viewY,list,board) {
   ctx.strokeStyle = "rgb(200,200,200)";
 
   //draw board design
-  //rounded edges on tiles (slow round rect function)
+  //rounded edges on tiles (slow due to round rect function)
   /*ctx.fillStyle = "rgb(255,255,255)";
   for(var i = 0; i < w; i++) {
     for(var j = 0; j < h; j++) {
@@ -17,29 +19,29 @@ function drawBoard(ctx,width,height,size,viewX,viewY,list,board) {
   //more efficient board style
   ctx.fillStyle = "rgb(255,255,255)";
   ctx.fillRect(offsetX,offsetY,size*w,size*h);
-  for(var i = 1; i < w; i++) {
+  for(var i = 1; i < game.w; i++) {
     ctx.beginPath();
     ctx.moveTo(i*size+offsetX,offsetY);
-    ctx.lineTo(i*size+offsetX,(w+1)*size+offsetY);
+    ctx.lineTo(i*size+offsetX,(game.w+1)*size+offsetY);
     ctx.stroke();
   }
-  for(var j = 1; j < h; j++) {
+  for(var j = 1; j < game.h; j++) {
     ctx.beginPath();
     ctx.moveTo(offsetX,j*size+offsetY);
-    ctx.lineTo((h+1)*size+offsetX,j*size+offsetY);
+    ctx.lineTo((game.h+1)*size+offsetX,j*size+offsetY);
     ctx.stroke();
   }
 
 
   //draw pieces
-  for(var i = 0; i < w; i++) {
-    for(var j = 0; j < h; j++) {
-      if(board[i][j].id) {
-        if(board[i][j].id == 1) { ctx.fillStyle = "rgba(0,0,0,0.8)"; }
-        else { ctx.fillStyle = Player.list[board[i][j].id].color; }
+  for(var i = 0; i < game.w; i++) {
+    for(var j = 0; j < game.h; j++) {
+      if(game.board[i][j].id) {
+        if(game.board[i][j].id == 1) { ctx.fillStyle = "rgba(0,0,0,0.8)"; }
+        else { ctx.fillStyle = game.playerList[game.board[i][j].id].color; }
 
-        var x = (i+0.1 - board[i][j].prev.dx*board[i][j].prev.count/slide)*size;
-        var y = (j+0.1 - board[i][j].prev.dy*board[i][j].prev.count/slide)*size;
+        var x = (i+0.1 - game.board[i][j].prev.dx*game.board[i][j].prev.count/slide)*size;
+        var y = (j+0.1 - game.board[i][j].prev.dy*game.board[i][j].prev.count/slide)*size;
         roundRect(ctx,x+offsetX,y+offsetY,size*0.8,size*0.8,size*0.2,true,false);
       }
     }
@@ -51,13 +53,16 @@ function drawBoard(ctx,width,height,size,viewX,viewY,list,board) {
 
     var i = selected.i;
     var j = selected.j;
-    var x = (i+0.2 - board[i][j].prev.dx*board[i][j].prev.count/slide)*size;
-    var y = (j+0.2 - board[i][j].prev.dy*board[i][j].prev.count/slide)*size;
+    var x = (i+0.2 - game.board[i][j].prev.dx*game.board[i][j].prev.count/slide)*size;
+    var y = (j+0.2 - game.board[i][j].prev.dy*game.board[i][j].prev.count/slide)*size;
     roundRect(ctx,x+offsetX,y+offsetY,size*0.6,size*0.6,size*0.15,true,false);
   }
 }
 
-function drawUi(ctxUi,width,height,size,viewX,viewY,list,board,fontSize,leaderboard,rank,selfId) {
+
+
+
+function drawUi(ctxUi,width,height,game,leaderboard,rank,selfId) {
   ctxUi.font = fontSize + "px bolder sans-serif";
 
   //draw leaderboard
@@ -71,7 +76,7 @@ function drawUi(ctxUi,width,height,size,viewX,viewY,list,board,fontSize,leaderbo
 
   //draw each player in top 10 with text
   for(var i = 0; i < leaderLength; i++) {
-    ctxUi.fillStyle = Player.list[leaderboard[i].id].color;
+    ctxUi.fillStyle = game.playerList[leaderboard[i].id].color;
     roundRect(ctxUi, 30, 30+i*(fontSize+20), 160, 10+fontSize, (10+fontSize)*0.2, true, false);
 
     ctxUi.fillStyle = "rgb(255,255,255)";
@@ -87,14 +92,14 @@ function drawUi(ctxUi,width,height,size,viewX,viewY,list,board,fontSize,leaderbo
   roundRect(ctxUi, 10, height - (fontSize+60), 300, 50+fontSize, 20, true, false);
   ctxUi.fillStyle = "rgb(255,255,255)";
   roundRect(ctxUi, 20, height - (fontSize+50), 280, 30+fontSize, 10, true, false);
-  ctxUi.fillStyle = Player.list[selfId].color;
+  ctxUi.fillStyle = game.playerList[selfId].color;
   roundRect(ctxUi, 30, height - (fontSize+40), 260, 10+fontSize, (10+fontSize)*0.2, true, false);
 
   ctxUi.fillStyle = "rgb(255,255,255)";
   ctxUi.textAlign = "left";
-  ctxUi.fillText(Player.list[selfId].name, 35, height - 35 - 2);
+  ctxUi.fillText(game.playerList[selfId].name, 35, height - 35 - 2);
   ctxUi.textAlign = "center";
-  ctxUi.fillText("Score: " + Player.list[selfId].score, 150, height - 35 - 2);
+  ctxUi.fillText("Score: " + game.playerList[selfId].score, 150, height - 35 - 2);
   ctxUi.textAlign = "right";
   ctxUi.fillText("Rank: " + rank + "/" + leaderboard.length, 285, height - 35 - 2);
 }

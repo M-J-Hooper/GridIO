@@ -7,7 +7,6 @@ var slide = 0;
 var size = 50;
 var viewX = 0;
 var viewY = 0;
-var fontSize = 16;
 
 var leaderboard = [];
 var rank = 0;
@@ -21,46 +20,26 @@ var ctx = canvas.getContext("2d");
 var canvasUi = document.getElementById("canvas-ui");
 var ctxUi = canvas.getContext("2d");
 
-
-var Player = function(initPack){
-  var self = {};
-  self.id = initPack.id;
-  self.name = initPack.name;
-  self.score = initPack.score;
-  self.color = initPack.color;
-
-  Player.list[self.id] = self;
-
-  return self;
-}
-Player.list = {};
-
-var board = null;
+var game = null;
 var selfId = null;
 var selected = {i:null,j:null};
 
 
 socket.on('init',function(data){
   if(data.selfId) { selfId = data.selfId; }
-  if(data.slide) { slide = data.slide; }
+
+  if(data.game) {
+    game = data.game;
+    getView(false);
+  }
 
   for(var i = 0 ; i < data.player.length; i++){
-    new Player(data.player[i]);
-    updateLeaderboard();
+    game.playerList[data.player[i].id] = data.player[i];
   }
+  if(data.player.length) { updateLeaderboard(); }
 
   for(var n = 0; n < data.piece.length; n++) {
-    board[data.piece[n].i][data.piece[n].j] = {id:data.piece[n].id,prev:{count:0,dx:0,dy:0}};
-  }
-
-  if(data.board) {
-    if(!board) {
-      w = data.board.length;
-      h = data.board[0].length;
-    }
-    board = data.board;
-
-    getView(false);
+    game.board[data.piece[n].i][data.piece[n].j] = {id:data.piece[n].id,prev:{count:0,dx:0,dy:0}};
   }
 });
 
@@ -69,11 +48,11 @@ socket.on('update',function(data){
     for(var n = 0; n < data.piece.length; n++) {
       var i = data.piece[n].i;
       var j = data.piece[n].j;
-      board[i][j].id = data.piece[n].id;
+      game.board[i][j].id = data.piece[n].id;
       if(data.piece[n].prev) {
-        if(data.piece[n].prev.count) { board[i][j].prev.count = data.piece[n].prev.count; }
-        if(data.piece[n].prev.dx != null) { board[i][j].prev.dx = data.piece[n].prev.dx; }
-        if(data.piece[n].prev.dy != null) { board[i][j].prev.dy = data.piece[n].prev.dy; }
+        if(data.piece[n].prev.count) { game.board[i][j].prev.count = data.piece[n].prev.count; }
+        if(data.piece[n].prev.dx != null) { game.board[i][j].prev.dx = data.piece[n].prev.dx; }
+        if(data.piece[n].prev.dy != null) { game.board[i][j].prev.dy = data.piece[n].prev.dy; }
       }
     }
 
@@ -81,31 +60,30 @@ socket.on('update',function(data){
     var max = {i:null,j:null};
     for(var i = 0; i < w; i++) {
   		for(var j = 0; j < h; j++) {
-        if(board[i][j].id) {
-          if(i-board[i][j].prev.dx == selected.i && j-board[i][j].prev.dy == selected.j) {
-             if(!max.i || board[i][j].prev.count > board[max.i][max.j].prev.count) { max.i = i; max.j = j; }
+        if(game.board[i][j].id) {
+          if(i-game.board[i][j].prev.dx == selected.i && j-game.board[i][j].prev.dy == selected.j) {
+             if(!max.i || game.board[i][j].prev.count > game.board[max.i][max.j].prev.count) { max.i = i; max.j = j; }
           }
         }
       }
     }
     if(max.i) { selectPiece(max.i,max.j); }
   }
+
   for(var i = 0 ; i < data.player.length; i++){
-    Player.list[data.player[i].id].score = data.player[i].score;
+    game.playerList[data.player[i].id].score = data.player[i].score;
   }
   if(data.player.length) { updateLeaderboard(); }
 });
 
-socket.on('remove',function(data){
-  if(data.board) board = data.board;
-
+socket.on('remove',function(data) {
   for(var i = 0; i < data.player.length; i++) {
-    delete Player.list[data.player[i]];
+    delete game.playerList[data.player[i]];
   }
   updateLeaderboard();
 
   for(var n = 0; n < data.piece.length; n++) {
-    board[data.piece[n].i][data.piece[n].j].id = null;
+    game.board[data.piece[n].i][data.piece[n].j].id = null;
   }
 });
 
@@ -116,25 +94,17 @@ setInterval(function(){
   ctx.canvas.width  = width;
   ctx.canvas.height = height;
 
-  if(!selfId || !board) return;
+  if(!selfId || !game) return;
 
 
-  boardSlide();
+  game = boardSlide(game);
   getView(true);
 
   ctx.clearRect(0,0,width,height);
-  drawBoard(ctx,width,height,size,viewX,viewY,Player.list,board);
-  drawUi(ctx,width,height,size,viewX,viewY,Player.list,board,fontSize,leaderboard,rank,selfId);
+  drawBoard(ctx,width,height,size,viewX,viewY,game);
+  drawUi(ctx,width,height,game,leaderboard,rank,selfId);
 },40);
 
-//client side sliding
-function boardSlide() {
-  for(var i = 0; i < w; i++) {
-		for(var j = 0; j < h; j++) {
-			if(board[i][j].prev.count > 0) { board[i][j].prev.count--; }
-    }
-  }
-}
 
 //get info on own pieces for size and view
 function getView(smooth) {
@@ -147,7 +117,7 @@ function getView(smooth) {
 
   for(var i = 0; i < w; i++) {
 		for(var j = 0; j < h; j++) {
-      if(board[i][j].id == selfId) {
+      if(game.board[i][j].id == selfId) {
         if(first) { minI = i; maxI = i; minJ = j; maxJ = j; first = false; }
         else {
           if(i < minI) { minI = i; }
@@ -189,7 +159,7 @@ function getView(smooth) {
 //reorder leaderboard based on score
 function updateLeaderboard() {
   newBoard = [];
-  for(var i in Player.list) { newBoard.push({id:i,name:Player.list[i].name,score:Player.list[i].score,rank:0}); }
+  for(var i in game.playerList) { newBoard.push({id:i,name:game.playerList[i].name,score:game.playerList[i].score,rank:0}); }
   newBoard.sort(function(a,b) { return a.score - b.score });
   leaderboard = newBoard.reverse();
 
@@ -225,7 +195,7 @@ document.onmouseup = function(event){
   var j = Math.floor((event.clientY-offsetY)/size);
 
   selectPiece(i,j);
-  //console.log(JSON.stringify());
+  console.log(JSON.stringify(game));
 }
 
 //attempt to set selected piece to certain index
