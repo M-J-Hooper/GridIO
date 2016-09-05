@@ -21,7 +21,7 @@ var gameList = {};
 
 //game settings
 var slide = 5;
-var w = 12;
+var w = 20;
 var h = w;
 var game = Game(w,h,slide);
 gameList[game.id] = game; //use when there are multiple games
@@ -30,10 +30,10 @@ onConnect = function(socket){
 	var name = chance.word()
 	var color = rc.randomColor({luminosity:"dark",format:"rgb"});
 	var player = Player(socket.id, name.charAt(0).toUpperCase() + name.slice(1), color);
-	initPack.player.push(player);
+	initPack.players.push(player);
 
-	var piece = game.addPlayer(player);
-	for(var n = 0; n < piece.length; n++) { initPack.piece.push(piece[n]); }
+	var pieces = game.addPlayer(player);
+	for(var n = 0; n < pieces.length; n++) { initPack.pieces.push(pieces[n]); }
 
 	console.log(socket.id+" connected.")
 
@@ -45,25 +45,25 @@ onConnect = function(socket){
 			else if(data.inputId == 'up'){ pack = game.makeMove(socket.id,data.selected.i,data.selected.j,0,-1); }
 			else if(data.inputId == 'down'){ pack = game.makeMove(socket.id,data.selected.i,data.selected.j,0,1); }
 
-			for(var n = 0; n < pack.player.length; n++) { updatePack.player.push(pack.player[n]); }
-			for(var n = 0; n < pack.piece.length; n++) { updatePack.piece.push(pack.piece[n]); }
+			for(var n = 0; n < pack.players.length; n++) { updatePack.players.push(pack.players[n]); }
+			for(var n = 0; n < pack.pieces.length; n++) { updatePack.pieces.push(pack.pieces[n]); }
 		}
 	});
 
 	//get all info on connect
 	socket.emit('init',{
 		selfId:socket.id,
-		player:[],
-		piece:[],
+		players:[],
+		pieces:[],
 		game:game
 	});
 }
 
 onDisconnect = function(socket){
-	removePack.player.push(socket.id);
+	removePack.players.push(socket.id);
 
-	var piece = game.removePlayer(socket.id);
-	for(var n = 0; n < piece.length; n++) { removePack.piece.push(piece[n]); }
+	var pieces = game.removePlayer(socket.id);
+	for(var n = 0; n < pieces.length; n++) { removePack.pieces.push(pieces[n]); }
 
 	console.log(socket.id+" disconnected.")
 }
@@ -83,9 +83,9 @@ io.sockets.on('connection', function(socket){
 });
 
 
-var initPack = {player:[],piece:[]};
-var removePack = {player:[],piece:[]};
-var updatePack = {player:[],piece:[]};
+var initPack = {players:[],pieces:[]};
+var removePack = {players:[],pieces:[]};
+var updatePack = {players:[],pieces:[]};
 
 setInterval(function(){
 	if(!game) return;
@@ -98,9 +98,9 @@ setInterval(function(){
 		socket.emit('update',updatePack);
 		socket.emit('remove',removePack);
 	}
-	initPack = {player:[],piece:[]};
-	removePack = {player:[],piece:[]};
-	updatePack = {player:[],piece:[]};
+	initPack = {players:[],pieces:[]};
+	removePack = {players:[],pieces:[]};
+	updatePack = {players:[],pieces:[]};
 
 },1000/25);
 

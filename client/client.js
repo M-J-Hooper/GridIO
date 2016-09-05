@@ -31,26 +31,26 @@ socket.on('init',function(data){
     getView(false);
   }
 
-  for(var i = 0 ; i < data.player.length; i++){
-    game.playerList[data.player[i].id] = data.player[i];
+  for(var i = 0 ; i < data.players.length; i++){
+    game.playerList[data.players[i].id] = data.players[i];
   }
-  if(data.player.length) { updateLeaderboard(); }
+  if(data.players.length) { updateLeaderboard(); }
 
-  for(var n = 0; n < data.piece.length; n++) {
-    game.board[data.piece[n].i][data.piece[n].j] = {id:data.piece[n].id,prev:{count:0,dx:0,dy:0}};
+  for(var n = 0; n < data.pieces.length; n++) {
+    game.board[data.pieces[n].i][data.pieces[n].j] = {id:data.pieces[n].id,prev:{count:0,dx:0,dy:0}};
   }
 });
 
 socket.on('update',function(data){
-  if(data.piece.length) {
-    for(var n = 0; n < data.piece.length; n++) {
-      var i = data.piece[n].i;
-      var j = data.piece[n].j;
-      game.board[i][j].id = data.piece[n].id;
-      if(data.piece[n].prev) {
-        if(data.piece[n].prev.count) { game.board[i][j].prev.count = data.piece[n].prev.count; }
-        if(data.piece[n].prev.dx != null) { game.board[i][j].prev.dx = data.piece[n].prev.dx; }
-        if(data.piece[n].prev.dy != null) { game.board[i][j].prev.dy = data.piece[n].prev.dy; }
+  if(data.pieces.length) {
+    for(var n = 0; n < data.pieces.length; n++) {
+      var i = data.pieces[n].i;
+      var j = data.pieces[n].j;
+      game.board[i][j].id = data.pieces[n].id;
+      if(data.pieces[n].prev) {
+        if(data.pieces[n].prev.count) { game.board[i][j].prev.count = data.pieces[n].prev.count; }
+        if(data.pieces[n].prev.dx != null) { game.board[i][j].prev.dx = data.pieces[n].prev.dx; }
+        if(data.pieces[n].prev.dy != null) { game.board[i][j].prev.dy = data.pieces[n].prev.dy; }
       }
     }
 
@@ -68,20 +68,20 @@ socket.on('update',function(data){
     if(max.i) { selectPiece(max.i,max.j); }
   }
 
-  for(var i = 0 ; i < data.player.length; i++){
-    game.playerList[data.player[i].id].score = data.player[i].score;
+  for(var i = 0 ; i < data.players.length; i++){
+    game.playerList[data.players[i].id].score = data.players[i].score;
   }
-  if(data.player.length) { updateLeaderboard(); }
+  if(data.players.length) { updateLeaderboard(); }
 });
 
 socket.on('remove',function(data) {
-  for(var i = 0; i < data.player.length; i++) {
-    delete game.playerList[data.player[i]];
+  for(var i = 0; i < data.players.length; i++) {
+    delete game.playerList[data.players[i]];
   }
   updateLeaderboard();
 
-  for(var n = 0; n < data.piece.length; n++) {
-    game.board[data.piece[n].i][data.piece[n].j].id = null;
+  for(var n = 0; n < data.pieces.length; n++) {
+    game.board[data.pieces[n].i][data.pieces[n].j].id = null;
   }
 });
 
@@ -140,15 +140,12 @@ function getView(smooth) {
 
   if(smooth) {
     var viewSmooth = 100;
-
     size += size*(r-1)/viewSmooth;
-
     viewX += (avI*size - viewX)/viewSmooth;
     viewY += (avJ*size - viewY)/viewSmooth;
   }
   else {
     size  = size*r;
-
     viewX = avI*size;
     viewY = avJ*size;
   }
@@ -169,6 +166,18 @@ function updateLeaderboard() {
     leaderboard[i].rank = prevRank;
 
     if(leaderboard[i].id == selfId) { rank = prevRank; }
+  }
+}
+
+//attempt to set selected piece to certain index
+function selectPiece(i,j) {
+  if(i>=0 && i<game.w && j>=0 && j<game.h && game.board[i][j].id == selfId) {
+    selected.i = i;
+    selected.j = j;
+  }
+  else {
+    selected.i = null;
+    selected.j = null;
   }
 }
 
@@ -194,16 +203,4 @@ document.onmouseup = function(event){
 
   selectPiece(i,j);
   console.log(JSON.stringify(selected));
-}
-
-//attempt to set selected piece to certain index
-function selectPiece(i,j) {
-  if(i>=0 && i<game.w && j>=0 && j<game.h && game.board[i][j].id == selfId) {
-    selected.i = i;
-    selected.j = j;
-  }
-  else {
-    selected.i = null;
-    selected.j = null;
-  }
 }

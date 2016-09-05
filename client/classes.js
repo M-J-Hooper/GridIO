@@ -28,7 +28,7 @@ var Game = function(w,h,slide) {
 		var m = 0;
 		var scoreDiff = 0;
 		var tries = 0;
-    var piece = [];
+    var pieces = [];
 
 		//find a space for the pieces to spawn
 		while(!ok) {
@@ -52,15 +52,15 @@ var Game = function(w,h,slide) {
 		for(var i = -1; i < 2; i++) {
 			for(var j = -1; j < 2; j++) {
 				self.board[n+i][m+j].id = player.id;
-				piece.push({i:n+i,j:m+j,id:player.id});
+				pieces.push({i:n+i,j:m+j,id:player.id});
 				self.playerList[player.id].score++;
 			}
 		}
-    return piece;
+    return pieces;
 	}
 
   self.removePlayer = function(id) {
-    var piece = [];
+    var pieces = [];
 
     delete self.playerList[id];
 
@@ -68,11 +68,11 @@ var Game = function(w,h,slide) {
   		for(var j = 0; j < self.h; j++) {
   			if(self.board[i][j].id == id) {
   				self.board[i][j].id = null; //1 to kill pieces when disconnected
-  				piece.push({i:i,j:j});
+  				pieces.push({i:i,j:j});
   			}
   		}
   	}
-    return piece;
+    return pieces;
   }
 
 	self.makeMove = function(id,i,j,dx,dy) {
@@ -80,7 +80,7 @@ var Game = function(w,h,slide) {
 		var otherCount = 0;
 		var ok = true;
 		var take = false;
-    var updatePack = {player:[],piece:[]};
+    var pack = {players:[],pieces:[]};
 
 		//how many pieces ahead of move and can they be moved
 		for(var n = 0; n < self.w + self.h; n++) {
@@ -102,11 +102,11 @@ var Game = function(w,h,slide) {
 				self.board[i+n*dx][j+n*dy].id = self.board[i+(n-1)*dx][j+(n-1)*dy].id; //update board
 				var prev = {count:slide,dx:dx,dy:dy};
 				self.board[i+n*dx][j+n*dy].prev = prev;
-				updatePack.piece.push({i:i+n*dx,j:j+n*dy,id:self.board[i+(n-1)*dx][j+(n-1)*dy].id,prev:prev});
+				pack.pieces.push({i:i+n*dx,j:j+n*dy,id:self.board[i+(n-1)*dx][j+(n-1)*dy].id,prev:prev});
 			}
 			self.board[i][j].id = null; //clear space behind move
 			self.board[i][j].prev.count = slide;
-			updatePack.piece.push({i:i,j:j,id:null,prev:{count:slide}});
+			pack.pieces.push({i:i,j:j,id:null,prev:{count:slide}});
 
 			do {
 				var groups = findGroups(self);
@@ -172,14 +172,14 @@ var Game = function(w,h,slide) {
 								if(v == groups[n][m]) {
 									if(self.board[n][m].id != 1) {
 										self.playerList[self.board[n][m].id].score--;
-										updatePack.player.push(self.playerList[self.board[n][m].id].getUpdatePack());
+										pack.players.push(self.playerList[self.board[n][m].id].getUpdatePack());
 									}
 
 									self.playerList[captured[v]].score++;
-									updatePack.player.push(self.playerList[captured[v]].getUpdatePack());
+									pack.players.push(self.playerList[captured[v]].getUpdatePack());
 
 									self.board[n][m].id = captured[v];
-									updatePack.piece.push({i:n,j:m,id:captured[v]});
+									pack.pieces.push({i:n,j:m,id:captured[v]});
 								}
 							}
 						}
@@ -203,10 +203,10 @@ var Game = function(w,h,slide) {
 						for(var v in groupCount) {
 							if(groupCount[v] == 1 && v == groups[n][m]) {
 								self.board[n][m].id = 1;
-								updatePack.piece.push({i:n,j:m,id:1});
+								pack.pieces.push({i:n,j:m,id:1});
 
 								self.playerList[currId].score--;
-								updatePack.player.push(self.playerList[currId].getUpdatePack());
+								pack.players.push(self.playerList[currId].getUpdatePack());
 							}
 						}
 					}
@@ -236,56 +236,18 @@ var Game = function(w,h,slide) {
 
 						if(!check) {
 							self.board[n][m].id = 1;
-							updatePack.piece.push({i:n,j:m,id:1});
+							pack.pieces.push({i:n,j:m,id:1});
 
 							self.playerList[currId].score--;
-							updatePack.player.push(self.playerList[currId].getUpdatePack());
+							pack.players.push(self.playerList[currId].getUpdatePack());
 						}
 					}
 				}
 			}*/
 		}
-		return updatePack;
+		return pack;
 	}
 	return self;
-}
-
-function findGroups(game) {
-	var groups = createArray(game.w,game.h);
-	var groupNum = 0;
-
-	//get array of grouped pieces
-	for(var n = 0; n < game.w; n++) {
-		for(var m = 0; m < game.h; m++) {
-			if(game.board[n][m].id && !groups[n][m]) {
-				groupNum++;
-				groups = groupsLoop(game,game.board[n][m].id,groups,n,m,groupNum);
-			}
-		}
-	}
-	return groups;
-}
-
-//helper function to loop through when calculating groups
-function groupsLoop(game,id,groups,n,m,groupNum) {
-	groups[n][m] = groupNum;
-
-	//careful of board edges
-	var maxA = n == game.w-1 ? 1 : 2;
-	var minA = n == 0 ? 0 : -1;
-	var maxB = m == game.h-1 ? 1 : 2;
-	var minB = m == 0 ? 0 : -1;
-
-	for(var a = minA; a < maxA; a++) {
-		for(var b = minB; b < maxB; b++) {
-			if(Math.abs(a) + Math.abs(b) == 1) {
-				if(game.board[n+a][m+b].id == id && !groups[n+a][m+b]) {
-					groups = groupsLoop(game,id,groups,n+a,m+b,groupNum);
-				}
-			}
-		}
-	}
-	return groups;
 }
 
 var Player = function(id,name,color){

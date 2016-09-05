@@ -2,6 +2,7 @@ if(typeof module != 'undefined') {
   module.exports = function() {
     this.createArray = createArray;
     this.boardSlide = boardSlide;
+    this.findGroups = findGroups;
   }
 }
 
@@ -23,4 +24,42 @@ function boardSlide(game) {
     }
   }
   return game;
+}
+
+function findGroups(game) {
+	var groups = createArray(game.w,game.h);
+	var groupNum = 0;
+
+	//get array of grouped pieces
+	for(var n = 0; n < game.w; n++) {
+		for(var m = 0; m < game.h; m++) {
+			if(game.board[n][m].id && !groups[n][m]) {
+				groupNum++;
+				groups = groupsLoop(game,game.board[n][m].id,groups,n,m,groupNum);
+			}
+		}
+	}
+	return groups;
+}
+
+//helper function to loop through when calculating groups
+function groupsLoop(game,id,groups,n,m,groupNum) {
+	groups[n][m] = groupNum;
+
+	//careful of board edges
+	var maxA = n == game.w-1 ? 1 : 2;
+	var minA = n == 0 ? 0 : -1;
+	var maxB = m == game.h-1 ? 1 : 2;
+	var minB = m == 0 ? 0 : -1;
+
+	for(var a = minA; a < maxA; a++) {
+		for(var b = minB; b < maxB; b++) {
+			if(Math.abs(a) + Math.abs(b) == 1) {
+				if(game.board[n+a][m+b].id == id && !groups[n+a][m+b]) {
+					groups = groupsLoop(game,id,groups,n+a,m+b,groupNum);
+				}
+			}
+		}
+	}
+	return groups;
 }
