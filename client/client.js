@@ -21,12 +21,12 @@ socket.on('init',function(data){
   if(data.selfId) { selfId = data.selfId; }
 
   if(data.game) {
-    game = data.game;
+    game = new Game({copy:data.game});
     view = getView(game,selfId,view,false);
   }
 
   for(var i = 0 ; i < data.players.length; i++){
-    game.playerList[data.players[i].id] = data.players[i];
+    game.playerList[data.players[i].id] = new Player({copy:data.players[i]});
   }
   if(data.players.length) { updateLeaderboard(); }
 
@@ -36,16 +36,9 @@ socket.on('init',function(data){
 });
 
 socket.on('update',function(data){
-  if(data.pieces.length) {
-    for(var n = 0; n < data.pieces.length; n++) {
-      var i = data.pieces[n].i;
-      var j = data.pieces[n].j;
-      game.board[i][j].id = data.pieces[n].id;
-      if(data.pieces[n].prev) {
-        if(data.pieces[n].prev.count) { game.board[i][j].prev.count = data.pieces[n].prev.count; }
-        if(data.pieces[n].prev.dx != null) { game.board[i][j].prev.dx = data.pieces[n].prev.dx; }
-        if(data.pieces[n].prev.dy != null) { game.board[i][j].prev.dy = data.pieces[n].prev.dy; }
-      }
+  if(data.length) {
+    for(var n = 0; n < data.length; n++) {
+      game.makeMove(data[n].i,data[n].j,data[n].dx,data[n].dy);
     }
 
     //decide where the selected piece has moved when the board updates
@@ -60,12 +53,9 @@ socket.on('update',function(data){
       }
     }
     if(max.i) { selected = selectPiece(game,selfId,max.i,max.j); }
-  }
 
-  for(var i = 0 ; i < data.players.length; i++){
-    game.playerList[data.players[i].id].score = data.players[i].score;
+    updateLeaderboard();
   }
-  if(data.players.length) { updateLeaderboard(); }
 });
 
 socket.on('remove',function(data) {
@@ -118,7 +108,7 @@ document.onmouseup = function(event){
   var j = Math.floor((event.clientY-offsetY)/view.size);
 
   selected = selectPiece(game,selfId,i,j);
-  console.log(JSON.stringify(selected));
+  //console.log(JSON.stringify(game));
 }
 
 //reorder leaderboard based on score

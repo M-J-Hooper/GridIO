@@ -5,20 +5,23 @@ if(typeof module != 'undefined') {
   }
 }
 
-var Game = function(w,h,slide) {
+var Game = function(params) {
   var self = {};
-  self.id = Math.random();
-  self.w = w;
-  self.h = h;
-  self.slide = slide;
-  self.playerList = {};
+  if(params.new) {
+    self.id = Math.random();
+    self.w = params.new.w;
+    self.h = params.new.h;
+    self.slide = params.new.slide;
+    self.playerList = {};
 
-	self.board = createArray(w,h);
-	for(var n = 0; n < w; n++) {
-		for(var m = 0; m < h; m++) {
-			self.board[n][m] = {id:null,prev:{count:0,dx:0,dy:0}};
-		}
-	}
+  	self.board = createArray(self.w,self.h);
+  	for(var n = 0; n < self.w; n++) {
+  		for(var m = 0; m < self.h; m++) {
+  			self.board[n][m] = {id:null,prev:{count:0,dx:0,dy:0}};
+  		}
+  	}
+  }
+  if(params.copy) { self = params.copy; }
 
 	self.addPlayer = function(player) {
     self.playerList[player.id] = player;
@@ -75,12 +78,11 @@ var Game = function(w,h,slide) {
     return pieces;
   }
 
-	self.makeMove = function(id,i,j,dx,dy) {
+	self.makeMove = function(i,j,dx,dy) {
+    var id = self.board[i][j].id;
 		var selfCount = 0;
 		var otherCount = 0;
 		var ok = true;
-		var take = false;
-    var pack = {players:[],pieces:[]};
 
 		//how many pieces ahead of move and can they be moved
 		for(var n = 0; n < self.w + self.h; n++) {
@@ -96,17 +98,15 @@ var Game = function(w,h,slide) {
 			}
 		}
 
-		//when move is allowed
+		//when move is allowed or on client
 		if(ok) {
 			for(var n = n; n > 0; n--) {
 				self.board[i+n*dx][j+n*dy].id = self.board[i+(n-1)*dx][j+(n-1)*dy].id; //update board
-				var prev = {count:slide,dx:dx,dy:dy};
+				var prev = {count:self.slide,dx:dx,dy:dy};
 				self.board[i+n*dx][j+n*dy].prev = prev;
-				pack.pieces.push({i:i+n*dx,j:j+n*dy,id:self.board[i+(n-1)*dx][j+(n-1)*dy].id,prev:prev});
 			}
 			self.board[i][j].id = null; //clear space behind move
-			self.board[i][j].prev.count = slide;
-			pack.pieces.push({i:i,j:j,id:null,prev:{count:slide}});
+			self.board[i][j].prev.count = self.slide;
 
 			do {
 				var groups = findGroups(self);
@@ -172,14 +172,10 @@ var Game = function(w,h,slide) {
 								if(v == groups[n][m]) {
 									if(self.board[n][m].id != 1) {
 										self.playerList[self.board[n][m].id].score--;
-										pack.players.push(self.playerList[self.board[n][m].id].getUpdatePack());
 									}
 
 									self.playerList[captured[v]].score++;
-									pack.players.push(self.playerList[captured[v]].getUpdatePack());
-
 									self.board[n][m].id = captured[v];
-									pack.pieces.push({i:n,j:m,id:captured[v]});
 								}
 							}
 						}
@@ -203,10 +199,7 @@ var Game = function(w,h,slide) {
 						for(var v in groupCount) {
 							if(groupCount[v] == 1 && v == groups[n][m]) {
 								self.board[n][m].id = 1;
-								pack.pieces.push({i:n,j:m,id:1});
-
 								self.playerList[currId].score--;
-								pack.players.push(self.playerList[currId].getUpdatePack());
 							}
 						}
 					}
@@ -236,26 +229,28 @@ var Game = function(w,h,slide) {
 
 						if(!check) {
 							self.board[n][m].id = 1;
-							pack.pieces.push({i:n,j:m,id:1});
-
 							self.playerList[currId].score--;
-							pack.players.push(self.playerList[currId].getUpdatePack());
 						}
 					}
 				}
 			}*/
 		}
-		return pack;
+		return ok;
 	}
 	return self;
 }
 
-var Player = function(id,name,color){
+var Player = function(params){
 	var self = {};
-	self.id = id;
-  self.name = name;
-  self.color = color;
-	self.score = 0;
+  if(params.new) {
+  	self.id = params.new.id;
+    self.name = params.new.name;
+    self.color = params.new.color;
+  	self.score = 0;
+  }
+  if(params.copy) {
+    self = params.copy;
+  }
 
 	self.getUpdatePack = function() {
 		return {id:self.id,score:self.score};

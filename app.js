@@ -23,13 +23,14 @@ var gameList = {};
 var slide = 5;
 var w = 20;
 var h = w;
-var game = Game(w,h,slide);
+var game = new Game({new:{w:w,h:h,slide:slide}});
 gameList[game.id] = game; //use when there are multiple games
 
 onConnect = function(socket){
 	var name = chance.word()
+	name = name.charAt(0).toUpperCase() + name.slice(1);
 	var color = rc.randomColor({luminosity:"dark",format:"rgb"});
-	var player = Player(socket.id, name.charAt(0).toUpperCase() + name.slice(1), color);
+	var player = new Player({new:{id:socket.id, name:name, color:color}});
 	initPack.players.push(player);
 
 	var pieces = game.addPlayer(player);
@@ -39,14 +40,16 @@ onConnect = function(socket){
 
 	socket.on('keyPress',function(data){
 		if(socket.id == game.board[data.selected.i][data.selected.j].id) {
-			var pack;
-			if(data.inputId == 'left'){ pack = game.makeMove(socket.id,data.selected.i,data.selected.j,-1,0); }
-			else if(data.inputId == 'right'){ pack = game.makeMove(socket.id,data.selected.i,data.selected.j,1,0); }
-			else if(data.inputId == 'up'){ pack = game.makeMove(socket.id,data.selected.i,data.selected.j,0,-1); }
-			else if(data.inputId == 'down'){ pack = game.makeMove(socket.id,data.selected.i,data.selected.j,0,1); }
+			var ok = false;
+			var dx = 0;
+			var dy = 0;
+			if(data.inputId == 'left'){ dx = -1; }
+			else if(data.inputId == 'right'){ dx = 1; }
+			else if(data.inputId == 'up'){ dy = -1; }
+			else if(data.inputId == 'down'){ dy = 1; }
 
-			for(var n = 0; n < pack.players.length; n++) { updatePack.players.push(pack.players[n]); }
-			for(var n = 0; n < pack.pieces.length; n++) { updatePack.pieces.push(pack.pieces[n]); }
+			ok = game.makeMove(data.selected.i,data.selected.j,dx,dy);
+			if(ok) { updatePack.push({i:data.selected.i,j:data.selected.j,dx:dx,dy:dy}); }
 		}
 	});
 
@@ -85,7 +88,7 @@ io.sockets.on('connection', function(socket){
 
 var initPack = {players:[],pieces:[]};
 var removePack = {players:[],pieces:[]};
-var updatePack = {players:[],pieces:[]};
+var updatePack = [];
 
 setInterval(function(){
 	if(!game) return;
@@ -100,8 +103,7 @@ setInterval(function(){
 	}
 	initPack = {players:[],pieces:[]};
 	removePack = {players:[],pieces:[]};
-	updatePack = {players:[],pieces:[]};
-
+	updatePack = [];
 },1000/25);
 
 /*
