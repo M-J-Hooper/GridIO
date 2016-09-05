@@ -36,9 +36,16 @@ socket.on('init',function(data){
 });
 
 socket.on('update',function(data){
-  if(data.length) {
-    for(var n = 0; n < data.length; n++) {
-      game.makeMove(data[n].i,data[n].j,data[n].dx,data[n].dy);
+  if(data.pieces.length) {
+    for(var n = 0; n < data.pieces.length; n++) {
+      var i = data.pieces[n].i;
+      var j = data.pieces[n].j;
+      game.board[i][j].id = data.pieces[n].id;
+      if(data.pieces[n].prev) {
+        if(data.pieces[n].prev.count) { game.board[i][j].prev.count = data.pieces[n].prev.count; }
+        if(data.pieces[n].prev.dx != null) { game.board[i][j].prev.dx = data.pieces[n].prev.dx; }
+        if(data.pieces[n].prev.dy != null) { game.board[i][j].prev.dy = data.pieces[n].prev.dy; }
+      }
     }
 
     //decide where the selected piece has moved when the board updates
@@ -53,7 +60,12 @@ socket.on('update',function(data){
       }
     }
     if(max.i) { selected = selectPiece(game,selfId,max.i,max.j); }
+  }
 
+  if(data.players.length) {
+    for(var i = 0 ; i < data.players.length; i++){
+      game.playerList[data.players[i].id].score = data.players[i].score;
+    }
     updateLeaderboard();
   }
 });

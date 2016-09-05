@@ -40,7 +40,7 @@ onConnect = function(socket){
 
 	socket.on('keyPress',function(data){
 		if(socket.id == game.board[data.selected.i][data.selected.j].id) {
-			var ok = false;
+			var pack;
 			var dx = 0;
 			var dy = 0;
 			if(data.inputId == 'left'){ dx = -1; }
@@ -48,8 +48,9 @@ onConnect = function(socket){
 			else if(data.inputId == 'up'){ dy = -1; }
 			else if(data.inputId == 'down'){ dy = 1; }
 
-			ok = game.makeMove(data.selected.i,data.selected.j,dx,dy);
-			if(ok) { updatePack.push({i:data.selected.i,j:data.selected.j,dx:dx,dy:dy}); }
+			pack = game.makeMove(data.selected.i,data.selected.j,dx,dy);
+			for(var n = 0; n < pack.players.length; n++) { updatePack.players.push(pack.players[n]); }
+			for(var n = 0; n < pack.pieces.length; n++) { updatePack.pieces.push(pack.pieces[n]); }
 		}
 	});
 
@@ -88,7 +89,7 @@ io.sockets.on('connection', function(socket){
 
 var initPack = {players:[],pieces:[]};
 var removePack = {players:[],pieces:[]};
-var updatePack = [];
+var updatePack = {players:[],pieces:[]};
 
 setInterval(function(){
 	if(!game) return;
@@ -103,7 +104,7 @@ setInterval(function(){
 	}
 	initPack = {players:[],pieces:[]};
 	removePack = {players:[],pieces:[]};
-	updatePack = [];
+	updatePack = {players:[],pieces:[]};
 },1000/25);
 
 /*

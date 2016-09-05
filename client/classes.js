@@ -83,6 +83,7 @@ var Game = function(params) {
 		var selfCount = 0;
 		var otherCount = 0;
 		var ok = true;
+    var pack = {players:[],pieces:[]};
 
 		//how many pieces ahead of move and can they be moved
 		for(var n = 0; n < self.w + self.h; n++) {
@@ -104,9 +105,11 @@ var Game = function(params) {
 				self.board[i+n*dx][j+n*dy].id = self.board[i+(n-1)*dx][j+(n-1)*dy].id; //update board
 				var prev = {count:self.slide,dx:dx,dy:dy};
 				self.board[i+n*dx][j+n*dy].prev = prev;
+        pack.pieces.push({i:i+n*dx,j:j+n*dy,id:self.board[i+(n-1)*dx][j+(n-1)*dy].id,prev:prev});
 			}
 			self.board[i][j].id = null; //clear space behind move
 			self.board[i][j].prev.count = self.slide;
+      pack.pieces.push({i:i,j:j,id:null,prev:{count:self.slide}});
 
 			do {
 				var groups = findGroups(self);
@@ -172,10 +175,14 @@ var Game = function(params) {
 								if(v == groups[n][m]) {
 									if(self.board[n][m].id != 1) {
 										self.playerList[self.board[n][m].id].score--;
+                    pack.players.push(self.playerList[self.board[n][m].id].getUpdatePack());
 									}
 
 									self.playerList[captured[v]].score++;
+                  pack.players.push(self.playerList[captured[v]].getUpdatePack());
+
 									self.board[n][m].id = captured[v];
+                  pack.pieces.push({i:n,j:m,id:captured[v]});
 								}
 							}
 						}
@@ -199,7 +206,10 @@ var Game = function(params) {
 						for(var v in groupCount) {
 							if(groupCount[v] == 1 && v == groups[n][m]) {
 								self.board[n][m].id = 1;
+                pack.pieces.push({i:n,j:m,id:1});
+
 								self.playerList[currId].score--;
+                pack.players.push(self.playerList[currId].getUpdatePack());
 							}
 						}
 					}
@@ -229,13 +239,16 @@ var Game = function(params) {
 
 						if(!check) {
 							self.board[n][m].id = 1;
+              pack.pieces.push({i:n,j:m,id:1});
+
 							self.playerList[currId].score--;
+              pack.players.push(self.playerList[currId].getUpdatePack());
 						}
 					}
 				}
 			}*/
 		}
-		return ok;
+		return pack;
 	}
 	return self;
 }
