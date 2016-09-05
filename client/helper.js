@@ -63,3 +63,60 @@ function groupsLoop(game,id,groups,n,m,groupNum) {
 	}
 	return groups;
 }
+
+//get info on own pieces for size and view
+function getView(game, selfId, view, smooth) {
+  var minI, maxI, minJ, maxJ;
+  var first = true;
+  var count = 0;
+
+  var avI = 0;
+  var avJ = 0;
+
+  for(var i = 0; i < game.w; i++) {
+		for(var j = 0; j < game.h; j++) {
+      if(game.board[i][j].id == selfId) {
+        if(first) { minI = i; maxI = i; minJ = j; maxJ = j; first = false; }
+        else {
+          if(i < minI) { minI = i; }
+          if(i > maxI) { maxI = i; }
+          if(j < minJ) { minJ = j; }
+          if(j > maxJ) { maxJ = j; }
+        }
+
+        avI += i+0.5;
+        avJ += j+0.5;
+        count++;
+      }
+		}
+	}
+  avI = avI/count;
+  avJ = avJ/count;
+
+  var viewDist = Math.sqrt(count)+2;
+  var playerSizeX = (maxI - minI + 1)*view.size;
+  var playerSizeY = (maxJ - minJ + 1)*view.size;
+  var r = Math.min(view.width/(playerSizeX+viewDist*view.size*2),view.height/(playerSizeY+viewDist*view.size*2));
+
+  if(smooth) {
+    var viewSmooth = 100;
+    view.size += view.size*(r-1)/viewSmooth;
+    view.x += (avI*view.size - view.x)/viewSmooth;
+    view.y += (avJ*view.size - view.y)/viewSmooth;
+  }
+  else {
+    view.size  = view.size*r;
+    view.x = avI*view.size;
+    view.y = avJ*view.size;
+  }
+  return view;
+}
+
+
+//attempt to set selected piece to certain index
+function selectPiece(game,selfId,i,j) {
+  if(i>=0 && i<game.w && j>=0 && j<game.h && game.board[i][j].id == selfId) {
+    return {i:i,j:j};
+  }
+  else { return {i:null,j:null} }
+}

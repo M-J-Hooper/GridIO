@@ -1,8 +1,8 @@
 var fontSize = 16;
 
-function drawBoard(ctx,width,height,size,viewX,viewY,game,selected) {
-  var offsetX = width/2 - viewX;
-  var offsetY = height/2 - viewY;
+function drawBoard(ctx,game,view,selected) {
+  var offsetX = view.width/2 - view.x;
+  var offsetY = view.height/2 - view.y;
 
   ctx.lineWidth = 2;
   ctx.strokeStyle = "rgb(200,200,200)";
@@ -18,17 +18,17 @@ function drawBoard(ctx,width,height,size,viewX,viewY,game,selected) {
 
   //more efficient board style
   ctx.fillStyle = "rgb(255,255,255)";
-  ctx.fillRect(offsetX,offsetY,size*game.w,size*game.h);
+  ctx.fillRect(offsetX,offsetY,view.size*game.w,view.size*game.h);
   for(var i = 1; i < game.w; i++) {
     ctx.beginPath();
-    ctx.moveTo(i*size+offsetX,offsetY);
-    ctx.lineTo(i*size+offsetX,(game.w+1)*size+offsetY);
+    ctx.moveTo(i*view.size+offsetX,offsetY);
+    ctx.lineTo(i*view.size+offsetX,(game.w+1)*view.size+offsetY);
     ctx.stroke();
   }
   for(var j = 1; j < game.h; j++) {
     ctx.beginPath();
-    ctx.moveTo(offsetX,j*size+offsetY);
-    ctx.lineTo((game.h+1)*size+offsetX,j*size+offsetY);
+    ctx.moveTo(offsetX,j*view.size+offsetY);
+    ctx.lineTo((game.h+1)*view.size+offsetX,j*view.size+offsetY);
     ctx.stroke();
   }
 
@@ -40,9 +40,9 @@ function drawBoard(ctx,width,height,size,viewX,viewY,game,selected) {
         if(game.board[i][j].id == 1) { ctx.fillStyle = "rgba(0,0,0,0.8)"; }
         else { ctx.fillStyle = game.playerList[game.board[i][j].id].color; }
 
-        var x = (i+0.1 - game.board[i][j].prev.dx*game.board[i][j].prev.count/game.slide)*size;
-        var y = (j+0.1 - game.board[i][j].prev.dy*game.board[i][j].prev.count/game.slide)*size;
-        roundRect(ctx,x+offsetX,y+offsetY,size*0.8,size*0.8,size*0.2,true,false);
+        var x = (i+0.1 - game.board[i][j].prev.dx*game.board[i][j].prev.count/game.slide)*view.size;
+        var y = (j+0.1 - game.board[i][j].prev.dy*game.board[i][j].prev.count/game.slide)*view.size;
+        roundRect(ctx,x+offsetX,y+offsetY,view.size*0.8,view.size*0.8,view.size*0.2,true,false);
       }
     }
   }
@@ -53,56 +53,58 @@ function drawBoard(ctx,width,height,size,viewX,viewY,game,selected) {
 
     var i = selected.i;
     var j = selected.j;
-    var x = (i+0.2 - game.board[i][j].prev.dx*game.board[i][j].prev.count/game.slide)*size;
-    var y = (j+0.2 - game.board[i][j].prev.dy*game.board[i][j].prev.count/game.slide)*size;
-    roundRect(ctx,x+offsetX,y+offsetY,size*0.6,size*0.6,size*0.15,true,false);
+    var x = (i+0.2 - game.board[i][j].prev.dx*game.board[i][j].prev.count/game.slide)*view.size;
+    var y = (j+0.2 - game.board[i][j].prev.dy*game.board[i][j].prev.count/game.slide)*view.size;
+    roundRect(ctx,x+offsetX,y+offsetY,view.size*0.6,view.size*0.6,view.size*0.15,true,false);
   }
 }
 
 
 
-
-function drawUi(ctxUi,width,height,game,leaderboard,rank,selfId) {
-  ctxUi.font = fontSize + "px bolder sans-serif";
+//MAKE PARAMETERS FOR UI SIZES!!!!!
+function drawUi(ctx,game,view,leaderboard,rank,selfId) {
+  ctx.font = fontSize + "px bolder sans-serif";
 
   //draw leaderboard
   var leaderLength = leaderboard.length < 10 ? leaderboard.length : 10;
 
   //draw leaderboard outlines in top left
-  ctxUi.fillStyle = "rgba(0,0,0,0.5)";
-  roundRect(ctxUi, 10, 10, 200, 30+(fontSize+20)*leaderLength, 20, true, false);
-  ctxUi.fillStyle = "rgb(255,255,255)";
-  roundRect(ctxUi, 20, 20, 180, 10+(fontSize+20)*leaderLength, 10, true, false);
+  ctx.fillStyle = "rgba(0,0,0,0.5)";
+  roundRect(ctx, 10, 10, 200, 30+(fontSize+20)*leaderLength, 20, true, false);
+  ctx.fillStyle = "rgb(255,255,255)";
+  roundRect(ctx, 20, 20, 180, 10+(fontSize+20)*leaderLength, 10, true, false);
 
   //draw each player in top 10 with text
   for(var i = 0; i < leaderLength; i++) {
-    ctxUi.fillStyle = game.playerList[leaderboard[i].id].color;
-    roundRect(ctxUi, 30, 30+i*(fontSize+20), 160, 10+fontSize, (10+fontSize)*0.2, true, false);
+    ctx.fillStyle = game.playerList[leaderboard[i].id].color;
+    roundRect(ctx, 30, 30+i*(fontSize+20), 160, 10+fontSize, (10+fontSize)*0.2, true, false);
 
-    ctxUi.fillStyle = "rgb(255,255,255)";
-    ctxUi.textAlign = "left";
-    ctxUi.fillText(leaderboard[i].rank + ".", 35, 35+(i+1)*fontSize+i*20 - 2);
-    ctxUi.fillText(leaderboard[i].name, 55, 35+(i+1)*fontSize+i*20 - 2);
-    ctxUi.textAlign = "right";
-    ctxUi.fillText(leaderboard[i].score, 185, 35+(i+1)*fontSize+i*20 - 2);
+    ctx.fillStyle = "rgb(255,255,255)";
+    ctx.textAlign = "left";
+    ctx.fillText(leaderboard[i].rank + ".", 35, 35+(i+1)*fontSize+i*20 - 2);
+    ctx.fillText(leaderboard[i].name, 55, 35+(i+1)*fontSize+i*20 - 2);
+    ctx.textAlign = "right";
+    ctx.fillText(leaderboard[i].score, 185, 35+(i+1)*fontSize+i*20 - 2);
   }
 
   //draw info outline and text in bottom left
-  ctxUi.fillStyle = "rgba(0,0,0,0.5)";
-  roundRect(ctxUi, 10, height - (fontSize+60), 300, 50+fontSize, 20, true, false);
-  ctxUi.fillStyle = "rgb(255,255,255)";
-  roundRect(ctxUi, 20, height - (fontSize+50), 280, 30+fontSize, 10, true, false);
-  ctxUi.fillStyle = game.playerList[selfId].color;
-  roundRect(ctxUi, 30, height - (fontSize+40), 260, 10+fontSize, (10+fontSize)*0.2, true, false);
+  ctx.fillStyle = "rgba(0,0,0,0.5)";
+  roundRect(ctx, 10, view.height - (fontSize+60), 300, 50+fontSize, 20, true, false);
+  ctx.fillStyle = "rgb(255,255,255)";
+  roundRect(ctx, 20, view.height - (fontSize+50), 280, 30+fontSize, 10, true, false);
+  ctx.fillStyle = game.playerList[selfId].color;
+  roundRect(ctx, 30, view.height - (fontSize+40), 260, 10+fontSize, (10+fontSize)*0.2, true, false);
 
-  ctxUi.fillStyle = "rgb(255,255,255)";
-  ctxUi.textAlign = "left";
-  ctxUi.fillText(game.playerList[selfId].name, 35, height - 35 - 2);
-  ctxUi.textAlign = "center";
-  ctxUi.fillText("Score: " + game.playerList[selfId].score, 150, height - 35 - 2);
-  ctxUi.textAlign = "right";
-  ctxUi.fillText("Rank: " + rank + "/" + leaderboard.length, 285, height - 35 - 2);
+  ctx.fillStyle = "rgb(255,255,255)";
+  ctx.textAlign = "left";
+  ctx.fillText(game.playerList[selfId].name, 35, view.height - 35 - 2);
+  ctx.textAlign = "center";
+  ctx.fillText("Score: " + game.playerList[selfId].score, 150, view.height - 35 - 2);
+  ctx.textAlign = "right";
+  ctx.fillText("Rank: " + rank + "/" + leaderboard.length, 285, view.height - 35 - 2);
 }
+
+
 
 //helper to draw rounded rectangle
 function roundRect(ctx, x, y, width, height, radius, fill, stroke) {

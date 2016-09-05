@@ -1,10 +1,4 @@
-var width = 0;
-var height = 0;
-var slide = 0;
-
-var size = 50;
-var viewX = 0;
-var viewY = 0;
+var view = {height:0,width:50,size:50,x:0,y:0};
 
 var leaderboard = [];
 var rank = 0;
@@ -28,7 +22,7 @@ socket.on('init',function(data){
 
   if(data.game) {
     game = data.game;
-    getView(false);
+    view = getView(game,selfId,view,false);
   }
 
   for(var i = 0 ; i < data.players.length; i++){
@@ -65,7 +59,7 @@ socket.on('update',function(data){
         }
       }
     }
-    if(max.i) { selectPiece(max.i,max.j); }
+    if(max.i) { selected = selectPiece(game,selfId,max.i,max.j); }
   }
 
   for(var i = 0 ; i < data.players.length; i++){
@@ -87,99 +81,21 @@ socket.on('remove',function(data) {
 
 //client side update loop for drawing
 setInterval(function(){
-  width = window.innerWidth;
-  height = window.innerHeight;
-  ctx.canvas.width  = width;
-  ctx.canvas.height = height;
+  view.width = window.innerWidth;
+  view.height = window.innerHeight;
+  ctx.canvas.width  = view.width;
+  ctx.canvas.height = view.height;
 
   if(!selfId || !game) return;
 
 
   game = boardSlide(game);
-  getView(true);
+  view = getView(game,selfId,view,true);
 
-  ctx.clearRect(0,0,width,height);
-  drawBoard(ctx,width,height,size,viewX,viewY,game,selected);
-  drawUi(ctx,width,height,game,leaderboard,rank,selfId);
+  ctx.clearRect(0,0,view.width,view.height);
+  drawBoard(ctx,game,view,selected);
+  drawUi(ctx,game,view,leaderboard,rank,selfId);
 },40);
-
-
-//get info on own pieces for size and view
-function getView(smooth) {
-  var minI, maxI, minJ, maxJ;
-  var first = true;
-  var count = 0;
-
-  var avI = 0;
-  var avJ = 0;
-
-  for(var i = 0; i < game.w; i++) {
-		for(var j = 0; j < game.h; j++) {
-      if(game.board[i][j].id == selfId) {
-        if(first) { minI = i; maxI = i; minJ = j; maxJ = j; first = false; }
-        else {
-          if(i < minI) { minI = i; }
-          if(i > maxI) { maxI = i; }
-          if(j < minJ) { minJ = j; }
-          if(j > maxJ) { maxJ = j; }
-        }
-
-        avI += i+0.5;
-        avJ += j+0.5;
-        count++;
-      }
-		}
-	}
-  avI = avI/count;
-  avJ = avJ/count;
-
-  var viewDist = Math.sqrt(count)+2;
-  var playerSizeX = (maxI - minI + 1)*size;
-  var playerSizeY = (maxJ - minJ + 1)*size;
-  var r = Math.min(width/(playerSizeX+viewDist*size*2),height/(playerSizeY+viewDist*size*2));
-
-  if(smooth) {
-    var viewSmooth = 100;
-    size += size*(r-1)/viewSmooth;
-    viewX += (avI*size - viewX)/viewSmooth;
-    viewY += (avJ*size - viewY)/viewSmooth;
-  }
-  else {
-    size  = size*r;
-    viewX = avI*size;
-    viewY = avJ*size;
-  }
-}
-
-//reorder leaderboard based on score
-function updateLeaderboard() {
-  newBoard = [];
-  for(var i in game.playerList) { newBoard.push({id:i,name:game.playerList[i].name,score:game.playerList[i].score,rank:0}); }
-  newBoard.sort(function(a,b) { return a.score - b.score });
-  leaderboard = newBoard.reverse();
-
-  var prevRank = 1;
-  var prevScore = 0;
-  for(var i = 0; i < leaderboard.length; i++) {
-    if(leaderboard[i].score != prevScore) { prevRank = i+1; }
-    prevScore = leaderboard[i].score;
-    leaderboard[i].rank = prevRank;
-
-    if(leaderboard[i].id == selfId) { rank = prevRank; }
-  }
-}
-
-//attempt to set selected piece to certain index
-function selectPiece(i,j) {
-  if(i>=0 && i<game.w && j>=0 && j<game.h && game.board[i][j].id == selfId) {
-    selected.i = i;
-    selected.j = j;
-  }
-  else {
-    selected.i = null;
-    selected.j = null;
-  }
-}
 
 document.onkeyup = function(event){
   if(selected.i != null) {
@@ -195,12 +111,30 @@ document.onkeyup = function(event){
 }
 
 document.onmouseup = function(event){
-  var offsetX = width/2 - viewX;
-  var offsetY = height/2 - viewY;
+  var offsetX = view.width/2 - view.x;
+  var offsetY = view.height/2 - view.y;
 
-  var i = Math.floor((event.clientX-offsetX)/size);
-  var j = Math.floor((event.clientY-offsetY)/size);
+  var i = Math.floor((event.clientX-offsetX)/view.size);
+  var j = Math.floor((event.clientY-offsetY)/view.size);
 
-  selectPiece(i,j);
+  selected = selectPiece(game,selfId,i,j);
   console.log(JSON.stringify(selected));
+}
+
+//reorder leaderboard based on score
+function updateLeaderboard() {
+  var newBoard = [];
+  for(var i in game.playerList) { newBoard.push({id:i,name:game.playerList[i].name,score:game.playerList[i].score,rank:0}); }
+  newBoard.sort(function(a,b) { return a.score - b.score });
+  leaderboard = newBoard.reverse();
+
+  var prevRank = 1;
+  var prevScore = 0;
+  for(var i = 0; i < leaderboard.length; i++) {
+    if(leaderboard[i].score != prevScore) { prevRank = i+1; }
+    prevScore = leaderboard[i].score;
+    leaderboard[i].rank = prevRank;
+
+    if(leaderboard[i].id == selfId) { rank = prevRank; }
+  }
 }
