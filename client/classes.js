@@ -30,26 +30,28 @@ var Game = function(params) {
 		var n = 0;
 		var m = 0;
 		var scoreDiff = 0;
-		var tries = 0;
+		var berth = 4;
+    var tries = 0;
     var pieces = [];
 
 		//find a space for the pieces to spawn
-		while(!ok) {
-			n = Math.floor(Math.random()*(self.w-6))+3;
-			m = Math.floor(Math.random()*(self.h-6))+3;
+		while(berth >= 2) {
+			n = Math.floor(Math.random()*(self.w-2*berth))+berth;
+			m = Math.floor(Math.random()*(self.h-2*berth))+berth;
 
 			var check = 0;
-			for(var i = -3; i < 4; i++) {
-				for(var j = -3; j < 4; j++) {
-					if(self.board[n+i][m+j].id) { check++; break }
+			for(var i = -berth; i <= berth; i++) {
+				for(var j = -berth; j <= berth; j++) {
+					if(self.board[n+i][m+j].id) { check++; }
 				}
 			}
-			if(!check) { ok = true; }
+			if(!check) { break; }
       else {
   			tries++;
-  			if(tries > 100) { console.log("No room!"); break; }
+  			if(tries > 20) { berth--; }
       }
 		}
+    if(berth < 2) { console.log("No room!"); } //FIND NEW GAME IF NO ROOM!?
 
 		//add pieces and get score change
 		for(var i = -1; i < 2; i++) {

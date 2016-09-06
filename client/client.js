@@ -18,6 +18,7 @@ var selected = {i:null,j:null};
 
 
 socket.on('init',function(data){
+  console.log(JSON.stringify(data));
   if(data.selfId) { selfId = data.selfId; }
 
   if(data.game) {
@@ -42,7 +43,7 @@ socket.on('update',function(data){
       var j = data.pieces[n].j;
       game.board[i][j].id = data.pieces[n].id;
       if(data.pieces[n].prev) {
-        if(data.pieces[n].prev.count) { game.board[i][j].prev.count = data.pieces[n].prev.count; }
+        if(data.pieces[n].prev.count != null) { game.board[i][j].prev.count = data.pieces[n].prev.count; }
         if(data.pieces[n].prev.dx != null) { game.board[i][j].prev.dx = data.pieces[n].prev.dx; }
         if(data.pieces[n].prev.dy != null) { game.board[i][j].prev.dy = data.pieces[n].prev.dy; }
       }
@@ -96,7 +97,7 @@ setInterval(function(){
 
   ctx.clearRect(0,0,view.width,view.height);
   drawBoard(ctx,game,view,selected);
-  drawUi(ctx,game,view,leaderboard,rank,selfId);
+  drawUi(ctxUi,game,view,leaderboard,rank,selfId);
 },40);
 
 document.onkeyup = function(event){
