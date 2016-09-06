@@ -18,7 +18,6 @@ var selected = {i:null,j:null};
 
 
 socket.on('init',function(data){
-  console.log(JSON.stringify(data));
   if(data.selfId) { selfId = data.selfId; }
 
   if(data.game) {
