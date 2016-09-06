@@ -21,7 +21,7 @@ var gameList = {};
 
 //game settings
 var slide = 5;
-var w = 12;
+var w = 20;
 var h = w;
 var playerLimit = 3;
 
@@ -47,7 +47,7 @@ onConnect = function(socket) {
 	var pieces = gameList[game.id].game.addPlayer(player);
 	for(var n = 0; n < pieces.length; n++) { gameList[game.id].initPack.pieces.push(pieces[n]); }
 
-	socketList[socket.id] = {socket:socket,gameId:game.id};
+	socketList[socket.id].gameId = game.id;
 	console.log(socket.id+" connected.")
 
 	socket.on('keyPress',function(data){
@@ -88,7 +88,7 @@ onDisconnect = function(socket){
 		for(var n = 0; n < pieces.length; n++) { gameList[gameId].removePack.pieces.push(pieces[n]); }
 	}
 
-	delete socketList[socket.id];
+	socketList[socket.id].gameId = null;
 	console.log(socket.id+" disconnected.")
 }
 
@@ -96,10 +96,12 @@ onDisconnect = function(socket){
 var io = require('socket.io')(serv,{});
 io.sockets.on('connection', function(socket) {
 	socket.id = Math.random();
+	socketList[socket.id] = {socket:socket,gameId:null};
 	onConnect(socket);
 
 	socket.on('disconnect',function() {
 		onDisconnect(socket);
+		delete socketList[socket.id];
 	});
 });
 
@@ -107,10 +109,12 @@ setInterval(function(){
 	//if(!game) return;
 	for(var v in socketList){
 		var socket = socketList[v].socket;
-		var game = gameList[socketList[v].gameId];
-		socket.emit('init',game.initPack);
-		socket.emit('update',game.updatePack);
-		socket.emit('remove',game.removePack);
+		if(socketList[v].gameId) {
+			var game = gameList[socketList[v].gameId];
+			socket.emit('init',game.initPack);
+			socket.emit('update',game.updatePack);
+			socket.emit('remove',game.removePack);
+		}
 	}
 	for(var v in gameList) {
 		gameList[v].game = boardSlide(gameList[v].game);

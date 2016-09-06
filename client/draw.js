@@ -2,7 +2,7 @@ function drawBoard(ctx,game,view,selected) {
   var offsetX = view.width/2 - view.x;
   var offsetY = view.height/2 - view.y;
 
-  ctx.lineWidth = 2;
+  ctx.lineWidth = view.size*0.05;
   ctx.strokeStyle = "rgb(200,200,200)";
 
   //draw board design
@@ -91,7 +91,7 @@ function drawUi(ctx,game,view,selfId) {
     ctx.fillStyle = "rgb(255,255,255)";
     ctx.textAlign = "left";
     ctx.fillText(leaderboard[i].rank + ".", 3*boxPad+textPad, 3*boxPad+textPad+(i+1)*fontSize+i*(2*textPad+boxPad) - 2);
-    ctx.fillText(leaderboard[i].name, 3*boxPad+textPad + 20, 3*boxPad+textPad+(i+1)*fontSize+i*(2*textPad+boxPad) - 2);
+    ctx.fillText(leaderboard[i].name, 3*boxPad+textPad + 40, 3*boxPad+textPad+(i+1)*fontSize+i*(2*textPad+boxPad) - 2);
     ctx.textAlign = "right";
     ctx.fillText(leaderboard[i].score, 3*boxPad+leaderSize-textPad, 3*boxPad+textPad+(i+1)*fontSize+i*(2*textPad+boxPad) - 2);
   }
