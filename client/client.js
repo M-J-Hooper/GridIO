@@ -54,12 +54,12 @@ socket.on('update',function(data){
   		for(var j = 0; j < game.h; j++) {
         if(game.board[i][j].id) {
           if(i-game.board[i][j].prev.dx == selected.i && j-game.board[i][j].prev.dy == selected.j) {
-             if(!max.i || game.board[i][j].prev.count > game.board[max.i][max.j].prev.count) { max.i = i; max.j = j; }
+             if(max.i == null || game.board[i][j].prev.count > game.board[max.i][max.j].prev.count) { max.i = i; max.j = j; }
           }
         }
       }
     }
-    if(max.i) { selected = selectPiece(game,selfId,max.i,max.j); }
+    if(max.i != null) { selected = selectPiece(game,selfId,max.i,max.j); }
   }
 
   if(data.players.length) {
