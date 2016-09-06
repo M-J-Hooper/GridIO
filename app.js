@@ -23,7 +23,7 @@ var gameList = {};
 var slide = 5;
 var w = 12;
 var h = w;
-var playerLimit = 2;
+var playerLimit = 3;
 
 onConnect = function(socket) {
 	var name = chance.word()
@@ -107,9 +107,10 @@ setInterval(function(){
 	//if(!game) return;
 	for(var v in socketList){
 		var socket = socketList[v].socket;
-		socket.emit('init',gameList[socketList[v].gameId].initPack);
-		socket.emit('update',gameList[socketList[v].gameId].updatePack);
-		socket.emit('remove',gameList[socketList[v].gameId].removePack);
+		var game = gameList[socketList[v].gameId];
+		socket.emit('init',game.initPack);
+		socket.emit('update',game.updatePack);
+		socket.emit('remove',game.removePack);
 	}
 	for(var v in gameList) {
 		gameList[v].game = boardSlide(gameList[v].game);
@@ -118,7 +119,7 @@ setInterval(function(){
 		gameList[v].removePack = {players:[],pieces:[]};
 		gameList[v].updatePack = {players:[],pieces:[]};
 	}
-},1000/25);
+},40);
 
 /*
 var profiler = require('v8-profiler');
