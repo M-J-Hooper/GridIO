@@ -2,9 +2,6 @@ var express = require('express');
 var app = express();
 var serv = require('http').Server(app);
 
-var rc = require('randomcolor');
-var chance = require('chance').Chance();
-
 require('./client/helper.js')();
 require('./client/classes.js')();
 
