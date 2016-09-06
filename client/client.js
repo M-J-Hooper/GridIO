@@ -1,8 +1,3 @@
-var view = {height:0,width:50,size:50,x:0,y:0};
-
-var leaderboard = [];
-var rank = 0;
-
 var socket = io();
 
 var canvas = document.getElementById("canvas");
@@ -15,6 +10,7 @@ var ctxUi = canvas.getContext("2d");
 var game = null;
 var selfId = null;
 var selected = {i:null,j:null};
+var view = {height:0,width:50,size:50,x:0,y:0};
 
 
 socket.on('init',function(data){
@@ -108,12 +104,16 @@ document.onkeyup = function(event){
 }
 
 document.onmouseup = function(event){
-  var offsetX = view.width/2 - view.x;
-  var offsetY = view.height/2 - view.y;
+  if(game) {
+    var offsetX = view.width/2 - view.x;
+    var offsetY = view.height/2 - view.y;
 
-  var i = Math.floor((event.clientX-offsetX)/view.size);
-  var j = Math.floor((event.clientY-offsetY)/view.size);
+    var i = Math.floor((event.clientX-offsetX)/view.size);
+    var j = Math.floor((event.clientY-offsetY)/view.size);
 
-  selected = selectPiece(game,selfId,i,j);
+    selected = selectPiece(game,selfId,i,j);
+  }
+  else { socket.emit('join'); }
+
   //console.log(JSON.stringify(game));
 }

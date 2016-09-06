@@ -21,11 +21,11 @@ var gameList = {};
 
 //game settings
 var slide = 5;
-var w = 20;
+var w = 12;
 var h = w;
 var playerLimit = 3;
 
-onConnect = function(socket) {
+joinGame = function(socket) {
 	var name = chance.word()
 	name = name.charAt(0).toUpperCase() + name.slice(1);
 	var color = rc.randomColor({luminosity:"dark",format:"rgb"});
@@ -76,7 +76,7 @@ onConnect = function(socket) {
 	});
 }
 
-onDisconnect = function(socket){
+leaveGame = function(socket){
 	var gameId = socketList[socket.id].gameId;
 
 	var playerCount = Object.keys(gameList[gameId].game.playerList).length;
@@ -97,10 +97,13 @@ var io = require('socket.io')(serv,{});
 io.sockets.on('connection', function(socket) {
 	socket.id = Math.random();
 	socketList[socket.id] = {socket:socket,gameId:null};
-	onConnect(socket);
+
+	socket.on('join', function() {
+		joinGame(socket);
+	});
 
 	socket.on('disconnect',function() {
-		onDisconnect(socket);
+		leaveGame(socket);
 		delete socketList[socket.id];
 	});
 });

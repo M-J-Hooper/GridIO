@@ -91,7 +91,7 @@ function drawUi(ctx,game,view,selfId) {
     ctx.fillStyle = "rgb(255,255,255)";
     ctx.textAlign = "left";
     ctx.fillText(leaderboard[i].rank + ".", 3*boxPad+textPad, 3*boxPad+textPad+(i+1)*fontSize+i*(2*textPad+boxPad) - 2);
-    ctx.fillText(leaderboard[i].name, 3*boxPad+textPad + 40, 3*boxPad+textPad+(i+1)*fontSize+i*(2*textPad+boxPad) - 2);
+    ctx.fillText(leaderboard[i].name, 3*boxPad+textPad + 3*boxPad, 3*boxPad+textPad+(i+1)*fontSize+i*(2*textPad+boxPad) - 2);
     ctx.textAlign = "right";
     ctx.fillText(leaderboard[i].score, 3*boxPad+leaderSize-textPad, 3*boxPad+textPad+(i+1)*fontSize+i*(2*textPad+boxPad) - 2);
   }
