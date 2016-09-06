@@ -62,7 +62,13 @@ function drawBoard(ctx,game,view,selected) {
 
 
 //MAKE PARAMETERS FOR UI SIZES!!!!!
-function drawUi(ctx,game,view,leaderboard,rank,selfId) {
+function drawUi(ctx,game,view,selfId) {
+  var leaderboard = game.getLeaderboard();
+  var rank = 0;
+  for(var i = 0; i < leaderboard.length; i++) {
+    if(leaderboard[i].id == selfId) { rank = leaderboard[i].rank; }
+  }
+
   ctx.font = fontSize + "px bolder sans-serif";
 
   //draw leaderboard

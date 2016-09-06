@@ -28,7 +28,6 @@ socket.on('init',function(data){
   for(var i = 0 ; i < data.players.length; i++){
     game.playerList[data.players[i].id] = new Player({copy:data.players[i]});
   }
-  if(data.players.length) { updateLeaderboard(); }
 
   for(var n = 0; n < data.pieces.length; n++) {
     game.board[data.pieces[n].i][data.pieces[n].j] = {id:data.pieces[n].id,prev:{count:0,dx:0,dy:0}};
@@ -66,7 +65,6 @@ socket.on('update',function(data){
     for(var i = 0 ; i < data.players.length; i++){
       game.playerList[data.players[i].id].score = data.players[i].score;
     }
-    updateLeaderboard();
   }
 });
 
@@ -74,7 +72,6 @@ socket.on('remove',function(data) {
   for(var i = 0; i < data.players.length; i++) {
     delete game.playerList[data.players[i]];
   }
-  updateLeaderboard();
 
   for(var n = 0; n < data.pieces.length; n++) {
     game.board[data.pieces[n].i][data.pieces[n].j].id = null;
@@ -95,8 +92,9 @@ setInterval(function(){
   view = getView(game,selfId,view,true);
 
   ctx.clearRect(0,0,view.width,view.height);
+  ctxUi.clearRect(0,0,view.width,view.height);
   drawBoard(ctx,game,view,selected);
-  drawUi(ctxUi,game,view,leaderboard,rank,selfId);
+  drawUi(ctxUi,game,view,selfId);
 },40);
 
 document.onkeyup = function(event){
@@ -121,22 +119,4 @@ document.onmouseup = function(event){
 
   selected = selectPiece(game,selfId,i,j);
   //console.log(JSON.stringify(game));
-}
-
-//reorder leaderboard based on score
-function updateLeaderboard() {
-  var newBoard = [];
-  for(var i in game.playerList) { newBoard.push({id:i,name:game.playerList[i].name,score:game.playerList[i].score,rank:0}); }
-  newBoard.sort(function(a,b) { return a.score - b.score });
-  leaderboard = newBoard.reverse();
-
-  var prevRank = 1;
-  var prevScore = 0;
-  for(var i = 0; i < leaderboard.length; i++) {
-    if(leaderboard[i].score != prevScore) { prevRank = i+1; }
-    prevScore = leaderboard[i].score;
-    leaderboard[i].rank = prevRank;
-
-    if(leaderboard[i].id == selfId) { rank = prevRank; }
-  }
 }

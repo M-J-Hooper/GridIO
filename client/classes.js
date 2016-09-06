@@ -80,6 +80,23 @@ var Game = function(params) {
     return pieces;
   }
 
+  //reorder leaderboard based on score
+  self.getLeaderboard = function() {
+    var leaderboard = [];
+    for(var i in self.playerList) { leaderboard.push({id:i,name:self.playerList[i].name,score:self.playerList[i].score,rank:0}); }
+    leaderboard.sort(function(a,b) { return a.score - b.score });
+    leaderboard = leaderboard.reverse();
+
+    var prevRank = 1;
+    var prevScore = 0;
+    for(var i = 0; i < leaderboard.length; i++) {
+      if(leaderboard[i].score != prevScore) { prevRank = i+1; }
+      prevScore = leaderboard[i].score;
+      leaderboard[i].rank = prevRank;
+    }
+    return leaderboard;
+  }
+
 	self.makeMove = function(i,j,dx,dy) {
     var id = self.board[i][j].id;
 		var selfCount = 0;
