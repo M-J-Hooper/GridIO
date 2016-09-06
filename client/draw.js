@@ -1,5 +1,3 @@
-var fontSize = 16;
-
 function drawBoard(ctx,game,view,selected) {
   var offsetX = view.width/2 - view.x;
   var offsetY = view.height/2 - view.y;
@@ -59,7 +57,12 @@ function drawBoard(ctx,game,view,selected) {
   }
 }
 
-
+var fontSize = 16;
+var font = "monospace"
+var boxPad = 10;
+var textPad = 5;
+var leaderSize = 200;
+var infoSize = 350;
 
 //MAKE PARAMETERS FOR UI SIZES!!!!!
 function drawUi(ctx,game,view,selfId) {
@@ -69,45 +72,45 @@ function drawUi(ctx,game,view,selfId) {
     if(leaderboard[i].id == selfId) { rank = leaderboard[i].rank; }
   }
 
-  ctx.font = fontSize + "px bolder sans-serif";
+  ctx.font = fontSize + "px " + font;
 
   //draw leaderboard
   var leaderLength = leaderboard.length < 10 ? leaderboard.length : 10;
 
   //draw leaderboard outlines in top left
   ctx.fillStyle = "rgba(0,0,0,0.5)";
-  roundRect(ctx, 10, 10, 200, 30+(fontSize+20)*leaderLength, 20, true, false);
+  roundRect(ctx, boxPad, boxPad, leaderSize+4*boxPad, 3*boxPad+(fontSize+2*textPad+boxPad)*leaderLength, 2*boxPad, true, false);
   ctx.fillStyle = "rgb(255,255,255)";
-  roundRect(ctx, 20, 20, 180, 10+(fontSize+20)*leaderLength, 10, true, false);
+  roundRect(ctx, 2*boxPad, 2*boxPad, leaderSize+2*boxPad, boxPad+(fontSize+2*textPad+boxPad)*leaderLength, boxPad, true, false);
 
   //draw each player in top 10 with text
   for(var i = 0; i < leaderLength; i++) {
     ctx.fillStyle = game.playerList[leaderboard[i].id].color;
-    roundRect(ctx, 30, 30+i*(fontSize+20), 160, 10+fontSize, (10+fontSize)*0.2, true, false);
+    roundRect(ctx, 3*boxPad, 3*boxPad+i*(fontSize+2*textPad+boxPad), leaderSize, fontSize+2*textPad, (fontSize+2*textPad)*0.2, true, false);
 
     ctx.fillStyle = "rgb(255,255,255)";
     ctx.textAlign = "left";
-    ctx.fillText(leaderboard[i].rank + ".", 35, 35+(i+1)*fontSize+i*20 - 2);
-    ctx.fillText(leaderboard[i].name, 55, 35+(i+1)*fontSize+i*20 - 2);
+    ctx.fillText(leaderboard[i].rank + ".", 3*boxPad+textPad, 3*boxPad+textPad+(i+1)*fontSize+i*(2*textPad+boxPad) - 2);
+    ctx.fillText(leaderboard[i].name, 3*boxPad+textPad + 20, 3*boxPad+textPad+(i+1)*fontSize+i*(2*textPad+boxPad) - 2);
     ctx.textAlign = "right";
-    ctx.fillText(leaderboard[i].score, 185, 35+(i+1)*fontSize+i*20 - 2);
+    ctx.fillText(leaderboard[i].score, 3*boxPad+leaderSize-textPad, 3*boxPad+textPad+(i+1)*fontSize+i*(2*textPad+boxPad) - 2);
   }
 
   //draw info outline and text in bottom left
   ctx.fillStyle = "rgba(0,0,0,0.5)";
-  roundRect(ctx, 10, view.height - (fontSize+60), 300, 50+fontSize, 20, true, false);
+  roundRect(ctx, boxPad, view.height - (fontSize+5*boxPad+2*textPad), infoSize+4*boxPad, fontSize+4*boxPad+2*textPad, 2*boxPad, true, false);
   ctx.fillStyle = "rgb(255,255,255)";
-  roundRect(ctx, 20, view.height - (fontSize+50), 280, 30+fontSize, 10, true, false);
+  roundRect(ctx, 2*boxPad, view.height - (fontSize+4*boxPad+2*textPad), infoSize+2*boxPad, fontSize+2*boxPad+2*textPad, boxPad, true, false);
   ctx.fillStyle = game.playerList[selfId].color;
-  roundRect(ctx, 30, view.height - (fontSize+40), 260, 10+fontSize, (10+fontSize)*0.2, true, false);
+  roundRect(ctx, 3*boxPad, view.height - (fontSize+3*boxPad+2*textPad), infoSize, fontSize+2*textPad, (fontSize+2*textPad)*0.2, true, false);
 
   ctx.fillStyle = "rgb(255,255,255)";
   ctx.textAlign = "left";
-  ctx.fillText(game.playerList[selfId].name, 35, view.height - 35 - 2);
+  ctx.fillText(game.playerList[selfId].name, 3*boxPad+textPad, view.height - (3*boxPad+textPad) - 2);
   ctx.textAlign = "center";
-  ctx.fillText("Score: " + game.playerList[selfId].score, 150, view.height - 35 - 2);
+  ctx.fillText("Score:" + game.playerList[selfId].score, 3*boxPad+infoSize*0.45, view.height - (3*boxPad+textPad) - 2);
   ctx.textAlign = "right";
-  ctx.fillText("Rank: " + rank + "/" + leaderboard.length, 285, view.height - 35 - 2);
+  ctx.fillText("Rank:" + rank + "/" + leaderboard.length, 3*boxPad+infoSize-textPad, view.height - (3*boxPad+textPad) - 2);
 }
 
 

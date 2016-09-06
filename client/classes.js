@@ -26,11 +26,9 @@ var Game = function(params) {
 	self.addPlayer = function(player) {
     self.playerList[player.id] = player;
 
-		var ok = false;
 		var n = 0;
 		var m = 0;
-		var scoreDiff = 0;
-		var berth = 4;
+		var berth = 5;
     var tries = 0;
     var pieces = [];
 

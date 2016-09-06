@@ -93,20 +93,17 @@ setInterval(function(){
 
   ctx.clearRect(0,0,view.width,view.height);
   ctxUi.clearRect(0,0,view.width,view.height);
+
   drawBoard(ctx,game,view,selected);
-  drawUi(ctxUi,game,view,selfId);
+  drawUi(ctx,game,view,selfId);
 },40);
 
 document.onkeyup = function(event){
   if(selected.i != null) {
-    if(event.keyCode === 68)	//d
-      socket.emit('keyPress',{inputId:'right',selected:selected});
-    else if(event.keyCode === 83)	//s
-      socket.emit('keyPress',{inputId:'down',selected:selected});
-    else if(event.keyCode === 65) //a
-      socket.emit('keyPress',{inputId:'left',selected:selected});
-    else if(event.keyCode === 87) // w
-      socket.emit('keyPress',{inputId:'up',selected:selected});
+    if(event.keyCode === 87) { socket.emit('keyPress',{inputId:'up',selected:selected}); } // w
+    else if(event.keyCode === 65) { socket.emit('keyPress',{inputId:'left',selected:selected}); } //a
+    else if(event.keyCode === 83) { socket.emit('keyPress',{inputId:'down',selected:selected}); }	//s
+    else if(event.keyCode === 68) { socket.emit('keyPress',{inputId:'right',selected:selected}); } //d
   }
 }
 

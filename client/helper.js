@@ -90,13 +90,21 @@ function getView(game, selfId, view, smooth) {
       }
 		}
 	}
-  avI = avI/count;
-  avJ = avJ/count;
 
-  var viewDist = Math.sqrt(count)+2;
-  var playerSizeX = (maxI - minI + 1)*view.size;
-  var playerSizeY = (maxJ - minJ + 1)*view.size;
-  var r = Math.min(view.width/(playerSizeX+viewDist*view.size*2),view.height/(playerSizeY+viewDist*view.size*2));
+  var r;
+  if(count) {
+    avI = avI/count;
+    avJ = avJ/count;
+
+    var viewDist = Math.sqrt(count)+2;
+    var playerSizeX = (maxI - minI + 1);
+    var playerSizeY = (maxJ - minJ + 1);
+    r = Math.min(view.width/(playerSizeX+viewDist*2),view.height/(playerSizeY+viewDist*2))/view.size;
+  } else {
+    avI = game.w/2;
+    avJ = game.h/2
+    r = Math.min(view.width/game.w,view.height/game.h)/view.size;
+  }
 
   if(smooth) {
     var viewSmooth = 100;
