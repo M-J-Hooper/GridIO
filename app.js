@@ -18,9 +18,9 @@ var gameList = {};
 
 //game settings
 var slide = 5;
-var w = 12;
+var w = 100;
 var h = w;
-var playerLimit = 3;
+var playerLimit = Math.floor(w*h/80);
 
 joinGame = function(socket,name,color) {
 	var player = new Player({new:{id:socket.id, name:name, color:color}});
