@@ -97,7 +97,7 @@ setInterval(function(){
   else { drawMenu(ctxUi,name,color); }
 },40);
 
-document.onkeyup = function(event){
+document.onkeydown = function(event){
   if(game && game.playerList[selfId].score > 0) {
     if(selected.i != null) {
       if(event.keyCode === 87) { socket.emit('keyPress',{inputId:'up',selected:selected}); } // w
@@ -115,7 +115,7 @@ document.onkeyup = function(event){
   }
 }
 
-document.onmouseup = function(event){
+document.onmousedown = function(event){
   if(game && game.playerList[selfId].score > 0) {
     var offsetX = view.width/2 - view.x;
     var offsetY = view.height/2 - view.y;

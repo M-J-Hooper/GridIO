@@ -45,7 +45,8 @@ joinGame = function(socket,name,color) {
 	socketList[socket.id].gameId = game.id;
 
 	socket.on('keyPress',function(data){
-		if(socket.id == gameList[socketList[socket.id].gameId].game.board[data.selected.i][data.selected.j].id) {
+		var gameId = socketList[socket.id].gameId;
+		if(socket.id == gameList[gameId].game.board[data.selected.i][data.selected.j].id) {
 			var pack;
 			var dx = 0;
 			var dy = 0;
@@ -54,10 +55,9 @@ joinGame = function(socket,name,color) {
 			else if(data.inputId == 'up'){ dy = -1; }
 			else if(data.inputId == 'down'){ dy = 1; }
 
-			pack = gameList[game.id].game.makeMove(data.selected.i,data.selected.j,dx,dy);
-			for(var n = 0; n < pack.players.length; n++) { gameList[game.id].updatePack.players.push(pack.players[n]); }
-			//get update pack method here???
-			for(var n = 0; n < pack.pieces.length; n++) { gameList[game.id].updatePack.pieces.push(pack.pieces[n]); }
+			pack = gameList[gameId].game.makeMove(data.selected.i,data.selected.j,dx,dy);
+			for(var n = 0; n < pack.players.length; n++) { gameList[gameId].updatePack.players.push(pack.players[n]); }
+			for(var n = 0; n < pack.pieces.length; n++) { gameList[gameId].updatePack.pieces.push(pack.pieces[n]); }
 		}
 	});
 
