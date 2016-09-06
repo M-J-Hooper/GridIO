@@ -10,10 +10,10 @@ var ctxUi = canvas.getContext("2d");
 var game = null;
 var selfId = null;
 var selected = {i:null,j:null};
-var view = {height:0,width:50,size:50,x:0,y:0};
+var view = {height:0,width:0,size:50,x:0,y:0,fixed:false};
 
-var name = chance.word()
-name = name.charAt(0).toUpperCase() + name.slice(1);
+var word = chance.word()
+var name = word.charAt(0).toUpperCase() + word.slice(1);
 var color = randomColor({luminosity:"dark",format:"rgb"});
 
 socket.on('init',function(data){
@@ -84,31 +84,39 @@ setInterval(function(){
   ctx.canvas.width  = view.width;
   ctx.canvas.height = view.height;
 
-  if(!selfId || !game) return;
+  if(game && game.playerList[selfId].score > 0) {
+    game = boardSlide(game);
+    view = getView(game,selfId,view,true);
 
+    ctx.clearRect(0,0,view.width,view.height);
+    ctxUi.clearRect(0,0,view.width,view.height);
 
-  game = boardSlide(game);
-  view = getView(game,selfId,view,true);
-
-  ctx.clearRect(0,0,view.width,view.height);
-  ctxUi.clearRect(0,0,view.width,view.height);
-
-  drawBoard(ctx,game,view,selected);
-  if(game) { drawUi(ctx,game,view,selfId); }
-  //else { drawMenu(ctx,name,color); }
+    drawBoard(ctx,game,view,selected);
+    drawUi(ctxUi,game,view,selfId);
+  }
+  else { drawMenu(ctxUi,name,color); }
 },40);
 
 document.onkeyup = function(event){
-  if(selected.i != null) {
-    if(event.keyCode === 87) { socket.emit('keyPress',{inputId:'up',selected:selected}); } // w
-    else if(event.keyCode === 65) { socket.emit('keyPress',{inputId:'left',selected:selected}); } //a
-    else if(event.keyCode === 83) { socket.emit('keyPress',{inputId:'down',selected:selected}); }	//s
-    else if(event.keyCode === 68) { socket.emit('keyPress',{inputId:'right',selected:selected}); } //d
+  if(game && game.playerList[selfId].score > 0) {
+    if(selected.i != null) {
+      if(event.keyCode === 87) { socket.emit('keyPress',{inputId:'up',selected:selected}); } // w
+      else if(event.keyCode === 65) { socket.emit('keyPress',{inputId:'left',selected:selected}); } //a
+      else if(event.keyCode === 83) { socket.emit('keyPress',{inputId:'down',selected:selected}); }	//s
+      else if(event.keyCode === 68) { socket.emit('keyPress',{inputId:'right',selected:selected}); } //d
+    }
+  } else {
+    if(event.keyCode === 67) { color = randomColor({luminosity:"dark",format:"rgb"}); } //c
+    else if(event.keyCode === 32) { socket.emit('join',{name:name,color:color}); } //space
+    else if(event.keyCode === 78) { //n
+      word = chance.word()
+      name = word.charAt(0).toUpperCase() + word.slice(1);
+    }
   }
 }
 
 document.onmouseup = function(event){
-  if(game) {
+  if(game && game.playerList[selfId].score > 0) {
     var offsetX = view.width/2 - view.x;
     var offsetY = view.height/2 - view.y;
 
@@ -117,7 +125,7 @@ document.onmouseup = function(event){
 
     selected = selectPiece(game,selfId,i,j);
   }
-  else { socket.emit('join',{name:name,color:color}); }
+  //else { socket.emit('join',{name:name,color:color}); }
 
   //console.log(JSON.stringify(game));
 }

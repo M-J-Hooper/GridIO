@@ -73,17 +73,20 @@ joinGame = function(socket,name,color) {
 leaveGame = function(socket){
 	var gameId = socketList[socket.id].gameId;
 
-	var playerCount = Object.keys(gameList[gameId].game.playerList).length;
-	if(playerCount == 0) { delete gameList[gameId]; }
-	else {
-		gameList[gameId].removePack.players.push(socket.id);
+	//if statement for nodemon restart problems
+	if(gameList[gameId]) {
+		var playerCount = Object.keys(gameList[gameId].game.playerList).length;
+		if(playerCount == 0) { delete gameList[gameId]; }
+		else {
+			gameList[gameId].removePack.players.push(socket.id);
 
-		var pieces = gameList[gameId].game.removePlayer(socket.id);
-		for(var n = 0; n < pieces.length; n++) { gameList[gameId].removePack.pieces.push(pieces[n]); }
+			var pieces = gameList[gameId].game.removePlayer(socket.id);
+			for(var n = 0; n < pieces.length; n++) { gameList[gameId].removePack.pieces.push(pieces[n]); }
+		}
+
+		socketList[socket.id].gameId = null;
+		console.log(socket.id+" left");
 	}
-
-	socketList[socket.id].gameId = null;
-	console.log(socket.id+" disconnected.")
 }
 
 
@@ -91,14 +94,17 @@ var io = require('socket.io')(serv,{});
 io.sockets.on('connection', function(socket) {
 	socket.id = Math.random();
 	socketList[socket.id] = {socket:socket,gameId:null};
+	console.log(socket.id+" connected");
 
 	socket.on('join', function(data) {
 		joinGame(socket,data.name,data.color);
+		console.log(socket.id+" joined")
 	});
 
 	socket.on('disconnect',function() {
 		leaveGame(socket);
 		delete socketList[socket.id];
+		console.log(socket.id+" disconnected")
 	});
 });
 
@@ -119,6 +125,13 @@ setInterval(function(){
 		gameList[v].initPack = {players:[],pieces:[]};
 		gameList[v].removePack = {players:[],pieces:[]};
 		gameList[v].updatePack = {players:[],pieces:[]};
+
+		//faster safer way of forcing zero scores to leave?
+		for(var w in gameList[v].game.playerList) {
+			if(gameList[v].game.playerList[w].score == 0) {
+				leaveGame(socketList[gameList[v].game.playerList[w].id].socket);
+			}
+		}
 	}
 },40);
 

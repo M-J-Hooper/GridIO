@@ -112,7 +112,30 @@ function drawUi(ctx,game,view,selfId) {
   ctx.fillText("Rank:" + rank + "/" + leaderboard.length, 3*boxPad+infoSize-textPad, view.height - (3*boxPad+textPad) - 2);
 }
 
+var menuSize = 250;
 
+drawMenu = function(ctx,name,color) {
+  ctx.fillStyle = "rgba(0,0,0,0.5)";
+  roundRect(ctx, view.width/2 - (menuSize+4*boxPad)/2, view.height/2 - (6*boxPad+6*textPad+3*fontSize)/2, menuSize+4*boxPad, 6*boxPad+6*textPad+3*fontSize, 2*boxPad, true, false);
+  ctx.fillStyle = "rgb(255,255,255)";
+  roundRect(ctx, view.width/2 - (menuSize+2*boxPad)/2, view.height/2 - (4*boxPad+6*textPad+3*fontSize)/2, menuSize+2*boxPad, 4*boxPad+6*textPad+3*fontSize, boxPad, true, false);
+  ctx.fillStyle = color;
+  roundRect(ctx, view.width/2 - menuSize/2, view.height/2 - (2*boxPad+6*textPad+3*fontSize)/2, menuSize, 2*textPad+fontSize, (2*textPad+fontSize)*0.2, true, false);
+  ctx.fillStyle = "rgba(0,0,0,0.8)";
+  roundRect(ctx, view.width/2 - menuSize/2, view.height/2 - (2*boxPad+6*textPad+3*fontSize)/2 + boxPad+2*textPad+fontSize, menuSize/2-boxPad/2, 2*textPad+fontSize, (2*textPad+fontSize)*0.2, true, false);
+  roundRect(ctx, view.width/2 + boxPad/2, view.height/2 - (2*boxPad+6*textPad+3*fontSize)/2 + boxPad+2*textPad+fontSize, menuSize/2-boxPad/2, 2*textPad+fontSize, (2*textPad+fontSize)*0.2, true, false);
+  roundRect(ctx, view.width/2 - menuSize/2, view.height/2 - (2*boxPad+6*textPad+3*fontSize)/2 + 2*boxPad+4*textPad+2*fontSize, menuSize, 2*textPad+fontSize, (2*textPad+fontSize)*0.2, true, false);
+
+
+  ctx.font = fontSize + "px " + font;
+
+  ctx.fillStyle = "rgb(255,255,255)";
+  ctx.textAlign = "center";
+  ctx.fillText(name, view.width/2, view.height/2 - (2*boxPad+6*textPad+3*fontSize)/2 + textPad+fontSize - 2);
+  ctx.fillText("Name [N]", view.width/2 - menuSize/2 + (menuSize/2-boxPad/2)/2, view.height/2 - (2*boxPad+6*textPad+3*fontSize)/2 + boxPad+2*textPad+fontSize + textPad+fontSize - 2);
+  ctx.fillText("Color [C]", view.width/2 + boxPad/2 + (menuSize/2-boxPad/2)/2, view.height/2 - (2*boxPad+6*textPad+3*fontSize)/2 + boxPad+2*textPad+fontSize + textPad+fontSize - 2);
+  ctx.fillText("Join [Space]", view.width/2, view.height/2 - (2*boxPad+6*textPad+3*fontSize)/2 + 2*boxPad+4*textPad+2*fontSize + textPad+fontSize - 2);
+}
 
 
 //helper to draw rounded rectangle

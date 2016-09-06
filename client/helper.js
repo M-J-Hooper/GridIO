@@ -92,7 +92,7 @@ function getView(game, selfId, view, smooth) {
 	}
 
   var r;
-  if(count) {
+  if(count && !view.fixed) {
     avI = avI/count;
     avJ = avJ/count;
 
@@ -104,7 +104,7 @@ function getView(game, selfId, view, smooth) {
   else {
     avI = game.w/2;
     avJ = game.h/2
-    r = Math.min(view.width/game.w,view.height/game.h)/view.size;
+    r = Math.min(view.width/(game.w+1),view.height/(game.h+1))/view.size;
   }
 
   if(smooth) {
