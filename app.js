@@ -34,6 +34,7 @@ joinGame = function(socket,name,color) {
 	if(newGame) {
 		game = new Game({new:{w:w,h:h,slide:slide}});
 		gameList[game.id] = {game:game,initPack:{players:[],pieces:[]},removePack:{players:[],pieces:[]},updatePack:{players:[],pieces:[]}};
+		console.log("Game "+game.id+" created");
 	}
 
 	gameList[game.id].initPack.players.push(player);
@@ -42,7 +43,6 @@ joinGame = function(socket,name,color) {
 	for(var n = 0; n < pieces.length; n++) { gameList[game.id].initPack.pieces.push(pieces[n]); }
 
 	socketList[socket.id].gameId = game.id;
-	console.log(socket.id+" connected.")
 
 	socket.on('keyPress',function(data){
 		if(socket.id == gameList[game.id].game.board[data.selected.i][data.selected.j].id) {
@@ -68,24 +68,27 @@ joinGame = function(socket,name,color) {
 		players:[],
 		pieces:[]
 	});
+
+	console.log("Player "+socket.id+" joined Game "+game.id)
 }
 
 leaveGame = function(socket){
 	var gameId = socketList[socket.id].gameId;
 
-	//if statement for nodemon restart problems
-	if(gameList[gameId]) {
+	if(gameList[gameId]) { //if statement for nodemon restart problems
+		socketList[socket.id].gameId = null;
+		console.log("Player "+socket.id+" left Game "+gameId);
+
+		var pieces = gameList[gameId].game.removePlayer(socket.id);
 		var playerCount = Object.keys(gameList[gameId].game.playerList).length;
-		if(playerCount == 0) { delete gameList[gameId]; }
+		if(playerCount == 0) {
+			delete gameList[gameId];
+			console.log("Game "+gameId+" deleted");
+		}
 		else {
 			gameList[gameId].removePack.players.push(socket.id);
-
-			var pieces = gameList[gameId].game.removePlayer(socket.id);
 			for(var n = 0; n < pieces.length; n++) { gameList[gameId].removePack.pieces.push(pieces[n]); }
 		}
-
-		socketList[socket.id].gameId = null;
-		console.log(socket.id+" left");
 	}
 }
 
@@ -94,17 +97,16 @@ var io = require('socket.io')(serv,{});
 io.sockets.on('connection', function(socket) {
 	socket.id = Math.random();
 	socketList[socket.id] = {socket:socket,gameId:null};
-	console.log(socket.id+" connected");
+	console.log("Player "+socket.id+" connected");
 
 	socket.on('join', function(data) {
 		joinGame(socket,data.name,data.color);
-		console.log(socket.id+" joined")
 	});
 
 	socket.on('disconnect',function() {
 		leaveGame(socket);
 		delete socketList[socket.id];
-		console.log(socket.id+" disconnected")
+		console.log("Player "+socket.id+" disconnected")
 	});
 });
 

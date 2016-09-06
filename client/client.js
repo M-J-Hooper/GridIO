@@ -84,7 +84,7 @@ setInterval(function(){
   ctx.canvas.width  = view.width;
   ctx.canvas.height = view.height;
 
-  if(game && game.playerList[selfId].score > 0) {
+  if(game) {
     game = boardSlide(game);
     view = getView(game,selfId,view,true);
 
@@ -92,8 +92,8 @@ setInterval(function(){
     ctxUi.clearRect(0,0,view.width,view.height);
 
     drawBoard(ctx,game,view,selected);
-    drawUi(ctxUi,game,view,selfId);
   }
+  if(game && game.playerList[selfId].score > 0) { drawUi(ctxUi,game,view,selfId); }
   else { drawMenu(ctxUi,name,color); }
 },40);
 
