@@ -45,7 +45,7 @@ joinGame = function(socket,name,color) {
 	socketList[socket.id].gameId = game.id;
 
 	socket.on('keyPress',function(data){
-		if(socket.id == gameList[game.id].game.board[data.selected.i][data.selected.j].id) {
+		if(socket.id == gameList[socketList[socket.id].gameId].game.board[data.selected.i][data.selected.j].id) {
 			var pack;
 			var dx = 0;
 			var dy = 0;
@@ -69,7 +69,9 @@ joinGame = function(socket,name,color) {
 		pieces:[]
 	});
 
-	console.log("Player "+socket.id+" joined Game "+game.id)
+	console.log("Player "+socket.id+" joined Game "+game.id);
+	var playerCount = Object.keys(game.playerList).length;
+	console.log("Game "+game.id+" has "+playerCount+"/"+playerLimit+" players");
 }
 
 leaveGame = function(socket){
@@ -81,6 +83,7 @@ leaveGame = function(socket){
 
 		var pieces = gameList[gameId].game.removePlayer(socket.id);
 		var playerCount = Object.keys(gameList[gameId].game.playerList).length;
+		console.log("Game "+gameId+" has "+playerCount+"/"+playerLimit+" players");
 		if(playerCount == 0) {
 			delete gameList[gameId];
 			console.log("Game "+gameId+" deleted");
