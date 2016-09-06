@@ -12,6 +12,9 @@ var selfId = null;
 var selected = {i:null,j:null};
 var view = {height:0,width:50,size:50,x:0,y:0};
 
+var name = chance.word()
+name = name.charAt(0).toUpperCase() + name.slice(1);
+var color = randomColor({luminosity:"dark",format:"rgb"});
 
 socket.on('init',function(data){
   if(data.selfId) { selfId = data.selfId; }
@@ -91,7 +94,8 @@ setInterval(function(){
   ctxUi.clearRect(0,0,view.width,view.height);
 
   drawBoard(ctx,game,view,selected);
-  drawUi(ctx,game,view,selfId);
+  if(game) { drawUi(ctx,game,view,selfId); }
+  //else { drawMenu(ctx,name,color); }
 },40);
 
 document.onkeyup = function(event){
@@ -113,7 +117,7 @@ document.onmouseup = function(event){
 
     selected = selectPiece(game,selfId,i,j);
   }
-  else { socket.emit('join'); }
+  else { socket.emit('join',{name:name,color:color}); }
 
   //console.log(JSON.stringify(game));
 }

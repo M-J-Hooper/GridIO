@@ -25,10 +25,7 @@ var w = 12;
 var h = w;
 var playerLimit = 3;
 
-joinGame = function(socket) {
-	var name = chance.word()
-	name = name.charAt(0).toUpperCase() + name.slice(1);
-	var color = rc.randomColor({luminosity:"dark",format:"rgb"});
+joinGame = function(socket,name,color) {
 	var player = new Player({new:{id:socket.id, name:name, color:color}});
 
 	var newGame = true;
@@ -98,8 +95,8 @@ io.sockets.on('connection', function(socket) {
 	socket.id = Math.random();
 	socketList[socket.id] = {socket:socket,gameId:null};
 
-	socket.on('join', function() {
-		joinGame(socket);
+	socket.on('join', function(data) {
+		joinGame(socket,data.name,data.color);
 	});
 
 	socket.on('disconnect',function() {

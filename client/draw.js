@@ -64,7 +64,6 @@ var textPad = 5;
 var leaderSize = 200;
 var infoSize = 350;
 
-//MAKE PARAMETERS FOR UI SIZES!!!!!
 function drawUi(ctx,game,view,selfId) {
   var leaderboard = game.getLeaderboard();
   var rank = 0;
@@ -112,6 +111,7 @@ function drawUi(ctx,game,view,selfId) {
   ctx.textAlign = "right";
   ctx.fillText("Rank:" + rank + "/" + leaderboard.length, 3*boxPad+infoSize-textPad, view.height - (3*boxPad+textPad) - 2);
 }
+
 
 
 
