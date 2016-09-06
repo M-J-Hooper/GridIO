@@ -85,7 +85,7 @@ setInterval(function(){
   ctx.canvas.height = view.height;
 
   if(game) {
-    game = boardSlide(game);
+    game.boardSlide();
     view = getView(game,selfId,view,true);
 
     ctx.clearRect(0,0,view.width,view.height);

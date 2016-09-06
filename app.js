@@ -32,7 +32,7 @@ joinGame = function(socket,name,color) {
 		if(playerCount < playerLimit) { game = gameList[v].game; newGame = false; break; }
 	}
 	if(newGame) {
-		game = new Game({new:{w:w,h:h,slide:slide}});
+		game = new Game({new:{w:w,h:h,slide:slide,playerLimit:playerLimit}});
 		gameList[game.id] = {game:game,initPack:{players:[],pieces:[]},removePack:{players:[],pieces:[]},updatePack:{players:[],pieces:[]}};
 		console.log("Game "+game.id+" created");
 	}
@@ -71,7 +71,7 @@ joinGame = function(socket,name,color) {
 
 	console.log("Player "+socket.id+" joined Game "+game.id);
 	var playerCount = Object.keys(game.playerList).length;
-	console.log("Game "+game.id+" has "+playerCount+"/"+playerLimit+" players");
+	console.log("Game "+game.id+" has "+playerCount+"/"+game.playerLimit+" players");
 }
 
 leaveGame = function(socket){
@@ -83,7 +83,7 @@ leaveGame = function(socket){
 
 		var pieces = gameList[gameId].game.removePlayer(socket.id);
 		var playerCount = Object.keys(gameList[gameId].game.playerList).length;
-		console.log("Game "+gameId+" has "+playerCount+"/"+playerLimit+" players");
+		console.log("Game "+gameId+" has "+playerCount+"/"+gameList[gameId].game.playerLimit+" players");
 		if(playerCount == 0) {
 			delete gameList[gameId];
 			console.log("Game "+gameId+" deleted");
@@ -126,7 +126,8 @@ setInterval(function(){
 		}
 	}
 	for(var v in gameList) {
-		gameList[v].game = boardSlide(gameList[v].game);
+		var game = gameList[v];
+		gameList[v].game.boardSlide();
 
 		gameList[v].initPack = {players:[],pieces:[]};
 		gameList[v].removePack = {players:[],pieces:[]};

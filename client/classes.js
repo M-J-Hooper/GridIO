@@ -12,6 +12,7 @@ var Game = function(params) {
     self.w = params.new.w;
     self.h = params.new.h;
     self.slide = params.new.slide;
+    self.playerLimit = params.new.playerLimit;
     self.playerList = {};
 
   	self.board = createArray(self.w,self.h);
@@ -76,6 +77,14 @@ var Game = function(params) {
   		}
   	}
     return pieces;
+  }
+
+  self.boardSlide = function() {
+    for(var i = 0; i < self.w; i++) {
+  		for(var j = 0; j < self.h; j++) {
+  			if(self.board[i][j].prev.count > 0) { self.board[i][j].prev.count--; }
+      }
+    }
   }
 
   //reorder leaderboard based on score
