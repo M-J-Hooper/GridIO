@@ -1,8 +1,3 @@
-var view = {height:0,width:50,size:50,x:0,y:0};
-
-var leaderboard = [];
-var rank = 0;
-
 var socket = io();
 
 var canvas = document.getElementById("canvas");
@@ -15,7 +10,11 @@ var ctxUi = canvas.getContext("2d");
 var game = null;
 var selfId = null;
 var selected = {i:null,j:null};
+var view = {height:0,width:0,size:50,x:0,y:0,fixed:false};
 
+var word = chance.word()
+var name = word.charAt(0).toUpperCase() + word.slice(1);
+var color = randomColor({luminosity:"dark",format:"rgb"});
 
 socket.on('init',function(data){
   if(data.selfId) { selfId = data.selfId; }
@@ -28,7 +27,6 @@ socket.on('init',function(data){
   for(var i = 0 ; i < data.players.length; i++){
     game.playerList[data.players[i].id] = new Player({copy:data.players[i]});
   }
-  if(data.players.length) { updateLeaderboard(); }
 
   for(var n = 0; n < data.pieces.length; n++) {
     game.board[data.pieces[n].i][data.pieces[n].j] = {id:data.pieces[n].id,prev:{count:0,dx:0,dy:0}};
@@ -66,7 +64,6 @@ socket.on('update',function(data){
     for(var i = 0 ; i < data.players.length; i++){
       game.playerList[data.players[i].id].score = data.players[i].score;
     }
-    updateLeaderboard();
   }
 });
 
@@ -74,7 +71,6 @@ socket.on('remove',function(data) {
   for(var i = 0; i < data.players.length; i++) {
     delete game.playerList[data.players[i]];
   }
-  updateLeaderboard();
 
   for(var n = 0; n < data.pieces.length; n++) {
     game.board[data.pieces[n].i][data.pieces[n].j].id = null;
@@ -88,55 +84,48 @@ setInterval(function(){
   ctx.canvas.width  = view.width;
   ctx.canvas.height = view.height;
 
-  if(!selfId || !game) return;
+  if(game) {
+    game = boardSlide(game);
+    view = getView(game,selfId,view,true);
 
+    ctx.clearRect(0,0,view.width,view.height);
+    ctxUi.clearRect(0,0,view.width,view.height);
 
-  game = boardSlide(game);
-  view = getView(game,selfId,view,true);
-
-  ctx.clearRect(0,0,view.width,view.height);
-  drawBoard(ctx,game,view,selected);
-  drawUi(ctxUi,game,view,leaderboard,rank,selfId);
+    drawBoard(ctx,game,view,selected);
+  }
+  if(game && game.playerList[selfId].score > 0) { drawUi(ctxUi,game,view,selfId); }
+  else { drawMenu(ctxUi,name,color); }
 },40);
 
 document.onkeyup = function(event){
-  if(selected.i != null) {
-    if(event.keyCode === 68)	//d
-      socket.emit('keyPress',{inputId:'right',selected:selected});
-    else if(event.keyCode === 83)	//s
-      socket.emit('keyPress',{inputId:'down',selected:selected});
-    else if(event.keyCode === 65) //a
-      socket.emit('keyPress',{inputId:'left',selected:selected});
-    else if(event.keyCode === 87) // w
-      socket.emit('keyPress',{inputId:'up',selected:selected});
+  if(game && game.playerList[selfId].score > 0) {
+    if(selected.i != null) {
+      if(event.keyCode === 87) { socket.emit('keyPress',{inputId:'up',selected:selected}); } // w
+      else if(event.keyCode === 65) { socket.emit('keyPress',{inputId:'left',selected:selected}); } //a
+      else if(event.keyCode === 83) { socket.emit('keyPress',{inputId:'down',selected:selected}); }	//s
+      else if(event.keyCode === 68) { socket.emit('keyPress',{inputId:'right',selected:selected}); } //d
+    }
+  } else {
+    if(event.keyCode === 67) { color = randomColor({luminosity:"dark",format:"rgb"}); } //c
+    else if(event.keyCode === 32) { socket.emit('join',{name:name,color:color}); } //space
+    else if(event.keyCode === 78) { //n
+      word = chance.word()
+      name = word.charAt(0).toUpperCase() + word.slice(1);
+    }
   }
 }
 
 document.onmouseup = function(event){
-  var offsetX = view.width/2 - view.x;
-  var offsetY = view.height/2 - view.y;
+  if(game && game.playerList[selfId].score > 0) {
+    var offsetX = view.width/2 - view.x;
+    var offsetY = view.height/2 - view.y;
 
-  var i = Math.floor((event.clientX-offsetX)/view.size);
-  var j = Math.floor((event.clientY-offsetY)/view.size);
+    var i = Math.floor((event.clientX-offsetX)/view.size);
+    var j = Math.floor((event.clientY-offsetY)/view.size);
 
-  selected = selectPiece(game,selfId,i,j);
-  //console.log(JSON.stringify(game));
-}
-
-//reorder leaderboard based on score
-function updateLeaderboard() {
-  var newBoard = [];
-  for(var i in game.playerList) { newBoard.push({id:i,name:game.playerList[i].name,score:game.playerList[i].score,rank:0}); }
-  newBoard.sort(function(a,b) { return a.score - b.score });
-  leaderboard = newBoard.reverse();
-
-  var prevRank = 1;
-  var prevScore = 0;
-  for(var i = 0; i < leaderboard.length; i++) {
-    if(leaderboard[i].score != prevScore) { prevRank = i+1; }
-    prevScore = leaderboard[i].score;
-    leaderboard[i].rank = prevRank;
-
-    if(leaderboard[i].id == selfId) { rank = prevRank; }
+    selected = selectPiece(game,selfId,i,j);
   }
+  //else { socket.emit('join',{name:name,color:color}); }
+
+  //console.log(JSON.stringify(game));
 }
