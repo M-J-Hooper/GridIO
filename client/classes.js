@@ -224,14 +224,14 @@ var Game = function(params) {
   self.pieceSpawn = function() {
     var pieces = [];
     var berth = 3;
-    var rate = 0.01;
-    var density = 1/25;
+    var rate = 0.005;
+    var density = 1/50;
     var target = self.w*self.h*density;
 
     var count = 0;
     for(var n = 0; n < self.w; n++) {
       for(var m = 0; m < self.h; m++) {
-        if(self.board[n][m].id) { count++; } //==1 to only count dead pieces
+        if(self.board[n][m].id == 1) { count++; } //==1 to only count dead pieces
       }
     }
     var diff = target - count;
