@@ -113,7 +113,7 @@ document.onkeydown = function(event){
       else if(event.keyCode === 83) { dy = 1; }	//s
       else if(event.keyCode === 68) { dx = 1; } //d
 
-      socket.emit('move',{i:selected.i,j:selected.j,dx:dx,dy:dy});
+      if(dx || dy) { socket.emit('move',{i:selected.i,j:selected.j,dx:dx,dy:dy}); }
     }
   } else {
     if(event.keyCode === 67) { color = randomColor({luminosity:"dark",format:"rgb"}); } //c
