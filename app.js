@@ -45,18 +45,10 @@ joinGame = function(socket,name,color) {
 
 	socketList[socket.id].gameId = game.id;
 
-	socket.on('keyPress',function(data){
+	socket.on('move',function(data){
 		var gameId = socketList[socket.id].gameId;
-		if(socket.id == gameList[gameId].game.board[data.selected.i][data.selected.j].id) {
-			var pack;
-			var dx = 0;
-			var dy = 0;
-			if(data.inputId == 'left'){ dx = -1; }
-			else if(data.inputId == 'right'){ dx = 1; }
-			else if(data.inputId == 'up'){ dy = -1; }
-			else if(data.inputId == 'down'){ dy = 1; }
-
-			pack = gameList[gameId].game.makeMove(data.selected.i,data.selected.j,dx,dy);
+		if(socket.id == gameList[gameId].game.board[data.i][data.j].id) {
+			var pack = gameList[gameId].game.makeMove(data.i,data.j,data.dx,data.dy);
 			for(var n = 0; n < pack.players.length; n++) { gameList[gameId].updatePack.players.push(pack.players[n]); }
 			for(var n = 0; n < pack.pieces.length; n++) { gameList[gameId].updatePack.pieces.push(pack.pieces[n]); }
 		}

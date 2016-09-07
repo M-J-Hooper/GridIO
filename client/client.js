@@ -4,6 +4,8 @@ var canvas = document.getElementById("canvas");
 canvas.style.background = 'rgb(200,200,200)'; //set canvas background
 var ctx = canvas.getContext("2d");
 
+var mobile = mobileAndTabletcheck();
+
 var canvasUi = document.getElementById("canvas-ui");
 var ctxUi = canvas.getContext("2d");
 
@@ -99,21 +101,24 @@ setInterval(function(){
 
     drawBoard(ctx,game,view,selected);
   }
-  if(game && game.playerList[selfId].score > 0) { drawUi(ctxUi,game,view,selfId); }
+  if(game && game.playerList[selfId].score > 0) { drawUi(ctxUi,game,view,selfId,mobile); }
   else { drawMenu(ctxUi,name,color); }
 },40);
 
 document.onkeydown = function(event){
   if(game && game.playerList[selfId].score > 0) {
     if(selected.i != null) {
-      if(event.keyCode === 87) { socket.emit('keyPress',{inputId:'up',selected:selected}); } // w
-      else if(event.keyCode === 65) { socket.emit('keyPress',{inputId:'left',selected:selected}); } //a
-      else if(event.keyCode === 83) { socket.emit('keyPress',{inputId:'down',selected:selected}); }	//s
-      else if(event.keyCode === 68) { socket.emit('keyPress',{inputId:'right',selected:selected}); } //d
+      var dx = 0;
+      var dy = 0;
+      if(event.keyCode === 87) { dy = -1; } // w
+      else if(event.keyCode === 65) { dx = -1; } //a
+      else if(event.keyCode === 83) { dy = 1; }	//s
+      else if(event.keyCode === 68) { dx = 1; } //d
+
+      socket.emit('move',{i:selected.i,j:selected.j,dx:dx,dy:dy});
     }
   } else {
     if(event.keyCode === 67) { color = randomColor({luminosity:"dark",format:"rgb"}); } //c
-    else if(event.keyCode === 32) { socket.emit('join',{name:name,color:color}); } //space
     else if(event.keyCode === 78) { //n
       word = chance.word()
       name = word.charAt(0).toUpperCase() + word.slice(1);
@@ -131,7 +136,24 @@ document.onmousedown = function(event){
 
     selected = selectPiece(game,selfId,i,j);
   }
-  //else { socket.emit('join',{name:name,color:color}); }
+  else { socket.emit('join',{name:name,color:color}); }
 
+  //console.log(JSON.stringify(game));
+}
+
+document.onmouseup = function(event){
+  if(mobile && game && game.playerList[selfId].score > 0 && selected.i != null) {
+    var offsetX = view.width/2 - view.x;
+    var offsetY = view.height/2 - view.y;
+
+    var diffI = (event.clientX-offsetX)/view.size - selected.i;
+    var diffJ = (event.clientY-offsetY)/view.size - selected.j;
+    var dx = 0;
+    var dy = 0;
+    if(Math.abs(diffI) > Math.abs(diffJ)) { dx = Math.sign(diffI); }
+    else { dy = Math.sign(diffJ); }
+
+    socket.emit('move',{i:selected.i,j:selected.j,dx:dx,dy:dy});
+  }
   //console.log(JSON.stringify(game));
 }
