@@ -4,7 +4,7 @@ var canvas = document.getElementById("canvas");
 canvas.style.background = 'rgb(200,200,200)'; //set canvas background
 var ctx = canvas.getContext("2d");
 
-var mobile = true;//mobileAndTabletcheck();
+var mobile = mobileAndTabletcheck();
 
 var canvasUi = document.getElementById("canvas-ui");
 var ctxUi = canvas.getContext("2d");
@@ -126,7 +126,7 @@ document.onkeydown = function(event){
   }
 }
 
-document.onmousedown = function(event){
+document.onmousedown = function(event) {
   if(game && game.playerList[selfId].score > 0) {
     var offsetX = view.width/2 - view.x;
     var offsetY = view.height/2 - view.y;
@@ -137,17 +137,37 @@ document.onmousedown = function(event){
     selected = selectPiece(game,selfId,i,j);
   }
   else { socket.emit('join',{name:name,color:color}); }
-
   //console.log(JSON.stringify(game));
 }
 
-document.onmouseup = function(event){
-  if(mobile && game && game.playerList[selfId].score > 0 && selected.i != null) {
+document.addEventListener("touchstart", function(event) {
+  event.preventDefault();
+  event.stopPropagation();
+
+  if(game && game.playerList[selfId].score > 0) {
     var offsetX = view.width/2 - view.x;
     var offsetY = view.height/2 - view.y;
 
-    var diffI = Math.floor((event.clientX-offsetX)/view.size) - selected.i;
-    var diffJ = Math.floor((event.clientY-offsetY)/view.size) - selected.j;
+    var touch = event.touches[0];
+    var i = Math.floor((touch.clientX-offsetX)/view.size);
+    var j = Math.floor((touch.clientY-offsetY)/view.size);
+
+    selected = selectPiece(game,selfId,i,j);
+  }
+  else { socket.emit('join',{name:name,color:color}); }
+}, false);
+
+document.addEventListener("touchend", function(event) {
+  event.preventDefault();
+  event.stopPropagation();
+
+  if(game && game.playerList[selfId].score > 0 && selected.i != null) {
+    var offsetX = view.width/2 - view.x;
+    var offsetY = view.height/2 - view.y;
+
+    var touch = event.changedTouches[event.changedTouches.length-1];
+    var diffI = Math.floor((touch.clientX-offsetX)/view.size) - selected.i;
+    var diffJ = Math.floor((touch.clientY-offsetY)/view.size) - selected.j;
     var dx = 0;
     var dy = 0;
     if(Math.abs(diffI) > Math.abs(diffJ)) { dx = Math.sign(diffI); }
@@ -156,5 +176,4 @@ document.onmouseup = function(event){
     if(dx || dy) { socket.emit('move',{i:selected.i,j:selected.j,dx:dx,dy:dy}); }
     selected = {i:null,j:null}
   }
-  //console.log(JSON.stringify(game));
-}
+}, false);
