@@ -64,7 +64,7 @@ var textPad = 5;
 var leaderSize = 200;
 var infoSize = 350;
 
-function drawUi(ctx,game,view,selfId,mobile) {
+function drawUi(ctx,game,view,selfId) {
   var leaderboard = game.getLeaderboard();
   var rank = 0;
   for(var i = 0; i < leaderboard.length; i++) {
@@ -74,27 +74,25 @@ function drawUi(ctx,game,view,selfId,mobile) {
   ctx.font = fontSize + "px " + font;
 
   //draw leaderboard
-  if(!mobile) {
-    var leaderLength = leaderboard.length < 10 ? leaderboard.length : 10;
+  var leaderLength = leaderboard.length < 10 ? leaderboard.length : 10;
 
-    //draw leaderboard outlines in top left
-    ctx.fillStyle = "rgba(0,0,0,0.5)";
-    roundRect(ctx, boxPad, boxPad, leaderSize+4*boxPad, 3*boxPad+(fontSize+2*textPad+boxPad)*leaderLength, 2*boxPad, true, false);
+  //draw leaderboard outlines in top left
+  ctx.fillStyle = "rgba(0,0,0,0.5)";
+  roundRect(ctx, boxPad, boxPad, leaderSize+4*boxPad, 3*boxPad+(fontSize+2*textPad+boxPad)*leaderLength, 2*boxPad, true, false);
+  ctx.fillStyle = "rgb(255,255,255)";
+  roundRect(ctx, 2*boxPad, 2*boxPad, leaderSize+2*boxPad, boxPad+(fontSize+2*textPad+boxPad)*leaderLength, boxPad, true, false);
+
+  //draw each player in top 10 with text
+  for(var i = 0; i < leaderLength; i++) {
+    ctx.fillStyle = game.playerList[leaderboard[i].id].color;
+    roundRect(ctx, 3*boxPad, 3*boxPad+i*(fontSize+2*textPad+boxPad), leaderSize, fontSize+2*textPad, (fontSize+2*textPad)*0.2, true, false);
+
     ctx.fillStyle = "rgb(255,255,255)";
-    roundRect(ctx, 2*boxPad, 2*boxPad, leaderSize+2*boxPad, boxPad+(fontSize+2*textPad+boxPad)*leaderLength, boxPad, true, false);
-
-    //draw each player in top 10 with text
-    for(var i = 0; i < leaderLength; i++) {
-      ctx.fillStyle = game.playerList[leaderboard[i].id].color;
-      roundRect(ctx, 3*boxPad, 3*boxPad+i*(fontSize+2*textPad+boxPad), leaderSize, fontSize+2*textPad, (fontSize+2*textPad)*0.2, true, false);
-
-      ctx.fillStyle = "rgb(255,255,255)";
-      ctx.textAlign = "left";
-      ctx.fillText(leaderboard[i].rank + ".", 3*boxPad+textPad, 3*boxPad+textPad+(i+1)*fontSize+i*(2*textPad+boxPad) - 2);
-      ctx.fillText(leaderboard[i].name, 3*boxPad+textPad + 3*boxPad, 3*boxPad+textPad+(i+1)*fontSize+i*(2*textPad+boxPad) - 2);
-      ctx.textAlign = "right";
-      ctx.fillText(leaderboard[i].score, 3*boxPad+leaderSize-textPad, 3*boxPad+textPad+(i+1)*fontSize+i*(2*textPad+boxPad) - 2);
-    }
+    ctx.textAlign = "left";
+    ctx.fillText(leaderboard[i].rank + ".", 3*boxPad+textPad, 3*boxPad+textPad+(i+1)*fontSize+i*(2*textPad+boxPad) - 2);
+    ctx.fillText(leaderboard[i].name, 3*boxPad+textPad + 3*boxPad, 3*boxPad+textPad+(i+1)*fontSize+i*(2*textPad+boxPad) - 2);
+    ctx.textAlign = "right";
+    ctx.fillText(leaderboard[i].score, 3*boxPad+leaderSize-textPad, 3*boxPad+textPad+(i+1)*fontSize+i*(2*textPad+boxPad) - 2);
   }
 
   //draw info outline and text in bottom left

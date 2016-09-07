@@ -4,7 +4,7 @@ var canvas = document.getElementById("canvas");
 canvas.style.background = 'rgb(200,200,200)'; //set canvas background
 var ctx = canvas.getContext("2d");
 
-var mobile = mobileAndTabletcheck();
+var mobile = true;//mobileAndTabletcheck();
 
 var canvasUi = document.getElementById("canvas-ui");
 var ctxUi = canvas.getContext("2d");
@@ -101,7 +101,7 @@ setInterval(function(){
 
     drawBoard(ctx,game,view,selected);
   }
-  if(game && game.playerList[selfId].score > 0) { drawUi(ctxUi,game,view,selfId,mobile); }
+  if(game && game.playerList[selfId].score > 0) { drawUi(ctxUi,game,view,selfId); }
   else { drawMenu(ctxUi,name,color); }
 },40);
 
@@ -146,14 +146,15 @@ document.onmouseup = function(event){
     var offsetX = view.width/2 - view.x;
     var offsetY = view.height/2 - view.y;
 
-    var diffI = (event.clientX-offsetX)/view.size - selected.i;
-    var diffJ = (event.clientY-offsetY)/view.size - selected.j;
+    var diffI = Math.floor((event.clientX-offsetX)/view.size) - selected.i;
+    var diffJ = Math.floor((event.clientY-offsetY)/view.size) - selected.j;
     var dx = 0;
     var dy = 0;
     if(Math.abs(diffI) > Math.abs(diffJ)) { dx = Math.sign(diffI); }
     else { dy = Math.sign(diffJ); }
 
-    socket.emit('move',{i:selected.i,j:selected.j,dx:dx,dy:dy});
+    if(dx || dy) { socket.emit('move',{i:selected.i,j:selected.j,dx:dx,dy:dy}); }
+    selected = {i:null,j:null}
   }
   //console.log(JSON.stringify(game));
 }
