@@ -115,6 +115,11 @@ io.sockets.on('connection', function(socket) {
 
 setInterval(function(){
 	//if(!game) return;
+	for(var v in gameList) {
+		var pieces = gameList[v].game.pieceSpawn();
+		for(var n = 0; n < pieces.length; n++) { gameList[v].updatePack.pieces.push(pieces[n]); }
+	}
+
 	for(var v in socketList){
 		var socket = socketList[v].socket;
 
@@ -126,7 +131,6 @@ setInterval(function(){
 		}
 	}
 	for(var v in gameList) {
-		var game = gameList[v];
 		gameList[v].game.boardSlide();
 
 		gameList[v].initPack = {players:[],pieces:[]};

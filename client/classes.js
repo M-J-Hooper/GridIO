@@ -79,31 +79,6 @@ var Game = function(params) {
     return pieces;
   }
 
-  self.boardSlide = function() {
-    for(var i = 0; i < self.w; i++) {
-  		for(var j = 0; j < self.h; j++) {
-  			if(self.board[i][j].prev.count > 0) { self.board[i][j].prev.count--; }
-      }
-    }
-  }
-
-  //reorder leaderboard based on score
-  self.getLeaderboard = function() {
-    var leaderboard = [];
-    for(var i in self.playerList) { leaderboard.push({id:i,name:self.playerList[i].name,score:self.playerList[i].score,rank:0}); }
-    leaderboard.sort(function(a,b) { return a.score - b.score });
-    leaderboard = leaderboard.reverse();
-
-    var prevRank = 1;
-    var prevScore = 0;
-    for(var i = 0; i < leaderboard.length; i++) {
-      if(leaderboard[i].score != prevScore) { prevRank = i+1; }
-      prevScore = leaderboard[i].score;
-      leaderboard[i].rank = prevRank;
-    }
-    return leaderboard;
-  }
-
 	self.makeMove = function(i,j,dx,dy) {
     var id = self.board[i][j].id;
 		var selfCount = 0;
@@ -241,41 +216,73 @@ var Game = function(params) {
 					}
 				}
 			}
-
-			//old method for cell killing...
-			/*for(var n = 0; n < self.w; n++) {
-				for(var m = 0; m < self.h; m++) {
-					var currId = self.board[n][m].id;
-
-					//careful of board edges
-					var maxA = n == self.w-1 ? 1 : 2;
-					var minA = n == 0 ? 0 : -1;
-					var maxB = m == self.h-1 ? 1 : 2;
-					var minB = m == 0 ? 0 : -1;
-
-					if(currId && currId != 1) {
-						var check = 0;
-						for(var a = minA; a < maxA; a++) {
-							for(var b = minB; b < maxB; b++) {
-								if(Math.abs(a) + Math.abs(b) == 1) {
-									if(self.board[n+a][m+b].id == currId) { check++; }
-								}
-							}
-						}
-
-						if(!check) {
-							self.board[n][m].id = 1;
-              pack.pieces.push({i:n,j:m,id:1});
-
-							self.playerList[currId].score--;
-              pack.players.push(self.playerList[currId].getUpdatePack());
-						}
-					}
-				}
-			}*/
 		}
 		return pack;
 	}
+
+  self.pieceSpawn = function() {
+    var pieces = [];
+
+    var berth = 2;
+    var spawnRate = 0.001;
+    var density = 1/10;
+    var target = self.w*self.h*density;
+
+    var count = 0;
+    for(var n = 0; n < self.w; n++) {
+      for(var m = 0; m < self.h; m++) {
+        if(self.board[n][m].id) { count++; } //==1 to only count dead pieces
+      }
+    }
+    var spawnProb = spawnRate*(target-count)/(self.w*self.h);
+
+    for(var n = berth; n < self.w-berth; n++) {
+      for(var m = berth; m < self.h-berth; m++) {
+        var check = 0;
+        for(var a = -berth; a <= berth; a++) {
+          for(var b = -berth; b <= berth; b++) {
+            if(self.board[n+a][m+b].id && self.board[n+a][m+b].id != 1) { check++; }
+          }
+        }
+        if(!check) {
+          if(spawnProb > 0 && Math.random() < spawnProb) {
+            self.board[n][m].id = 1;
+            pieces.push({i:n,j:m,id:1});
+          }
+          if(spawnProb < 0 && Math.random() < -spawnProb) {
+            self.board[n][m].id = null;
+            pieces.push({i:n,j:m,id:null});
+          }
+        }
+      }
+    }
+    return pieces;
+  }
+
+  self.boardSlide = function() {
+    for(var i = 0; i < self.w; i++) {
+  		for(var j = 0; j < self.h; j++) {
+  			if(self.board[i][j].prev.count > 0) { self.board[i][j].prev.count--; }
+      }
+    }
+  }
+
+  //reorder leaderboard based on score
+  self.getLeaderboard = function() {
+    var leaderboard = [];
+    for(var i in self.playerList) { leaderboard.push({id:i,name:self.playerList[i].name,score:self.playerList[i].score,rank:0}); }
+    leaderboard.sort(function(a,b) { return a.score - b.score });
+    leaderboard = leaderboard.reverse();
+
+    var prevRank = 1;
+    var prevScore = 0;
+    for(var i = 0; i < leaderboard.length; i++) {
+      if(leaderboard[i].score != prevScore) { prevRank = i+1; }
+      prevScore = leaderboard[i].score;
+      leaderboard[i].rank = prevRank;
+    }
+    return leaderboard;
+  }
 	return self;
 }
 
