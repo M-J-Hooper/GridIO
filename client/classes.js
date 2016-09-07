@@ -50,7 +50,7 @@ var Game = function(params) {
   			if(tries > 50) { berth--; tries = 0; } //how many times should it try?
       }
 		}
-    if(berth < 1) { console.log("No room!"); } //FIND NEW GAME IF NO ROOM!?
+    if(berth < 1) { console.log("Game "+self.id+" has no room for Player "+player.id); } //FIND NEW GAME IF NO ROOM!?
 
 		//add pieces and get score change
 		for(var i = -1; i <= 1; i++) {
@@ -222,9 +222,7 @@ var Game = function(params) {
 
   self.pieceSpawn = function() {
     var pieces = [];
-
-    var berth = 2;
-    var spawnRate = 0.001;
+    var rate = 0.01;
     var density = 1/10;
     var target = self.w*self.h*density;
 
@@ -234,24 +232,49 @@ var Game = function(params) {
         if(self.board[n][m].id) { count++; } //==1 to only count dead pieces
       }
     }
-    var spawnProb = spawnRate*(target-count)/(self.w*self.h);
+    console.log(count,target);
+    var diff = target - count;
+    if(diff > 0) { //spawn
+      var berth = 3;
+      var tries = 0;
+      var n = null;
+      var m = null;
 
-    for(var n = berth; n < self.w-berth; n++) {
-      for(var m = berth; m < self.h-berth; m++) {
-        var check = 0;
-        for(var a = -berth; a <= berth; a++) {
-          for(var b = -berth; b <= berth; b++) {
-            if(self.board[n+a][m+b].id && self.board[n+a][m+b].id != 1) { check++; }
+      var spawnProb = rate;
+
+      if(Math.random() < spawnProb) {
+        while(berth >= 1) {
+    			n = Math.floor(Math.random()*(self.w-2*berth))+berth;
+    			m = Math.floor(Math.random()*(self.h-2*berth))+berth;
+
+    			var check = 0;
+    			for(var i = -berth; i <= berth; i++) {
+    				for(var j = -berth; j <= berth; j++) {
+    					if(self.board[n+i][m+j].id && self.board[n+i][m+j].id != 1) { check++; }
+    				}
+    			}
+    			if(!check) { break; }
+          else {
+      			tries++;
+      			if(tries > 50) { berth--; tries = 0; } //how many times should it try?
           }
-        }
-        if(!check) {
-          if(spawnProb > 0 && Math.random() < spawnProb) {
-            self.board[n][m].id = 1;
-            pieces.push({i:n,j:m,id:1});
-          }
-          if(spawnProb < 0 && Math.random() < -spawnProb) {
-            self.board[n][m].id = null;
-            pieces.push({i:n,j:m,id:null});
+    		}
+        if(berth < 1) { console.log("Game "+self.id+" has no room for spawn"); }
+
+
+        self.board[n][m].id = 1;
+        pieces.push({i:n,j:m,id:1});
+      }
+    }
+    if(diff < 0) { //kill
+      var killProb = rate/count;
+      for(var n = 0; n < self.w; n++) {
+    		for(var m = 0; m < self.h; m++) {
+          if(self.board[n][m].id == 1) {
+            if(Math.random() < killProb) {
+              self.board[n][m].id = null;
+              pieces.push({i:n,j:m,id:null});
+            }
           }
         }
       }

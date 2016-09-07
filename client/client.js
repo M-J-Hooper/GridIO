@@ -35,29 +35,35 @@ socket.on('init',function(data){
 
 socket.on('update',function(data){
   if(data.pieces.length) {
+    var ownPieces = false; //fix selected piece moving on every update
     for(var n = 0; n < data.pieces.length; n++) {
       var i = data.pieces[n].i;
       var j = data.pieces[n].j;
       game.board[i][j].id = data.pieces[n].id;
       if(data.pieces[n].prev) {
-        if(data.pieces[n].prev.count != null) { game.board[i][j].prev.count = data.pieces[n].prev.count; }
+        if(data.pieces[n].prev.count != null) {
+          if(!ownPieces && data.pieces[n].id == selfId) { ownPieces = true; } //only if you pieces move
+          game.board[i][j].prev.count = data.pieces[n].prev.count;
+        }
         if(data.pieces[n].prev.dx != null) { game.board[i][j].prev.dx = data.pieces[n].prev.dx; }
         if(data.pieces[n].prev.dy != null) { game.board[i][j].prev.dy = data.pieces[n].prev.dy; }
       }
     }
 
-    //decide where the selected piece has moved when the board updates
-    var max = {i:null,j:null};
-    for(var i = 0; i < game.w; i++) {
-  		for(var j = 0; j < game.h; j++) {
-        if(game.board[i][j].id) {
-          if(i-game.board[i][j].prev.dx == selected.i && j-game.board[i][j].prev.dy == selected.j) {
-             if(max.i == null || game.board[i][j].prev.count > game.board[max.i][max.j].prev.count) { max.i = i; max.j = j; }
+    //decide where the selected piece should be moved
+    if(ownPieces) {
+      var max = {i:null,j:null};
+      for(var i = 0; i < game.w; i++) {
+    		for(var j = 0; j < game.h; j++) {
+          if(game.board[i][j].id) {
+            if(i-game.board[i][j].prev.dx == selected.i && j-game.board[i][j].prev.dy == selected.j) {
+               if(max.i == null || game.board[i][j].prev.count > game.board[max.i][max.j].prev.count) { max.i = i; max.j = j; }
+            }
           }
         }
       }
+      if(max.i != null) { selected = selectPiece(game,selfId,max.i,max.j); }
     }
-    if(max.i != null) { selected = selectPiece(game,selfId,max.i,max.j); }
   }
 
   if(data.players.length) {
