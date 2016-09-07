@@ -157,7 +157,7 @@ document.addEventListener("touchstart", function(event) {
   else { socket.emit('join',{name:name,color:color}); }
 }, false);
 
-document.addEventListener("touchend", function(event) {
+document.addEventListener("touchmove", function(event) {
   event.preventDefault();
   event.stopPropagation();
 
@@ -165,7 +165,8 @@ document.addEventListener("touchend", function(event) {
     var offsetX = view.width/2 - view.x;
     var offsetY = view.height/2 - view.y;
 
-    var touch = event.changedTouches[event.changedTouches.length-1];
+    //var touch = event.changedTouches[event.changedTouches.length-1]; //if touchend
+    var touch = event.touches[0]; //if touchmove
     var diffI = Math.floor((touch.clientX-offsetX)/view.size) - selected.i;
     var diffJ = Math.floor((touch.clientY-offsetY)/view.size) - selected.j;
     var dx = 0;
@@ -174,6 +175,13 @@ document.addEventListener("touchend", function(event) {
     else { dy = Math.sign(diffJ); }
 
     if(dx || dy) { socket.emit('move',{i:selected.i,j:selected.j,dx:dx,dy:dy}); }
-    selected = {i:null,j:null}
+    //selected = {i:null,j:null}; //if touchend
   }
+}, false);
+
+document.addEventListener("touchend", function(event) {
+  event.preventDefault();
+  event.stopPropagation();
+
+  selected = {i:null,j:null};
 }, false);
