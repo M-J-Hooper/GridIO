@@ -4,8 +4,6 @@ var canvas = document.getElementById("canvas");
 canvas.style.background = 'rgb(200,200,200)'; //set canvas background
 var ctx = canvas.getContext("2d");
 
-var mobile = mobileAndTabletcheck();
-
 var canvasUi = document.getElementById("canvas-ui");
 var ctxUi = canvas.getContext("2d");
 
