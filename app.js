@@ -21,6 +21,7 @@ var slide = 5;
 var w = 20;
 var h = w;
 var playerLimit = Math.floor(w*h/80);
+var spawn = true;
 
 joinGame = function(socket,name,color) {
 	var player = new Player({new:{id:socket.id, name:name, color:color}});
@@ -32,7 +33,7 @@ joinGame = function(socket,name,color) {
 		if(playerCount < playerLimit) { game = gameList[v].game; newGame = false; break; }
 	}
 	if(newGame) {
-		game = new Game({new:{w:w,h:h,slide:slide,playerLimit:playerLimit}});
+		game = new Game({new:{w:w,h:h,slide:slide,playerLimit:playerLimit,spawn:spawn}});
 		gameList[game.id] = {game:game,initPack:{players:[],pieces:[]},removePack:{players:[],pieces:[]},updatePack:{players:[],pieces:[]}};
 		console.log("Game "+game.id+" created");
 	}
@@ -116,8 +117,10 @@ io.sockets.on('connection', function(socket) {
 setInterval(function(){
 	//if(!game) return;
 	for(var v in gameList) {
-		var pieces = gameList[v].game.pieceSpawn();
-		//for(var n = 0; n < pieces.length; n++) { gameList[v].updatePack.pieces.push(pieces[n]); }
+		if(gameList[v].game.spawn) {
+			var pieces = gameList[v].game.pieceSpawn();
+			for(var n = 0; n < pieces.length; n++) { gameList[v].updatePack.pieces.push(pieces[n]); }
+		}
 	}
 
 	for(var v in socketList){

@@ -13,6 +13,7 @@ var Game = function(params) {
     self.h = params.new.h;
     self.slide = params.new.slide;
     self.playerLimit = params.new.playerLimit;
+    self.spawn = params.new.spawn;
     self.playerList = {};
 
   	self.board = createArray(self.w,self.h);
@@ -222,8 +223,9 @@ var Game = function(params) {
 
   self.pieceSpawn = function() {
     var pieces = [];
+    var berth = 3;
     var rate = 0.01;
-    var density = 1/10;
+    var density = 1/25;
     var target = self.w*self.h*density;
 
     var count = 0;
@@ -232,16 +234,13 @@ var Game = function(params) {
         if(self.board[n][m].id) { count++; } //==1 to only count dead pieces
       }
     }
-    console.log(count,target);
     var diff = target - count;
     if(diff > 0) { //spawn
-      var berth = 3;
       var tries = 0;
       var n = null;
       var m = null;
 
       var spawnProb = rate;
-
       if(Math.random() < spawnProb) {
         while(berth >= 1) {
     			n = Math.floor(Math.random()*(self.w-2*berth))+berth;
@@ -268,10 +267,17 @@ var Game = function(params) {
     }
     if(diff < 0) { //kill
       var killProb = rate/count;
-      for(var n = 0; n < self.w; n++) {
-    		for(var m = 0; m < self.h; m++) {
+      for(var n = berth; n < self.w-berth; n++) { //cant kill pieces near edge???
+    		for(var m = berth; m < self.h-berth; m++) {
           if(self.board[n][m].id == 1) {
-            if(Math.random() < killProb) {
+            var check = 0;
+            for(var i = -berth; i <= berth; i++) {
+      				for(var j = -berth; j <= berth; j++) {
+      					if(self.board[n+i][m+j].id && self.board[n+i][m+j].id != 1) { check++; }
+      				}
+      			}
+
+            if(!check && Math.random() < killProb) {
               self.board[n][m].id = null;
               pieces.push({i:n,j:m,id:null});
             }
