@@ -26,31 +26,39 @@ var playerLimit = Math.floor(w*h/80);
 var spawn = true;
 
 joinGame = function(socket,data) {
-	var player = new Player({new:{id:socket.id, name:data.name, color:data.color}});
+	//before adding to a game or creating one, check that the id is not already playing!!!
+	for(var n in gameList) {
+		for(var m in gameList[n].game.playerList) {
+			if(gameList[n].game.playerList[m].id == socket.id) { return; }
+		}
+	}
 
+	var player = new Player({new:{id:socket.id, name:data.name, color:data.color}});
 	var newGame = true;
 	var game;
 
 	//join specific game from browser
-	if(data.gameId) {
+	if(data.gameId && data.gameId != 1) {
 		var playerCount = Object.keys(gameList[data.gameId].game.playerList).length;
 		if(data.gamId != 1 && playerCount < playerLimit) { game = gameList[data.gameId].game; newGame = false; }
-	} else { //check for space in current games
+	}
+	else if(!data.gameId) { //check for space in current games
 		for(var v in gameList) {
 			var playerCount = Object.keys(gameList[v].game.playerList).length;
 			if(playerCount < playerLimit) { game = gameList[v].game; newGame = false; break; }
 		}
 	}
+
 	//if no room or if gameId was 1 create new game
 	if(newGame) {
 		//var word = chance.word()
-	  var name = "Placeholder";//word.charAt(0).toUpperCase() + word.slice(1);
 		var color = "green";//randomColor({luminosity:"dark",format:"rgb"});
 
-		game = new Game({new:{name:name,color:color,w:w,h:h,slide:slide,playerLimit:playerLimit,spawn:spawn}});
+		game = new Game({new:{color:color,w:w,h:h,slide:slide,playerLimit:playerLimit,spawn:spawn}});
 		gameList[game.id] = {game:game,initPack:{players:[],pieces:[]},removePack:{players:[],pieces:[]},updatePack:{players:[],pieces:[]}};
 		console.log("Game "+game.id+" created");
 	}
+
 
 	gameList[game.id].initPack.players.push(player);
 

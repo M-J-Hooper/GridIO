@@ -76,7 +76,7 @@ function updateUi(game,view,selfId) {
   for(var i = 0; i < leaderLength; i++) {
     $("<div>", {
       class: "blob",
-      html: '<span class="text-rank">'+leaderboard[i].rank+'.</span><span class="text-left">'+leaderboard[i].name+'</span><span class="text-right">'+leaderboard[i].score+'</span>',
+      html: '<span class="text-rank">#'+leaderboard[i].rank+'</span><span class="text-left">'+leaderboard[i].name+'</span><span class="text-right">'+leaderboard[i].score+'</span>',
       css: {background: game.playerList[leaderboard[i].id].color}
     }).appendTo("#leaderboard .inner");
     if(i < leaderLength-1) { $('<div class="spacer" />').appendTo("#leaderboard .inner"); } //FIND BETTER WAY THAN SPACER!!!
@@ -84,8 +84,9 @@ function updateUi(game,view,selfId) {
 }
 
 function updateBrowser(gameList, socket, name, color) {
-  var gameCount = Object.keys(gameList).length;
   $("#gamelist").html("");
+
+  var gameCount = Object.keys(gameList).length;
   var count = 0;
   var space = 0;
   for(var v in gameList) {
@@ -94,16 +95,17 @@ function updateBrowser(gameList, socket, name, color) {
     var playerCount = Object.keys(game.playerList).length;
     if(playerCount < game.playerLimit) {
       space++;
+      var code = "#"+(""+game.id).slice(-4);
       $("<div>", {
         class: "blob hover",
-        html: '<span class="text-left">'+game.name+'</span><span class="text-center">'+game.w+'x'+game.h+'</span><span class="text-right">'+playerCount+'/'+game.playerLimit+'</span>',
+        html: '<span class="text-left">'+code+'</span><span class="text-center">'+game.w+'x'+game.h+'</span><span class="text-right">'+playerCount+'/'+game.playerLimit+'</span>',
         css: {background: game.color},
         click: function() { socket.emit('join',{name:name,color:color,gameId:game.id}); }
       }).appendTo("#gamelist");
     }
     if(count != gameCount) { $('<div class="spacer"/>').appendTo("#gamelist"); } //FIND BETTER WAY THAN SPACER!!!
-    if(!space) { $("#gamelist").html("No games with space found!");}
   }
+  if(!space) { $("#gamelist").html("No games with space found!");}
 }
 
 
