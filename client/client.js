@@ -197,7 +197,12 @@ getColor = function() {
 getColor();
 
 $("#ui").hide();
+$("#rules").hide();
 
 $("#name").click(getName);
 $("#color").click(getColor);
-$("#join").click(function() { socket.emit('join',{name:name,color:color}); });
+$("#go-rules").click(function() { $("#start").hide(); $("#rules").show(); });
+$("#rules-back").click(function() { $("#start").show(); $("#rules").hide(); });
+$("#play").click(function() { socket.emit('join',{name:name,color:color}); });
+
+setInterval(function() { $("#logo").css("color",randomColor({luminosity:"dark",format:"rgb"})); }, 500);
