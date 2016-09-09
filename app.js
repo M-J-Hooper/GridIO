@@ -38,22 +38,21 @@ joinGame = function(socket,data) {
 	var game;
 
 	//join specific game from browser
-	if(data.gameId && data.gameId != 1) {
-		var playerCount = Object.keys(gameList[data.gameId].game.playerList).length;
-		if(data.gamId != 1 && playerCount < playerLimit) { game = gameList[data.gameId].game; newGame = false; }
-	}
-	else if(!data.gameId) { //check for space in current games
-		for(var v in gameList) {
-			var playerCount = Object.keys(gameList[v].game.playerList).length;
-			if(playerCount < playerLimit) { game = gameList[v].game; newGame = false; break; }
+	if(data.gameId != 1) {
+		if(data.gameId) {
+			var playerCount = Object.keys(gameList[data.gameId].game.playerList).length;
+			if(data.gamId != 1 && playerCount < playerLimit) { game = gameList[data.gameId].game; newGame = false; }
+		} else { //check for space in current games
+			for(var v in gameList) {
+				var playerCount = Object.keys(gameList[v].game.playerList).length;
+				if(playerCount < playerLimit) { game = gameList[v].game; newGame = false; break; }
+			}
 		}
 	}
 
 	//if no room or if gameId was 1 create new game
 	if(newGame) {
-		//var word = chance.word()
 		var color = "green";//randomColor({luminosity:"dark",format:"rgb"});
-
 		game = new Game({new:{color:color,w:w,h:h,slide:slide,playerLimit:playerLimit,spawn:spawn}});
 		gameList[game.id] = {game:game,initPack:{players:[],pieces:[]},removePack:{players:[],pieces:[]},updatePack:{players:[],pieces:[]}};
 		console.log("Game "+game.id+" created");

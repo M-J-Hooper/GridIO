@@ -29,16 +29,18 @@ socket.on('init',function(data){
   }
 });
 
-socket.on('update',function(data){
+socket.on('update',function(data) {
+
+  //unpack piece updates
   if(data.pieces.length) {
-    var ownPieces = false; //fix selected piece moving on every update
+    var ownPieces = false;
     for(var n = 0; n < data.pieces.length; n++) {
       var i = data.pieces[n].i;
       var j = data.pieces[n].j;
       game.board[i][j].id = data.pieces[n].id;
       if(data.pieces[n].prev) {
         if(data.pieces[n].prev.count != null) {
-          if(!ownPieces && data.pieces[n].id == selfId) { ownPieces = true; } //only if you pieces move
+          if(!ownPieces && data.pieces[n].id == selfId) { ownPieces = true; } //only need to move selected if your pieces move
           game.board[i][j].prev.count = data.pieces[n].prev.count;
         }
         if(data.pieces[n].prev.dx != null) { game.board[i][j].prev.dx = data.pieces[n].prev.dx; }
@@ -62,20 +64,23 @@ socket.on('update',function(data){
     }
   }
 
+  //unpack player updates
   if(data.players.length) {
     for(var i = 0 ; i < data.players.length; i++){
       game.playerList[data.players[i].id].score = data.players[i].score;
     }
   }
-  if(data.players.length) { updateUi(game,view,selfId); }
+  if(data.players.length) { updateUi(game,view,selfId); } //leadboard only changes on player updates
 });
 
 socket.on('remove',function(data) {
+  //unpack removed players
   for(var i = 0; i < data.players.length; i++) {
     delete game.playerList[data.players[i]];
   }
   if(data.players.length) { updateUi(game,view,selfId); }
 
+  //unpack changes to removed players' pieces
   for(var n = 0; n < data.pieces.length; n++) {
     game.board[data.pieces[n].i][data.pieces[n].j].id = data.pieces[n].id;
   }
@@ -83,25 +88,29 @@ socket.on('remove',function(data) {
 
 //client side update loop for drawing
 setInterval(function(){
+  //canvas matched to window size
   view.width = window.innerWidth;
   view.height = window.innerHeight;
 
   ctx.canvas.width  = view.width;
   ctx.canvas.height = view.height;
 
-  if(game) {
+  if(game) { //view board even when score goes to zero
     game.boardSlide();
     view = getView(game,selfId,view,true);
 
     ctx.clearRect(0,0,view.width,view.height);
     drawBoard(ctx,game,view,selected);
   }
+
+  //transition between menu when game starts/ends
   if(game && game.playerList[selfId].score > 0) {
     if($("#menu").is(":visible")) { $("#menu").hide(); $("#ui").show(); }
   }
   else if(!$("#menu").is(":visible")) { $("#menu").show(); $("#ui").hide(); }
 },40);
 
+//send move when a valid piece is selected and wasd pressed
 document.onkeydown = function(event){
   if(game && game.playerList[selfId].score > 0) {
     if(selected.i != null) {
@@ -117,6 +126,7 @@ document.onkeydown = function(event){
   }
 }
 
+//try to select a piece on mouse click
 document.onmousedown = function(event) {
   if(game && game.playerList[selfId].score > 0) {
     var offsetX = view.width/2 - view.x;
@@ -130,6 +140,7 @@ document.onmousedown = function(event) {
   //console.log(JSON.stringify(game));
 }
 
+//try to select a piece on touch of a screen
 document.addEventListener("touchstart", function(event) {
   //event.preventDefault();
   //event.stopPropagation();
@@ -146,6 +157,7 @@ document.addEventListener("touchstart", function(event) {
   }
 }, false);
 
+//if valid selection, send move in direction of drag on touch screen
 document.addEventListener("touchmove", function(event) {
   event.preventDefault();
   event.stopPropagation();
@@ -168,6 +180,7 @@ document.addEventListener("touchmove", function(event) {
   }
 }, false);
 
+//remove selection when touch is released on screen
 document.addEventListener("touchend", function(event) {
   //event.preventDefault();
   //event.stopPropagation();
@@ -181,7 +194,7 @@ getGames = function() {
   });
 }
 
-
+//generate random player name
 getName = function() {
   var word = chance.word()
   name = word.charAt(0).toUpperCase() + word.slice(1);
@@ -189,6 +202,7 @@ getName = function() {
 }
 getName();
 
+//generate random player color
 getColor = function() {
   color = randomColor({luminosity:"dark",format:"rgb"});
   $("#player").css("background", color);

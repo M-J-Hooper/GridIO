@@ -1,5 +1,6 @@
 var mobile = mobileCheck();
 
+//draw board lines, pieces and selection on canvas
 function drawBoard(ctx,game,view,selected) {
   var offsetX = view.width/2 - view.x;
   var offsetY = view.height/2 - view.y;
@@ -59,6 +60,7 @@ function drawBoard(ctx,game,view,selected) {
   }
 }
 
+//update html of leaderboard and info bar after player update
 function updateUi(game,view,selfId) {
   var leaderboard = game.getLeaderboard();
   var rank = 0;
@@ -83,6 +85,7 @@ function updateUi(game,view,selfId) {
   }
 }
 
+//update the html of the game browser after goto or refresh
 function updateBrowser(gameList, socket, name, color) {
   $("#gamelist").html("");
 
