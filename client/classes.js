@@ -9,6 +9,8 @@ var Game = function(params) {
   var self = {};
   if(params.new) {
     self.id = Math.random();
+    self.name = params.new.name;
+    self.color = params.new.color;
     self.w = params.new.w;
     self.h = params.new.h;
     self.slide = params.new.slide;

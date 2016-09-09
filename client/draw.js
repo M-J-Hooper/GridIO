@@ -85,22 +85,24 @@ function updateUi(game,view,selfId) {
 
 function updateBrowser(gameList, socket, name, color) {
   var gameCount = Object.keys(gameList).length;
-  if(gameCount) { $("#gamelist").html(""); }
-  else { $("#gamelist").html("No games found!"); }
-
+  $("#gamelist").html("");
   var count = 0;
+  var space = 0;
   for(var v in gameList) {
     count++;
     var game = gameList[v].game;
     var playerCount = Object.keys(game.playerList).length;
     if(playerCount < game.playerLimit) {
+      space++;
       $("<div>", {
         class: "blob hover",
-        html: '<span class="text-left">'+game.w+'x'+game.h+'</span><span class="text-right">'+playerCount+'/'+game.playerLimit+'</span>',
+        html: '<span class="text-left">'+game.name+'</span><span class="text-center">'+game.w+'x'+game.h+'</span><span class="text-right">'+playerCount+'/'+game.playerLimit+'</span>',
+        css: {background: game.color},
         click: function() { socket.emit('join',{name:name,color:color,gameId:game.id}); }
       }).appendTo("#gamelist");
     }
     if(count != gameCount) { $('<div class="spacer"/>').appendTo("#gamelist"); } //FIND BETTER WAY THAN SPACER!!!
+    if(!space) { $("#gamelist").html("No games with space found!");}
   }
 }
 

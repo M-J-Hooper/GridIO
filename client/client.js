@@ -208,7 +208,7 @@ $("#go-rules").click(function() { $("#start").hide(); $("#rules").show(); });
 $("#rules-back").click(function() { $("#start").show(); $("#rules").hide(); });
 
 $("#go-browse").click(function() { getGames(); $("#start").hide(); $("#browse").show(); });
-$("#browse-create").click(function() { socket.emit('join',{name:name,color:color}); });
+$("#browse-create").click(function() { socket.emit('join',{name:name,color:color,gameId:1}); });
 $("#browse-refresh").click(function() { getGames(); });
 $("#browse-back").click(function() { $("#start").show(); $("#browse").hide(); });
 

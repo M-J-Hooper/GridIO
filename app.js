@@ -2,6 +2,8 @@ var express = require('express');
 var app = express();
 var serv = require('http').Server(app);
 
+require('./client/lib/randomColor.js')(); //use npm???
+require('./client/lib/chance.js')();
 require('./client/helper.js')();
 require('./client/classes.js')();
 
@@ -29,17 +31,20 @@ joinGame = function(socket,data) {
 	var newGame = true;
 	var game;
 	if(data.gameId) {
-		if(!gameList[data.gameId]) { return; }
 		var playerCount = Object.keys(gameList[data.gameId].game.playerList).length;
 		if(playerCount < playerLimit) { game = gameList[data.gameId].game; newGame = false; }
-		else { return; }
-	}
-	for(var v in gameList) {
-		var playerCount = Object.keys(gameList[v].game.playerList).length;
-		if(playerCount < playerLimit) { game = gameList[v].game; newGame = false; break; }
+	} else {
+		for(var v in gameList) {
+			var playerCount = Object.keys(gameList[v].game.playerList).length;
+			if(playerCount < playerLimit) { game = gameList[v].game; newGame = false; break; }
+		}
 	}
 	if(newGame) {
-		game = new Game({new:{w:w,h:h,slide:slide,playerLimit:playerLimit,spawn:spawn}});
+		//var word = chance.word()
+	  var name = "Placeholder";//word.charAt(0).toUpperCase() + word.slice(1);
+		var color = "green";//randomColor({luminosity:"dark",format:"rgb"});
+
+		game = new Game({new:{name:name,color:color,w:w,h:h,slide:slide,playerLimit:playerLimit,spawn:spawn}});
 		gameList[game.id] = {game:game,initPack:{players:[],pieces:[]},removePack:{players:[],pieces:[]},updatePack:{players:[],pieces:[]}};
 		console.log("Game "+game.id+" created");
 	}
