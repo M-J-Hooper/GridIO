@@ -30,15 +30,18 @@ joinGame = function(socket,data) {
 
 	var newGame = true;
 	var game;
+
+	//join specific game from browser
 	if(data.gameId) {
 		var playerCount = Object.keys(gameList[data.gameId].game.playerList).length;
-		if(playerCount < playerLimit) { game = gameList[data.gameId].game; newGame = false; }
-	} else {
+		if(data.gamId != 1 && playerCount < playerLimit) { game = gameList[data.gameId].game; newGame = false; }
+	} else { //check for space in current games
 		for(var v in gameList) {
 			var playerCount = Object.keys(gameList[v].game.playerList).length;
 			if(playerCount < playerLimit) { game = gameList[v].game; newGame = false; break; }
 		}
 	}
+	//if no room or if gameId was 1 create new game
 	if(newGame) {
 		//var word = chance.word()
 	  var name = "Placeholder";//word.charAt(0).toUpperCase() + word.slice(1);
@@ -51,11 +54,13 @@ joinGame = function(socket,data) {
 
 	gameList[game.id].initPack.players.push(player);
 
+	//add player to board
 	var pieces = gameList[game.id].game.addPlayer(player);
 	for(var n = 0; n < pieces.length; n++) { gameList[game.id].initPack.pieces.push(pieces[n]); }
 
 	socketList[socket.id].gameId = game.id;
 
+	//add move listener to socket of new joined player
 	socket.on('move',function(data){
 		var gameId = socketList[socket.id].gameId;
 		if(socket.id == gameList[gameId].game.board[data.i][data.j].id) {
@@ -65,7 +70,7 @@ joinGame = function(socket,data) {
 		}
 	});
 
-	//get all info on connect
+	//give all info on connect
 	socket.emit('init',{
 		selfId:socket.id,
 		game:game,
@@ -85,14 +90,16 @@ leaveGame = function(socket){
 		socketList[socket.id].gameId = null;
 		console.log("Player "+socket.id+" left Game "+gameId);
 
+		//remove player from board
 		var pieces = gameList[gameId].game.removePlayer(socket.id);
 		var playerCount = Object.keys(gameList[gameId].game.playerList).length;
 		console.log("Game "+gameId+" has "+playerCount+"/"+gameList[gameId].game.playerLimit+" players");
+
+		//delete game if last player
 		if(playerCount == 0) {
 			delete gameList[gameId];
 			console.log("Game "+gameId+" deleted");
-		}
-		else {
+		} else { //otherwise let other players in game know
 			gameList[gameId].removePack.players.push(socket.id);
 			for(var n = 0; n < pieces.length; n++) { gameList[gameId].removePack.pieces.push(pieces[n]); }
 		}
@@ -103,13 +110,15 @@ leaveGame = function(socket){
 var io = require('socket.io')(serv,{});
 io.sockets.on('connection', function(socket) {
 	socket.id = Math.random();
-	socketList[socket.id] = {socket:socket,gameId:null};
+	socketList[socket.id] = {socket:socket,gameId:null}; //connected but not joined
 	console.log("Player "+socket.id+" connected");
 
+	//join specific game
 	socket.on('join', function(data) {
 		joinGame(socket,data);
 	});
 
+	//get gameList for game browser
 	socket.on('browse', function(data, callback) {
 		callback(gameList);
 	});
@@ -123,6 +132,8 @@ io.sockets.on('connection', function(socket) {
 
 setInterval(function(){
 	//if(!game) return;
+
+	//spawn pieces for games with spawning on
 	for(var v in gameList) {
 		if(gameList[v].game.spawn) {
 			var pieces = gameList[v].game.pieceSpawn();
@@ -130,6 +141,7 @@ setInterval(function(){
 		}
 	}
 
+	//send pack for game to corresponding joined players
 	for(var v in socketList){
 		var socket = socketList[v].socket;
 
@@ -140,6 +152,8 @@ setInterval(function(){
 			socket.emit('remove',game.removePack);
 		}
 	}
+
+	//slide and return packs to empty
 	for(var v in gameList) {
 		gameList[v].game.boardSlide();
 

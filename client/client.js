@@ -77,7 +77,7 @@ socket.on('remove',function(data) {
   if(data.players.length) { updateUi(game,view,selfId); }
 
   for(var n = 0; n < data.pieces.length; n++) {
-    game.board[data.pieces[n].i][data.pieces[n].j].id = null;
+    game.board[data.pieces[n].i][data.pieces[n].j].id = data.pieces[n].id;
   }
 });
 

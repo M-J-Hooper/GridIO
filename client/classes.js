@@ -74,8 +74,15 @@ var Game = function(params) {
     for(var i = 0; i < self.w; i++) {
   		for(var j = 0; j < self.h; j++) {
   			if(self.board[i][j].id == id) {
-  				self.board[i][j].id = null; //1 to kill pieces when disconnected
-  				pieces.push({i:i,j:j});
+          //1 to kill pieces, null to remove totally
+          if(self.spawn) {
+            self.board[i][j].id = 1;
+            pieces.push({i:i,j:j,id:1});
+          } else {
+            self.board[i][j].id = null;
+            pieces.push({i:i,j:j,id:null});
+          }
+
   			}
   		}
   	}
