@@ -7,7 +7,23 @@
 <body>
 	<canvas id="canvas"></canvas>
 	<canvas id="canvas-ui"></canvas>
-	<div id="menu">
+
+	<div id="ui" class="layer">
+		<div id="leaderboard" class="outer">
+			<div class="inner"></div>
+		</div>
+		<div id="info" class="outer">
+			<div class="inner">
+				<div class="blob">
+					<span class="text-left"></span>
+					<span class="text-center"></span>
+					<span class="text-right"></span>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div id="menu" class="layer">
 		<div id="start" class="outer">
 			<div class="inner">
 				<div id="player" class="blob"></div><div class="spacer"></div>
@@ -17,6 +33,7 @@
 			</div>
 		</div>
 	</div>
+
 </body>
 
 <script src="/client/lib/socket.js"></script>

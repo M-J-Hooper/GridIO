@@ -25,6 +25,7 @@ socket.on('init',function(data){
   for(var i = 0 ; i < data.players.length; i++){
     game.playerList[data.players[i].id] = new Player({copy:data.players[i]});
   }
+  if(data.players.length) { updateUi(ctxUi,game,view,selfId); }
 
   for(var n = 0; n < data.pieces.length; n++) {
     game.board[data.pieces[n].i][data.pieces[n].j] = {id:data.pieces[n].id,prev:{count:0,dx:0,dy:0}};
@@ -69,12 +70,14 @@ socket.on('update',function(data){
       game.playerList[data.players[i].id].score = data.players[i].score;
     }
   }
+  if(data.players.length) { updateUi(ctxUi,game,view,selfId); }
 });
 
 socket.on('remove',function(data) {
   for(var i = 0; i < data.players.length; i++) {
     delete game.playerList[data.players[i]];
   }
+  if(data.players.length) { updateUi(ctxUi,game,view,selfId); }
 
   for(var n = 0; n < data.pieces.length; n++) {
     game.board[data.pieces[n].i][data.pieces[n].j].id = null;
@@ -101,7 +104,6 @@ setInterval(function(){
     drawBoard(ctx,game,view,selected);
   }
   if(game && game.playerList[selfId].score > 0) {
-    drawUi(ctxUi,game,view,selfId);
     if($("#menu").is(":visible")) { $("#menu").hide(); }
   }
   else if(!$("#menu").is(":visible")) { $("#menu").show(); }
@@ -193,6 +195,8 @@ getColor = function() {
   $("#player").css("background", color);
 }
 getColor();
+
+//$("#ui").hide();
 
 $("#name").click(getName);
 $("#color").click(getColor);

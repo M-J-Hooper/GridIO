@@ -59,64 +59,28 @@ function drawBoard(ctx,game,view,selected) {
   }
 }
 
-var fontSize = 16*(1+mobile);
-var font = "monospace";
-var boxPad = 10*(1+mobile);
-var textPad = 5*(1+mobile);
-var leaderSize = 200*(1+mobile);
-var infoSize = 350*(1+mobile);
-
-function drawUi(ctx,game,view,selfId) {
+function updateUi(ctx,game,view,selfId) {
   var leaderboard = game.getLeaderboard();
   var rank = 0;
   for(var i = 0; i < leaderboard.length; i++) {
     if(leaderboard[i].id == selfId) { rank = leaderboard[i].rank; }
   }
 
-  ctx.font = fontSize + "px " + font;
+  $("#info .blob").css("background", game.playerList[selfId].color);
+  $("#info .text-left").text(name);
+  $("#info .text-center").text("Score:"+game.playerList[selfId].score);
+  $("#info .text-right").text("Rank:"+rank+"/"+leaderboard.length);
 
-  //draw leaderboard
-  if(!mobile) {
-    var leaderLength = leaderboard.length < 10 ? leaderboard.length : 10;
-
-    //draw leaderboard outlines in top left
-    ctx.fillStyle = "rgba(0,0,0,0.5)";
-    roundRect(ctx, boxPad, boxPad, leaderSize+4*boxPad, 3*boxPad+(fontSize+2*textPad+boxPad)*leaderLength, 2*boxPad, true, false);
-    ctx.fillStyle = "rgb(255,255,255)";
-    roundRect(ctx, 2*boxPad, 2*boxPad, leaderSize+2*boxPad, boxPad+(fontSize+2*textPad+boxPad)*leaderLength, boxPad, true, false);
-
-    //draw each player in top 10 with text
-    for(var i = 0; i < leaderLength; i++) {
-      ctx.fillStyle = game.playerList[leaderboard[i].id].color;
-      roundRect(ctx, 3*boxPad, 3*boxPad+i*(fontSize+2*textPad+boxPad), leaderSize, fontSize+2*textPad, (fontSize+2*textPad)*0.2, true, false);
-
-      ctx.fillStyle = "rgb(255,255,255)";
-      ctx.textAlign = "left";
-      ctx.fillText(leaderboard[i].rank + ".", 3*boxPad+textPad, 3*boxPad+textPad+(i+1)*fontSize+i*(2*textPad+boxPad) - 2);
-      ctx.fillText(leaderboard[i].name, 3*boxPad+textPad + 3*boxPad, 3*boxPad+textPad+(i+1)*fontSize+i*(2*textPad+boxPad) - 2);
-      ctx.textAlign = "right";
-      ctx.fillText(leaderboard[i].score, 3*boxPad+leaderSize-textPad, 3*boxPad+textPad+(i+1)*fontSize+i*(2*textPad+boxPad) - 2);
-    }
+  $("#leaderboard .inner").html("");
+  var leaderLength = leaderboard.length < 10 ? leaderboard.length : 10;
+  for(var i = 0; i < leaderLength; i++) {
+    $("<div>", {
+      class: "blob",
+      html: '<span class="text-rank">'+leaderboard[i].rank+'.</span><span class="text-left">'+leaderboard[i].name+'</span><span class="text-right">'+leaderboard[i].score+'</span>',
+      css: {background: game.playerList[leaderboard[i].id].color}
+    }).appendTo("#leaderboard .inner");
+    if(i < leaderLength-1) { $('<div class="spacer" />').appendTo("#leaderboard .inner"); } //FIND BETTER WAY THAN SPACER!!!
   }
-
-  //draw info outline and text in bottom left
-  if(mobile) { infoSize = view.width - 6*boxPad; }
-
-
-  ctx.fillStyle = "rgba(0,0,0,0.5)";
-  roundRect(ctx, boxPad, view.height - (fontSize+5*boxPad+2*textPad), infoSize+4*boxPad, fontSize+4*boxPad+2*textPad, 2*boxPad, true, false);
-  ctx.fillStyle = "rgb(255,255,255)";
-  roundRect(ctx, 2*boxPad, view.height - (fontSize+4*boxPad+2*textPad), infoSize+2*boxPad, fontSize+2*boxPad+2*textPad, boxPad, true, false);
-  ctx.fillStyle = game.playerList[selfId].color;
-  roundRect(ctx, 3*boxPad, view.height - (fontSize+3*boxPad+2*textPad), infoSize, fontSize+2*textPad, (fontSize+2*textPad)*0.2, true, false);
-
-  ctx.fillStyle = "rgb(255,255,255)";
-  ctx.textAlign = "left";
-  ctx.fillText(game.playerList[selfId].name, 3*boxPad+textPad, view.height - (3*boxPad+textPad) - 2);
-  ctx.textAlign = "center";
-  ctx.fillText("Score:" + game.playerList[selfId].score, 3*boxPad+infoSize*0.45, view.height - (3*boxPad+textPad) - 2);
-  ctx.textAlign = "right";
-  ctx.fillText("Rank:" + rank + "/" + leaderboard.length, 3*boxPad+infoSize-textPad, view.height - (3*boxPad+textPad) - 2);
 }
 
 
