@@ -69,6 +69,10 @@ canvas {
   color: black;
 }
 
+#browse {
+  width: 300px;
+}
+
 #leaderboard {
   margin: 10px;
   position: absolute;

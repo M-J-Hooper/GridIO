@@ -3,9 +3,6 @@ var socket = io();
 var canvas = $("#canvas");
 var ctx = canvas[0].getContext("2d");
 
-var canvasUi = $("#canvas-ui");
-var ctxUi = canvas[0].getContext("2d");
-
 var game = null;
 var selfId = null;
 var selected = {i:null,j:null};
@@ -25,7 +22,7 @@ socket.on('init',function(data){
   for(var i = 0 ; i < data.players.length; i++){
     game.playerList[data.players[i].id] = new Player({copy:data.players[i]});
   }
-  if(data.players.length) { updateUi(ctxUi,game,view,selfId); }
+  if(data.players.length) { updateUi(game,view,selfId); }
 
   for(var n = 0; n < data.pieces.length; n++) {
     game.board[data.pieces[n].i][data.pieces[n].j] = {id:data.pieces[n].id,prev:{count:0,dx:0,dy:0}};
@@ -70,14 +67,14 @@ socket.on('update',function(data){
       game.playerList[data.players[i].id].score = data.players[i].score;
     }
   }
-  if(data.players.length) { updateUi(ctxUi,game,view,selfId); }
+  if(data.players.length) { updateUi(game,view,selfId); }
 });
 
 socket.on('remove',function(data) {
   for(var i = 0; i < data.players.length; i++) {
     delete game.playerList[data.players[i]];
   }
-  if(data.players.length) { updateUi(ctxUi,game,view,selfId); }
+  if(data.players.length) { updateUi(game,view,selfId); }
 
   for(var n = 0; n < data.pieces.length; n++) {
     game.board[data.pieces[n].i][data.pieces[n].j].id = null;
@@ -91,16 +88,12 @@ setInterval(function(){
 
   ctx.canvas.width  = view.width;
   ctx.canvas.height = view.height;
-  ctxUi.canvas.width  = view.width;
-  ctxUi.canvas.height = view.height;
 
   if(game) {
     game.boardSlide();
     view = getView(game,selfId,view,true);
 
     ctx.clearRect(0,0,view.width,view.height);
-    ctxUi.clearRect(0,0,view.width,view.height);
-
     drawBoard(ctx,game,view,selected);
   }
   if(game && game.playerList[selfId].score > 0) {
@@ -182,6 +175,12 @@ document.addEventListener("touchend", function(event) {
   selected = {i:null,j:null};
 }, false);
 
+getGames = function() {
+  socket.emit('browse',"",function(data) {
+    updateBrowser(data,socket, name, color);
+  });
+}
+
 
 getName = function() {
   var word = chance.word()
@@ -196,13 +195,24 @@ getColor = function() {
 }
 getColor();
 
+
+//menu clicks and transitions
 $("#ui").hide();
 $("#rules").hide();
+$("#browse").hide();
 
 $("#name").click(getName);
 $("#color").click(getColor);
+
 $("#go-rules").click(function() { $("#start").hide(); $("#rules").show(); });
 $("#rules-back").click(function() { $("#start").show(); $("#rules").hide(); });
+
+$("#go-browse").click(function() { getGames(); $("#start").hide(); $("#browse").show(); });
+$("#browse-create").click(function() { socket.emit('join',{name:name,color:color}); });
+$("#browse-refresh").click(function() { getGames(); });
+$("#browse-back").click(function() { $("#start").show(); $("#browse").hide(); });
+
 $("#play").click(function() { socket.emit('join',{name:name,color:color}); });
 
+//logo animation
 setInterval(function() { $("#logo").css("color",randomColor({luminosity:"dark",format:"rgb"})); }, 500);

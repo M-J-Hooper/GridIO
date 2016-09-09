@@ -1,12 +1,11 @@
 <title>GridIO</title>
 <link rel="stylesheet" type="text/css" href="client/style.css"/>
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+<!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
 <script src="//cdn.socket.io/socket.io-1.4.5.js"></script>
-<script src="//code.jquery.com/jquery-1.10.2.js"></script>
+<script src="//code.jquery.com/jquery-1.10.2.js"></script>-->
 
 <body>
 	<canvas id="canvas"></canvas>
-	<canvas id="canvas-ui"></canvas>
 
 	<div id="ui" class="layer">
 		<div id="leaderboard" class="outer">
@@ -38,7 +37,8 @@
 			<div class="spacer"></div>
 			<div class="inner">
 				<div id="go-rules" class="blob hover">Rules</div><div class="spacer"></div>
-				<div id="play" class="blob hover">Play</div>
+				<div id="go-browse" class="blob hover">Browse games</div><div class="spacer"></div>
+				<div id="play" class="blob hover">Play now</div>
 			</div>
 		</div>
 		<div id="rules" class="outer">
@@ -47,11 +47,21 @@
 				<div id="rules-back" class="blob hover">Back</div>
 			</div>
 		</div>
+		<div id="browse" class="outer">
+			<div id="gamelist" class="inner"></div>
+			<div class="spacer"></div>
+			<div class="inner">
+				<div id="browse-create" class="blob hover">Create game</div><div class="spacer"></div>
+				<div id="browse-refresh" class="blob hover">Refresh</div><div class="spacer"></div>
+				<div id="browse-back" class="blob hover">Back</div>
+			</div>
+		</div>
 	</div>
 
 </body>
 
 <script src="/client/lib/socket.js"></script>
+<script src="/client/lib/jquery.js"></script>
 <script src="/client/lib/randomColor.js"></script>
 <script src="/client/lib/chance.js"></script>
 

@@ -23,11 +23,17 @@ var h = w;
 var playerLimit = Math.floor(w*h/80);
 var spawn = true;
 
-joinGame = function(socket,name,color) {
-	var player = new Player({new:{id:socket.id, name:name, color:color}});
+joinGame = function(socket,data) {
+	var player = new Player({new:{id:socket.id, name:data.name, color:data.color}});
 
 	var newGame = true;
 	var game;
+	if(data.gameId) {
+		if(!gameList[data.gameId]) { return; }
+		var playerCount = Object.keys(gameList[data.gameId].game.playerList).length;
+		if(playerCount < playerLimit) { game = gameList[data.gameId].game; newGame = false; }
+		else { return; }
+	}
 	for(var v in gameList) {
 		var playerCount = Object.keys(gameList[v].game.playerList).length;
 		if(playerCount < playerLimit) { game = gameList[v].game; newGame = false; break; }
@@ -96,7 +102,11 @@ io.sockets.on('connection', function(socket) {
 	console.log("Player "+socket.id+" connected");
 
 	socket.on('join', function(data) {
-		joinGame(socket,data.name,data.color);
+		joinGame(socket,data);
+	});
+
+	socket.on('browse', function(data, callback) {
+		callback(gameList);
 	});
 
 	socket.on('disconnect',function() {
