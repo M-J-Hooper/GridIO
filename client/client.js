@@ -104,9 +104,9 @@ setInterval(function(){
     drawBoard(ctx,game,view,selected);
   }
   if(game && game.playerList[selfId].score > 0) {
-    if($("#menu").is(":visible")) { $("#menu").hide(); }
+    if($("#menu").is(":visible")) { $("#menu").hide(); $("#ui").show(); }
   }
-  else if(!$("#menu").is(":visible")) { $("#menu").show(); }
+  else if(!$("#menu").is(":visible")) { $("#menu").show(); $("#ui").hide(); }
 },40);
 
 document.onkeydown = function(event){
@@ -196,7 +196,7 @@ getColor = function() {
 }
 getColor();
 
-//$("#ui").hide();
+$("#ui").hide();
 
 $("#name").click(getName);
 $("#color").click(getColor);
