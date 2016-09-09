@@ -184,16 +184,16 @@ document.addEventListener("touchend", function(event) {
 getName = function() {
   var word = chance.word()
   name = word.charAt(0).toUpperCase() + word.slice(1);
-  document.getElementById("player").innerHTML = name;
+  $("#player").text(name);
 }
 getName();
 
 getColor = function() {
   color = randomColor({luminosity:"dark",format:"rgb"});
-  document.getElementById("player").style.background = color;
+  $("#player").css("background", color);
 }
 getColor();
 
-document.getElementById("name").onclick = getName;
-document.getElementById("color").onclick = getColor;
-document.getElementById("join").onclick = function() { socket.emit('join',{name:name,color:color}); }
+$("#name").click(getName);
+$("#color").click(getColor);
+$("#join").click(function() { socket.emit('join',{name:name,color:color}); });
