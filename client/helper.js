@@ -73,9 +73,6 @@ function getView(game, selfId, view, smooth) {
           if(j < minJ) { minJ = j; }
           if(j > maxJ) { maxJ = j; }
         }
-
-        avI += i+0.5;
-        avJ += j+0.5;
         count++;
       }
 		}
@@ -83,8 +80,8 @@ function getView(game, selfId, view, smooth) {
 
   var r;
   if(count && !view.fixed) {
-    avI = (maxI + minI)/2;
-    avJ = (maxJ + minJ)/2;
+    avI = (maxI + minI + 1)/2;
+    avJ = (maxJ + minJ + 1)/2;
 
     var viewDist = Math.sqrt(count)+2;
     var playerSizeX = (maxI - minI + 1);

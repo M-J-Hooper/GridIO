@@ -1,20 +1,18 @@
 var socket = io();
 
-var canvas = document.getElementById("canvas");
-canvas.style.background = 'rgb(200,200,200)'; //set canvas background
-var ctx = canvas.getContext("2d");
+var canvas = $("#canvas");
+var ctx = canvas[0].getContext("2d");
 
-var canvasUi = document.getElementById("canvas-ui");
-var ctxUi = canvas.getContext("2d");
+var canvasUi = $("#canvas-ui");
+var ctxUi = canvas[0].getContext("2d");
 
 var game = null;
 var selfId = null;
 var selected = {i:null,j:null};
 var view = {height:0,width:0,size:50,x:0,y:0,fixed:false};
 
-var word = chance.word()
-var name = word.charAt(0).toUpperCase() + word.slice(1);
-var color = randomColor({luminosity:"dark",format:"rgb"});
+var name;
+var color;
 
 socket.on('init',function(data){
   if(data.selfId) { selfId = data.selfId; }
@@ -87,8 +85,11 @@ socket.on('remove',function(data) {
 setInterval(function(){
   view.width = window.innerWidth;
   view.height = window.innerHeight;
+
   ctx.canvas.width  = view.width;
   ctx.canvas.height = view.height;
+  ctxUi.canvas.width  = view.width;
+  ctxUi.canvas.height = view.height;
 
   if(game) {
     game.boardSlide();
@@ -99,8 +100,11 @@ setInterval(function(){
 
     drawBoard(ctx,game,view,selected);
   }
-  if(game && game.playerList[selfId].score > 0) { drawUi(ctxUi,game,view,selfId); }
-  else { drawMenu(ctxUi,name,color); }
+  if(game && game.playerList[selfId].score > 0) {
+    drawUi(ctxUi,game,view,selfId);
+    if($("#menu").is(":visible")) { $("#menu").hide(); }
+  }
+  else if(!$("#menu").is(":visible")) { $("#menu").show(); }
 },40);
 
 document.onkeydown = function(event){
@@ -115,12 +119,6 @@ document.onkeydown = function(event){
 
       if(dx || dy) { socket.emit('move',{i:selected.i,j:selected.j,dx:dx,dy:dy}); }
     }
-  } else {
-    if(event.keyCode === 67) { color = randomColor({luminosity:"dark",format:"rgb"}); } //c
-    else if(event.keyCode === 78) { //n
-      word = chance.word()
-      name = word.charAt(0).toUpperCase() + word.slice(1);
-    }
   }
 }
 
@@ -134,13 +132,12 @@ document.onmousedown = function(event) {
 
     selected = selectPiece(game,selfId,i,j);
   }
-  else { socket.emit('join',{name:name,color:color}); }
   //console.log(JSON.stringify(game));
 }
 
 document.addEventListener("touchstart", function(event) {
-  event.preventDefault();
-  event.stopPropagation();
+  //event.preventDefault();
+  //event.stopPropagation();
 
   if(game && game.playerList[selfId].score > 0) {
     var offsetX = view.width/2 - view.x;
@@ -152,7 +149,6 @@ document.addEventListener("touchstart", function(event) {
 
     selected = selectPiece(game,selfId,i,j);
   }
-  else { socket.emit('join',{name:name,color:color}); }
 }, false);
 
 document.addEventListener("touchmove", function(event) {
@@ -178,8 +174,26 @@ document.addEventListener("touchmove", function(event) {
 }, false);
 
 document.addEventListener("touchend", function(event) {
-  event.preventDefault();
-  event.stopPropagation();
+  //event.preventDefault();
+  //event.stopPropagation();
 
   selected = {i:null,j:null};
 }, false);
+
+
+getName = function() {
+  var word = chance.word()
+  name = word.charAt(0).toUpperCase() + word.slice(1);
+  document.getElementById("player").innerHTML = name;
+}
+getName();
+
+getColor = function() {
+  color = randomColor({luminosity:"dark",format:"rgb"});
+  document.getElementById("player").style.background = color;
+}
+getColor();
+
+document.getElementById("name").onclick = getName;
+document.getElementById("color").onclick = getColor;
+document.getElementById("join").onclick = function() { socket.emit('join',{name:name,color:color}); }

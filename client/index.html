@@ -1,8 +1,22 @@
-<!--<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>-->
+<title>GridIO</title>
+<link rel="stylesheet" type="text/css" href="client/style.css"/>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+<script src="//cdn.socket.io/socket.io-1.4.5.js"></script>
+<script src="//code.jquery.com/jquery-1.10.2.js"></script>
 
-<body style="margin:0px;">
-	<canvas id="canvas" width="500" height="500" style="position:absolute;border:0px;"></canvas>
-	<canvas id="canvas-ui" width="500" height="500" style="position:absolute;border:0px;"></canvas>
+<body>
+	<canvas id="canvas"></canvas>
+	<canvas id="canvas-ui"></canvas>
+	<div id="menu">
+		<div id="start" class="outer">
+			<div class="inner">
+				<div id="player" class="blob"></div><div class="spacer"></div>
+				<div id="name" class="blob hover">New name</div><div class="spacer"></div>
+				<div id="color" class="blob hover">New color</div><div class="spacer"></div>
+				<div id="join" class="blob hover">Join</div>
+			</div>
+		</div>
+	</div>
 </body>
 
 <script src="/client/lib/socket.js"></script>

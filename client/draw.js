@@ -100,6 +100,9 @@ function drawUi(ctx,game,view,selfId) {
   }
 
   //draw info outline and text in bottom left
+  if(mobile) { infoSize = view.width - 6*boxPad; }
+
+
   ctx.fillStyle = "rgba(0,0,0,0.5)";
   roundRect(ctx, boxPad, view.height - (fontSize+5*boxPad+2*textPad), infoSize+4*boxPad, fontSize+4*boxPad+2*textPad, 2*boxPad, true, false);
   ctx.fillStyle = "rgb(255,255,255)";
@@ -114,31 +117,6 @@ function drawUi(ctx,game,view,selfId) {
   ctx.fillText("Score:" + game.playerList[selfId].score, 3*boxPad+infoSize*0.45, view.height - (3*boxPad+textPad) - 2);
   ctx.textAlign = "right";
   ctx.fillText("Rank:" + rank + "/" + leaderboard.length, 3*boxPad+infoSize-textPad, view.height - (3*boxPad+textPad) - 2);
-}
-
-var menuSize = 250*(1+mobile);
-
-drawMenu = function(ctx,name,color) {
-  ctx.fillStyle = "rgba(0,0,0,0.5)";
-  roundRect(ctx, view.width/2 - (menuSize+4*boxPad)/2, view.height/2 - (6*boxPad+6*textPad+3*fontSize)/2, menuSize+4*boxPad, 6*boxPad+6*textPad+3*fontSize, 2*boxPad, true, false);
-  ctx.fillStyle = "rgb(255,255,255)";
-  roundRect(ctx, view.width/2 - (menuSize+2*boxPad)/2, view.height/2 - (4*boxPad+6*textPad+3*fontSize)/2, menuSize+2*boxPad, 4*boxPad+6*textPad+3*fontSize, boxPad, true, false);
-  ctx.fillStyle = color;
-  roundRect(ctx, view.width/2 - menuSize/2, view.height/2 - (2*boxPad+6*textPad+3*fontSize)/2, menuSize, 2*textPad+fontSize, (2*textPad+fontSize)*0.2, true, false);
-  ctx.fillStyle = "rgba(0,0,0,0.8)";
-  roundRect(ctx, view.width/2 - menuSize/2, view.height/2 - (2*boxPad+6*textPad+3*fontSize)/2 + boxPad+2*textPad+fontSize, menuSize/2-boxPad/2, 2*textPad+fontSize, (2*textPad+fontSize)*0.2, true, false);
-  roundRect(ctx, view.width/2 + boxPad/2, view.height/2 - (2*boxPad+6*textPad+3*fontSize)/2 + boxPad+2*textPad+fontSize, menuSize/2-boxPad/2, 2*textPad+fontSize, (2*textPad+fontSize)*0.2, true, false);
-  roundRect(ctx, view.width/2 - menuSize/2, view.height/2 - (2*boxPad+6*textPad+3*fontSize)/2 + 2*boxPad+4*textPad+2*fontSize, menuSize, 2*textPad+fontSize, (2*textPad+fontSize)*0.2, true, false);
-
-
-  ctx.font = fontSize + "px " + font;
-
-  ctx.fillStyle = "rgb(255,255,255)";
-  ctx.textAlign = "center";
-  ctx.fillText(name, view.width/2, view.height/2 - (2*boxPad+6*textPad+3*fontSize)/2 + textPad+fontSize - 2);
-  ctx.fillText("Name [N]", view.width/2 - menuSize/2 + (menuSize/2-boxPad/2)/2, view.height/2 - (2*boxPad+6*textPad+3*fontSize)/2 + boxPad+2*textPad+fontSize + textPad+fontSize - 2);
-  ctx.fillText("Color [C]", view.width/2 + boxPad/2 + (menuSize/2-boxPad/2)/2, view.height/2 - (2*boxPad+6*textPad+3*fontSize)/2 + boxPad+2*textPad+fontSize + textPad+fontSize - 2);
-  ctx.fillText("Join [Click]", view.width/2, view.height/2 - (2*boxPad+6*textPad+3*fontSize)/2 + 2*boxPad+4*textPad+2*fontSize + textPad+fontSize - 2);
 }
 
 
