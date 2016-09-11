@@ -7,7 +7,7 @@ body {
 canvas {
   position: absolute;
   border: 0px;
-  background: rgb(128, 128, 128);
+  background: rgb(200, 200, 200);
 }
 
 .layer {
@@ -39,10 +39,6 @@ canvas {
   padding: 4px 6px 4px 6px;
   margin:10px;
   border-radius: 5px;
-
-  -webkit-user-select: none;  /* stop highlighting */
-  -moz-user-select: none;
-  -ms-user-select: none;
 }
 
 .hover:hover {
@@ -64,6 +60,14 @@ canvas {
 }
 
 #browse {
+  width: 300px;
+}
+
+#create {
+  width: 300px;
+}
+
+#join {
   width: 300px;
 }
 

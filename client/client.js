@@ -219,6 +219,8 @@ getColor();
 $("#ui").hide();
 $("#rules").hide();
 $("#browse").hide();
+$("#create").hide();
+$("#join").hide();
 
 $("#name").click(getName);
 $("#color").click(getColor);
@@ -230,5 +232,14 @@ $("#go-browse").click(function() { getGames(); $("#start").hide(); $("#browse").
 $("#browse-refresh").click(function() { getGames(); });
 $("#browse-back").click(function() { $("#start").show(); $("#browse").hide(); });
 
-$("#create").click(function() { $("#menu").hide(); socket.emit('join',{name:name,color:color,gameId:1}); });
+var code;
+$("#go-create").click(function() { $("#start").hide(); $("#create").show(); code = Math.random(); $("#get-code").text((""+code).slice(-16)); });
+$("#create-create").click(function() { $("#menu").hide(); $("#create").hide(); socket.emit('join',{name:name,color:color,gameId:code}); });
+$("#create-back").click(function() { $("#start").show(); $("#create").hide(); });
+
+$("#go-join").click(function() { $("#start").hide(); $("#join").show(); });
+$("#join-join").click(function() { $("#menu").hide(); $("#create").hide(); socket.emit('join',{name:name,color:color,gameId:code}); });
+$("#join-back").click(function() { $("#start").show(); $("#join").hide(); });
+
+
 $("#play").click(function() { $("#menu").hide(); socket.emit('join',{name:name,color:color}); });

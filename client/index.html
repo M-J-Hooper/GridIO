@@ -23,11 +23,13 @@
 	</div>
 
 	<div id="menu" class="layer">
+
 		<div id="title" class="outer">
 			<div class="inner">
 				<h1><span id="logo" class="fa fa-th"></span>GridIO</h1>
 			</div>
 		</div>
+
 		<div id="start" class="outer">
 			<div class="inner">
 				<div id="player" class="blob"></div>
@@ -35,17 +37,22 @@
 				<div id="color" class="blob hover">Change color</div>
 			</div>
 			<div class="inner">
-				<div id="go-rules" class="blob hover">Rules</div>
-				<div id="go-browse" class="blob hover">Browse games</div>
-				<div id="create" class="blob hover">Create game</div>
+				<div id="go-rules" class="blob hover bad">Rules</div>
 				<div id="play" class="blob hover good">Play now</div>
 			</div>
+			<div class="inner">
+				<div id="go-create" class="blob hover">Create game</div>
+				<div id="go-join" class="blob hover">Join game</div>
+				<div id="go-browse" class="blob hover">Browse games</div>
+			</div>
 		</div>
+
 		<div id="rules" class="outer">
 			<div class="inner">
 				<div id="rules-back" class="blob hover bad">Back</div>
 			</div>
 		</div>
+
 		<div id="browse" class="outer">
 			<div id="headers" class="inner">
 				<div class="blob neutral">
@@ -56,8 +63,35 @@
 			</div>
 			<div id="gamelist" class="inner"></div>
 			<div class="inner">
-				<div id="browse-refresh" class="blob hover">Refresh</div>
+				<div id="browse-refresh" class="blob hover good">Refresh</div>
 				<div id="browse-back" class="blob hover bad">Back</div>
+			</div>
+		</div>
+
+		<div id="create" class="outer">
+			<div class="inner">
+				<div class="blob neutral">Copy game code</div>
+				<div id="get-code" class="blob"></div>
+			</div>
+			<div id="options" class="inner">
+				<div class="blob hover">Size</div>
+				<div class="blob hover">Player limit</div>
+				<div class="blob hover">Public/Private</div>
+			</div>
+			<div class="inner">
+				<div id="create-create" class="blob hover good">Create</div>
+				<div id="create-back" class="blob hover bad">Back</div>
+			</div>
+		</div>
+
+		<div id="join" class="outer">
+			<div class="inner">
+				<div class="blob neutral">Enter game code</div>
+				<div id="put-code" class="blob">Game code (!!!!)</div>
+			</div>
+			<div class="inner">
+				<div id="join-join" class="blob hover good">Join</div>
+				<div id="join-back" class="blob hover bad">Back</div>
 			</div>
 		</div>
 	</div>

@@ -13,6 +13,7 @@ var Game = function(params) {
     self.h = params.new.h;
     self.slide = params.new.slide;
     self.playerLimit = params.new.playerLimit;
+    self.pub = params.new.pub;
     self.spawn = params.new.spawn;
     self.playerList = {};
 

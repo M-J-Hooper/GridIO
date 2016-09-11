@@ -6,7 +6,7 @@ function drawBoard(ctx,game,view,selected) {
   var offsetY = view.height/2 - view.y;
 
   ctx.lineWidth = view.size*0.05;
-  ctx.strokeStyle = "rgb(128, 128, 128)";
+  ctx.strokeStyle = "rgb(200, 200, 200)";
 
   //draw board design
   //rounded edges on tiles (slow due to round rect function)
@@ -93,7 +93,7 @@ function updateBrowser(gameList, socket, name, color) {
   for(var n = 0; n < gameList.length; n++) {
     var game = gameList[n];
     var playerCount = Object.keys(game.playerList).length;
-    if(playerCount < game.playerLimit) {
+    if(game.pub && playerCount < game.playerLimit) {
       count++;
       var code = "#"+(""+game.id).slice(-4);
       $("<div>", {

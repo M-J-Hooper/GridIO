@@ -24,38 +24,42 @@ var w = 20;
 var h = w;
 var playerLimit = Math.floor(w*h/80);
 var spawn = true;
+var pub = true;
 
 joinGame = function(socket,data) {
 
 	var player = new Player({new:{id:socket.id, name:data.name, color:data.color}});
-	var newGame = true;
 	var game;
 
-	//join specific game from browser
-	if(data.gameId != 1) {
-		if(data.gameId) {
-			if(data.gamId != 1 && gameList[data.gameId].game.getPlayerCount() < playerLimit) { game = gameList[data.gameId].game; newGame = false; }
-		} else { //check for space in current games
-			for(var v in gameList) {
-				if(gameList[v].game.getPlayerCount() < playerLimit) { game = gameList[v].game; newGame = false; break; }
+	if(data.gameId) {
+		if(gameList[data.gameId] && gameList[data.gameId].game.getPlayerCount() < playerLimit) {
+			game = gameList[data.gameId].game;
+		} else {
+			game = new Game({new:{w:w,h:h,slide:slide,playerLimit:playerLimit,pub:pub,spawn:spawn}});
+			gameList[game.id] = {game:game,initPack:{players:[],pieces:[]},removePack:{players:[],pieces:[]},updatePack:{players:[],pieces:[]}};
+			console.log("Game "+game.id+" created");
+		}
+	} else { //check for space in current games
+		for(var v in gameList) {
+			if(gameList[v].game.getPlayerCount() < playerLimit) {
+				game = gameList[v].game;
+				newGame = false;
+				break;
 			}
 		}
-	}
-
-	//before adding to a game, check that the id is not already playing!!!
-	if(game) {
-		for(var n in game.playerList) {
-			if(game.playerList[n].id == socket.id) { return; }
+		//if no room
+		if(!game) {
+			game = new Game({new:{w:w,h:h,slide:slide,playerLimit:playerLimit,pub:pub,spawn:spawn}});
+			gameList[game.id] = {game:game,initPack:{players:[],pieces:[]},removePack:{players:[],pieces:[]},updatePack:{players:[],pieces:[]}};
+			console.log("Game "+game.id+" created");
 		}
 	}
 
-	//if no room or if gameId was 1 create new game
-	if(newGame) {
-		game = new Game({new:{w:w,h:h,slide:slide,playerLimit:playerLimit,spawn:spawn}});
-		gameList[game.id] = {game:game,initPack:{players:[],pieces:[]},removePack:{players:[],pieces:[]},updatePack:{players:[],pieces:[]}};
-		console.log("Game "+game.id+" created");
-	}
 
+	//before adding to a game, check that the id is not already playing!!!
+	for(var n in game.playerList) {
+		if(game.playerList[n].id == socket.id) { return; }
+	}
 
 	gameList[game.id].initPack.players.push(player);
 
