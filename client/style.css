@@ -7,10 +7,7 @@ body {
 canvas {
   position: absolute;
   border: 0px;
-}
-
-#canvas {
-  background: rgb(200, 200, 200);
+  background: rgb(128, 128, 128);
 }
 
 .layer {
@@ -22,15 +19,16 @@ canvas {
 }
 
 .outer {
+  overflow: auto;
   background: rgba(0, 0, 0, 0.5);
   margin: 10px auto;
-  padding: 10px;
   border-radius: 20px;
 }
 
 .inner {
-  background: rgba(255, 255, 255, 1);
-  padding: 10px;
+  overflow: auto;
+  background: white;
+  margin: 10px;
   border-radius: 10px;
 }
 
@@ -39,16 +37,12 @@ canvas {
   overflow: hidden;
   background: rgba(0, 0, 0, 0.8);
   padding: 4px 6px 4px 6px;
+  margin:10px;
   border-radius: 5px;
 
   -webkit-user-select: none;  /* stop highlighting */
   -moz-user-select: none;
   -ms-user-select: none;
-}
-
-.spacer {
-  width: 10px;
-  height: 10px;
 }
 
 .hover:hover {
@@ -92,10 +86,29 @@ canvas {
   float: left;
 }
 
+.text-id {
+  text-align: left;
+  width: 35px;
+  float: left;
+}
+
 .text-left {
   float: left;
 }
 
 .text-right {
   float: right;
+}
+
+.good {
+  background: green;
+}
+
+.bad {
+  background: red;
+}
+
+.neutral {
+  background: white;
+  color: black;
 }

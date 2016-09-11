@@ -26,12 +26,6 @@ var playerLimit = Math.floor(w*h/80);
 var spawn = true;
 
 joinGame = function(socket,data) {
-	//before adding to a game or creating one, check that the id is not already playing!!!
-	for(var n in gameList) {
-		for(var m in gameList[n].game.playerList) {
-			if(gameList[n].game.playerList[m].id == socket.id) { return; }
-		}
-	}
 
 	var player = new Player({new:{id:socket.id, name:data.name, color:data.color}});
 	var newGame = true;
@@ -40,20 +34,24 @@ joinGame = function(socket,data) {
 	//join specific game from browser
 	if(data.gameId != 1) {
 		if(data.gameId) {
-			var playerCount = Object.keys(gameList[data.gameId].game.playerList).length;
-			if(data.gamId != 1 && playerCount < playerLimit) { game = gameList[data.gameId].game; newGame = false; }
+			if(data.gamId != 1 && gameList[data.gameId].game.getPlayerCount() < playerLimit) { game = gameList[data.gameId].game; newGame = false; }
 		} else { //check for space in current games
 			for(var v in gameList) {
-				var playerCount = Object.keys(gameList[v].game.playerList).length;
-				if(playerCount < playerLimit) { game = gameList[v].game; newGame = false; break; }
+				if(gameList[v].game.getPlayerCount() < playerLimit) { game = gameList[v].game; newGame = false; break; }
 			}
+		}
+	}
+
+	//before adding to a game, check that the id is not already playing!!!
+	if(game) {
+		for(var n in game.playerList) {
+			if(game.playerList[n].id == socket.id) { return; }
 		}
 	}
 
 	//if no room or if gameId was 1 create new game
 	if(newGame) {
-		var color = "green";//randomColor({luminosity:"dark",format:"rgb"});
-		game = new Game({new:{color:color,w:w,h:h,slide:slide,playerLimit:playerLimit,spawn:spawn}});
+		game = new Game({new:{w:w,h:h,slide:slide,playerLimit:playerLimit,spawn:spawn}});
 		gameList[game.id] = {game:game,initPack:{players:[],pieces:[]},removePack:{players:[],pieces:[]},updatePack:{players:[],pieces:[]}};
 		console.log("Game "+game.id+" created");
 	}
@@ -86,8 +84,7 @@ joinGame = function(socket,data) {
 	});
 
 	console.log("Player "+socket.id+" joined Game "+game.id);
-	var playerCount = Object.keys(game.playerList).length;
-	console.log("Game "+game.id+" has "+playerCount+"/"+game.playerLimit+" players");
+	console.log("Game "+game.id+" has "+game.getPlayerCount()+"/"+game.playerLimit+" players");
 }
 
 leaveGame = function(socket){
@@ -99,11 +96,10 @@ leaveGame = function(socket){
 
 		//remove player from board
 		var pieces = gameList[gameId].game.removePlayer(socket.id);
-		var playerCount = Object.keys(gameList[gameId].game.playerList).length;
-		console.log("Game "+gameId+" has "+playerCount+"/"+gameList[gameId].game.playerLimit+" players");
+		console.log("Game "+gameId+" has "+gameList[gameId].game.getPlayerCount()+"/"+gameList[gameId].game.playerLimit+" players");
 
 		//delete game if last player
-		if(playerCount == 0) {
+		if(gameList[gameId].game.getPlayerCount() == 0) {
 			delete gameList[gameId];
 			console.log("Game "+gameId+" deleted");
 		} else { //otherwise let other players in game know

@@ -3,6 +3,7 @@ var socket = io();
 var canvas = $("#canvas");
 var ctx = canvas[0].getContext("2d");
 
+
 var game = null;
 var selfId = null;
 var selected = {i:null,j:null};
@@ -73,6 +74,7 @@ socket.on('update',function(data) {
   if(data.players.length) { updateUi(game,view,selfId); } //leadboard only changes on player updates
 });
 
+
 socket.on('remove',function(data) {
   //unpack removed players
   for(var i = 0; i < data.players.length; i++) {
@@ -103,11 +105,9 @@ setInterval(function(){
     drawBoard(ctx,game,view,selected);
   }
 
-  //transition between menu when game starts/ends
-  if(game && game.playerList[selfId].score > 0) {
-    if($("#menu").is(":visible")) { $("#menu").hide(); $("#ui").show(); }
-  }
-  else if(!$("#menu").is(":visible")) { $("#menu").show(); $("#ui").hide(); }
+  //transition between menu when game starts/ends (BETTER WAY!!!)
+  if(game && game.playerList[selfId].score > 0) { $("#menu").hide(); $("#ui").show(); }
+  else { $("#menu").show(); $("#ui").hide(); }
 },40);
 
 //send move when a valid piece is selected and wasd pressed
@@ -188,9 +188,14 @@ document.addEventListener("touchend", function(event) {
   selected = {i:null,j:null};
 }, false);
 
+//send for games then update html
 getGames = function() {
   socket.emit('browse',"",function(data) {
-    updateBrowser(data,socket, name, color);
+    var array = [];
+    for(var v in data) {
+      array.push(data[v].game);
+    }
+    updateBrowser(array,socket, name, color);
   });
 }
 
@@ -222,11 +227,8 @@ $("#go-rules").click(function() { $("#start").hide(); $("#rules").show(); });
 $("#rules-back").click(function() { $("#start").show(); $("#rules").hide(); });
 
 $("#go-browse").click(function() { getGames(); $("#start").hide(); $("#browse").show(); });
-$("#browse-create").click(function() { socket.emit('join',{name:name,color:color,gameId:1}); });
 $("#browse-refresh").click(function() { getGames(); });
 $("#browse-back").click(function() { $("#start").show(); $("#browse").hide(); });
 
-$("#play").click(function() { socket.emit('join',{name:name,color:color}); });
-
-//logo animation
-setInterval(function() { $("#logo").css("color",randomColor({luminosity:"dark",format:"rgb"})); }, 500);
+$("#create").click(function() { $("#menu").hide(); socket.emit('join',{name:name,color:color,gameId:1}); });
+$("#play").click(function() { $("#menu").hide(); socket.emit('join',{name:name,color:color}); });

@@ -6,7 +6,7 @@ function drawBoard(ctx,game,view,selected) {
   var offsetY = view.height/2 - view.y;
 
   ctx.lineWidth = view.size*0.05;
-  ctx.strokeStyle = "rgb(200,200,200)";
+  ctx.strokeStyle = "rgb(128, 128, 128)";
 
   //draw board design
   //rounded edges on tiles (slow due to round rect function)
@@ -18,7 +18,7 @@ function drawBoard(ctx,game,view,selected) {
   }*/
 
   //more efficient board style
-  ctx.fillStyle = "rgb(255,255,255)";
+  ctx.fillStyle = "white";
   ctx.fillRect(offsetX,offsetY,view.size*game.w,view.size*game.h);
   for(var i = 1; i < game.w; i++) {
     ctx.beginPath();
@@ -38,7 +38,7 @@ function drawBoard(ctx,game,view,selected) {
   for(var i = 0; i < game.w; i++) {
     for(var j = 0; j < game.h; j++) {
       if(game.board[i][j].id) {
-        if(game.board[i][j].id == 1) { ctx.fillStyle = "rgba(0,0,0,0.8)"; }
+        if(game.board[i][j].id == 1) { ctx.fillStyle = "rgb(64, 64, 64)"; }
         else { ctx.fillStyle = game.playerList[game.board[i][j].id].color; }
 
         var x = (i+0.1 - game.board[i][j].prev.dx*game.board[i][j].prev.count/game.slide)*view.size;
@@ -81,34 +81,30 @@ function updateUi(game,view,selfId) {
       html: '<span class="text-rank">#'+leaderboard[i].rank+'</span><span class="text-left">'+leaderboard[i].name+'</span><span class="text-right">'+leaderboard[i].score+'</span>',
       css: {background: game.playerList[leaderboard[i].id].color}
     }).appendTo("#leaderboard .inner");
-    if(i < leaderLength-1) { $('<div class="spacer" />').appendTo("#leaderboard .inner"); } //FIND BETTER WAY THAN SPACER!!!
   }
 }
 
 //update the html of the game browser after goto or refresh
 function updateBrowser(gameList, socket, name, color) {
   $("#gamelist").html("");
+  gameList.sort(function(a,b) { return Object.keys(b.playerList).length - Object.keys(a.playerList).length; })
 
-  var gameCount = Object.keys(gameList).length;
   var count = 0;
-  var space = 0;
-  for(var v in gameList) {
-    count++;
-    var game = gameList[v].game;
+  for(var n = 0; n < gameList.length; n++) {
+    var game = gameList[n];
     var playerCount = Object.keys(game.playerList).length;
     if(playerCount < game.playerLimit) {
-      space++;
+      count++;
       var code = "#"+(""+game.id).slice(-4);
       $("<div>", {
+        id: game.id,
         class: "blob hover",
-        html: '<span class="text-left">'+code+'</span><span class="text-center">'+game.w+'x'+game.h+'</span><span class="text-right">'+playerCount+'/'+game.playerLimit+'</span>',
-        css: {background: game.color},
-        click: function() { socket.emit('join',{name:name,color:color,gameId:game.id}); }
+        html: '<span class="text-id">'+code+'</span><span class="text-center">'+game.w+'x'+game.h+'</span><span class="text-right">'+playerCount+'/'+game.playerLimit+'</span>',
+        click: function() { socket.emit('join',{name:name,color:color,gameId:this.id}); }
       }).appendTo("#gamelist");
     }
-    if(count != gameCount) { $('<div class="spacer"/>').appendTo("#gamelist"); } //FIND BETTER WAY THAN SPACER!!!
   }
-  if(!space) { $("#gamelist").html("No games with space found!");}
+  if(!count) { $("#gamelist").html('<div class="blob neutral">No games found!</div>')}
 }
 
 

@@ -9,7 +9,6 @@ var Game = function(params) {
   var self = {};
   if(params.new) {
     self.id = Math.random();
-    self.color = params.new.color;
     self.w = params.new.w;
     self.h = params.new.h;
     self.slide = params.new.slide;
@@ -25,6 +24,10 @@ var Game = function(params) {
   	}
   }
   if(params.copy) { self = params.copy; }
+
+  self.getPlayerCount = function() {
+    return Object.keys(self.playerList).length;
+  }
 
 	self.addPlayer = function(player) {
     self.playerList[player.id] = player;
@@ -198,7 +201,7 @@ var Game = function(params) {
 						}
 					}
 				}
-			} while(Object.getOwnPropertyNames(captured).length != 0);
+			} while(Object.keys(captured).length != 0);
 
 			//kill isolated pieces (MORE EFFICIENT WAY!!!!!!!)
 			var groups = findGroups(self)
