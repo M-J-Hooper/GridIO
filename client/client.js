@@ -159,24 +159,24 @@ document.addEventListener("touchstart", function(event) {
 
 //if valid selection, send move in direction of drag on touch screen
 document.addEventListener("touchmove", function(event) {
-  event.preventDefault();
-  event.stopPropagation();
+  if(game && game.playerList[selfId].score > 0) {
+    event.preventDefault();
+    event.stopPropagation();
 
-  if(game && game.playerList[selfId].score > 0 && selected.i != null) {
-    var offsetX = view.width/2 - view.x;
-    var offsetY = view.height/2 - view.y;
+    if(selected.i != null) {
+      var offsetX = view.width/2 - view.x;
+      var offsetY = view.height/2 - view.y;
 
-    //var touch = event.changedTouches[event.changedTouches.length-1]; //if touchend
-    var touch = event.touches[0]; //if touchmove
-    var diffI = Math.floor((touch.clientX-offsetX)/view.size) - selected.i;
-    var diffJ = Math.floor((touch.clientY-offsetY)/view.size) - selected.j;
-    var dx = 0;
-    var dy = 0;
-    if(Math.abs(diffI) > Math.abs(diffJ)) { dx = Math.sign(diffI); }
-    else { dy = Math.sign(diffJ); }
+      var touch = event.touches[0];
+      var diffI = Math.floor((touch.clientX-offsetX)/view.size) - selected.i;
+      var diffJ = Math.floor((touch.clientY-offsetY)/view.size) - selected.j;
+      var dx = 0;
+      var dy = 0;
+      if(Math.abs(diffI) > Math.abs(diffJ)) { dx = Math.sign(diffI); }
+      else { dy = Math.sign(diffJ); }
 
-    if(dx || dy) { socket.emit('move',{i:selected.i,j:selected.j,dx:dx,dy:dy}); }
-    //selected = {i:null,j:null}; //if touchend
+      if(dx || dy) { socket.emit('move',{i:selected.i,j:selected.j,dx:dx,dy:dy}); }
+    }
   }
 }, false);
 

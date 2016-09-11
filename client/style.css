@@ -37,12 +37,23 @@ canvas {
   overflow: hidden;
   background: rgba(0, 0, 0, 0.8);
   padding: 4px 6px 4px 6px;
-  margin:10px;
+  margin: 10px;
   border-radius: 5px;
+
 }
 
 .hover:hover {
   background: rgba(0, 0, 0, 0.5);
+}
+
+input {
+  font-size: 16px;
+  font-family: monospace;
+  text-align: center;
+  width: 260px;
+  border-style: none;
+  box-shadow: none;
+  margin: 0px;
 }
 
 #start {
@@ -115,4 +126,8 @@ canvas {
 .neutral {
   background: white;
   color: black;
+}
+
+.input {
+  background: rgba(0, 0, 0, 0.5);
 }
