@@ -1,6 +1,8 @@
 <title>GridIO</title>
-<link rel="stylesheet" type="text/css" href="client/style.css"/>
+<link rel="stylesheet" type="text/css" href="client/style.css">
+
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+<link href="https://fonts.googleapis.com/css?family=Bree+Serif" rel="stylesheet">
 <!--<script src="//cdn.socket.io/socket.io-1.4.5.js"></script>
 <script src="//code.jquery.com/jquery-1.10.2.js"></script>-->
 
@@ -37,7 +39,7 @@
 	<div id="menu" class="layer">
 		<div id="title" class="outer">
 			<div class="inner">
-				<h1><span id="logo" class="fa fa-th"/></span>GridIO</h1>
+				<h1><span id="logo" class="fa fa-th-large"/></span>GridIO</h1>
 			</div>
 		</div>
 
@@ -50,12 +52,12 @@
 				<div id="more-colors" class="blob hover"><span class="fa fa-pencil-square"></span> New colors</div>
 			</div>
 			<div class="inner">
-				<div id="go-rules" class="blob hover bad"><span class="fa fa-book"></span> Rules</div>
-				<div id="play" class="blob hover good"><span class="fa fa-share-square"></span> Play now</div>
+				<div id="go-rules" class="blob hover bad"><span class="fa fa-book"></span> How to play</div>
+				<div id="play" class="blob hover good"><span class="fa fa-square"></span> Play now</div>
 			</div>
 			<div class="inner">
 				<div id="go-create" class="blob hover"><span class="fa fa-plus-square"></span> Create game</div>
-				<div id="go-join" class="blob hover"><span class="fa fa-square"></span> Join game</div>
+				<div id="go-join" class="blob hover"><span class="fa fa-share-square"></span> Join game</div>
 				<div id="go-browse" class="blob hover"><span class="fa fa-list"></span> Browse games</div>
 			</div>
 		</div>
@@ -63,12 +65,12 @@
 		<div id="rules" class="outer">
 			<div id="rules-info" class="inner">
 				<div class="blob">Goal: Control the most pieces on the grid!</div>
-				<div class="blob input">Click one of your pieces to select it. Use WASD to move it and any pieces in its way:</div>
+				<div class="blob input">Click one of your pieces to select it. Use the WASD keys to move it and push pieces in its way:</div>
 				<img id="before-move" class="big" src="client/img/beforeMove.png">
 				<span class="fa fa-arrow-right"></span>
 				<img id="after-move" class="big" src="client/img/afterMove.png">
 
-				<div class="blob input">Move a line of enemy pieces by pushing with a longer line of your own pieces:</div>
+				<div class="blob input">Move enemy pieces by pushing them with more of your own pieces:</div>
 				<img id="before-push" class="big" src="client/img/beforePush.png">
 				<span class="fa fa-arrow-right"></span>
 				<img id="after-push" class="big" src="client/img/afterPush.png">

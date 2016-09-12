@@ -1,6 +1,6 @@
 body {
   margin: 0px;
-  font-family: monospace;
+  font-family: 'Bree Serif', serif;
   font-size: 16px;
 
 }
@@ -65,7 +65,7 @@ canvas {
 input[type=text] {
   display: block;
   font-size: 16px;
-  font-family: monospace;
+  font-family: 'Bree Serif', serif;
   text-align: center;
   width: 260px;
   border-style: none;
