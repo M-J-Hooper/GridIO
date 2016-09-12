@@ -42,8 +42,8 @@ socket.on('update',function(data) {
     //decide where the selected piece should be moved
     if(ownPieces) {
       var max = {i:null,j:null};
-      for(var i = 0; i < game.w; i++) {
-    		for(var j = 0; j < game.h; j++) {
+      for(var i = 0; i < game.l; i++) {
+    		for(var j = 0; j < game.l; j++) {
           if(game.board[i][j].id) {
             if(i-game.board[i][j].prev.dx == selected.i && j-game.board[i][j].prev.dy == selected.j) {
                if(max.i == null || game.board[i][j].prev.count > game.board[max.i][max.j].prev.count) { max.i = i; max.j = j; }
@@ -148,9 +148,9 @@ document.addEventListener("touchstart", function(event) {
 
 //if valid selection, send move in direction of drag on touch screen
 document.addEventListener("touchmove", function(event) {
-  event.preventDefault();
-  event.stopPropagation();
   if(game && game.playerList[selfId].score > 0) {
+    event.preventDefault();
+    event.stopPropagation();
 
     if(selected.i != null) {
       var offsetX = view.width/2 - view.x;
@@ -210,7 +210,7 @@ leaveGame = function() {
 var word = chance.word()
 var name = word.charAt(0).toUpperCase() + word.slice(1);
 setName = function() {
-  if($("#name").val()) { name = $("#name").val().substring(0,15); }
+  if($("#name").val()) { name = $("#name").val().substring(0,10); }
 }
 
 var color = randomColor({luminosity:"dark",format:"rgb"});

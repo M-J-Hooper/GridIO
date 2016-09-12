@@ -17,12 +17,12 @@ function createArray(length) {
 }
 
 function findGroups(game) {
-	var groups = createArray(game.w,game.h);
+	var groups = createArray(game.l,game.l);
 	var groupNum = 0;
 
 	//get array of grouped pieces
-	for(var n = 0; n < game.w; n++) {
-		for(var m = 0; m < game.h; m++) {
+	for(var n = 0; n < game.l; n++) {
+		for(var m = 0; m < game.l; m++) {
 			if(game.board[n][m].id && !groups[n][m]) {
 				groupNum++;
 				groups = groupsLoop(game,game.board[n][m].id,groups,n,m,groupNum);
@@ -37,9 +37,9 @@ function groupsLoop(game,id,groups,n,m,groupNum) {
 	groups[n][m] = groupNum;
 
 	//careful of board edges
-	var maxA = n == game.w-1 ? 1 : 2;
+	var maxA = n == game.l-1 ? 1 : 2;
 	var minA = n == 0 ? 0 : -1;
-	var maxB = m == game.h-1 ? 1 : 2;
+	var maxB = m == game.l-1 ? 1 : 2;
 	var minB = m == 0 ? 0 : -1;
 
 	for(var a = minA; a < maxA; a++) {
@@ -63,8 +63,8 @@ function getView(game, selfId, view, smooth) {
   var avI = 0;
   var avJ = 0;
 
-  for(var i = 0; i < game.w; i++) {
-		for(var j = 0; j < game.h; j++) {
+  for(var i = 0; i < game.l; i++) {
+		for(var j = 0; j < game.l; j++) {
       if(game.board[i][j].id == selfId) {
         if(first) { minI = i; maxI = i; minJ = j; maxJ = j; first = false; }
         else {
@@ -89,9 +89,9 @@ function getView(game, selfId, view, smooth) {
     r = Math.min(view.width/(playerSizeX+viewDist*2),view.height/(playerSizeY+viewDist*2))/view.size;
   }
   else {
-    avI = game.w/2;
-    avJ = game.h/2
-    r = Math.min(view.width/(game.w+1),view.height/(game.h+1))/view.size;
+    avI = game.l/2;
+    avJ = game.l/2
+    r = Math.min(view.width/(game.l+1),view.height/(game.l+1))/view.size;
   }
 
   if(smooth) {
@@ -111,7 +111,7 @@ function getView(game, selfId, view, smooth) {
 
 //attempt to set selected piece to certain index
 function selectPiece(game,selfId,i,j) {
-  if(i>=0 && i<game.w && j>=0 && j<game.h && game.board[i][j].id == selfId) {
+  if(i>=0 && i<game.l && j>=0 && j<game.l && game.board[i][j].id == selfId) {
     return {i:i,j:j};
   }
   else { return {i:null,j:null} }

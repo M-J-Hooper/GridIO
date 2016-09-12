@@ -10,17 +10,16 @@ var Game = function(params) {
   if(params.new) {
     if(params.new.id) { self.id = params.new.id; }
     else { self.id = Math.random(); }
-    self.w = params.new.w;
-    self.h = params.new.h;
+    self.l = params.new.l;
     self.slide = params.new.slide;
     self.playerLimit = params.new.playerLimit;
     self.pub = params.new.pub;
     self.spawn = params.new.spawn;
     self.playerList = {};
 
-  	self.board = createArray(self.w,self.h);
-  	for(var n = 0; n < self.w; n++) {
-  		for(var m = 0; m < self.h; m++) {
+  	self.board = createArray(self.l,self.l);
+  	for(var n = 0; n < self.l; n++) {
+  		for(var m = 0; m < self.l; m++) {
   			self.board[n][m] = {id:null,prev:{count:0,dx:0,dy:0}};
   		}
   	}
@@ -42,8 +41,8 @@ var Game = function(params) {
 
 		//find a space for the pieces to spawn
 		while(berth >= 1) {
-			n = Math.floor(Math.random()*(self.w-2*berth))+berth;
-			m = Math.floor(Math.random()*(self.h-2*berth))+berth;
+			n = Math.floor(Math.random()*(self.l-2*berth))+berth;
+			m = Math.floor(Math.random()*(self.l-2*berth))+berth;
 
 			var check = 0;
 			for(var i = -berth; i <= berth; i++) {
@@ -75,8 +74,8 @@ var Game = function(params) {
 
     delete self.playerList[id];
 
-    for(var i = 0; i < self.w; i++) {
-  		for(var j = 0; j < self.h; j++) {
+    for(var i = 0; i < self.l; i++) {
+  		for(var j = 0; j < self.l; j++) {
   			if(self.board[i][j].id == id) {
           //1 to kill pieces, null to remove totally
           if(self.spawn) {
@@ -101,8 +100,8 @@ var Game = function(params) {
     var pack = {players:[],pieces:[]};
 
 		//how many pieces ahead of move and can they be moved
-		for(var n = 0; n < self.w + self.h; n++) {
-			if(i+n*dx < 0 || i+n*dx >= self.w || j+n*dy < 0 || j+n*dy >= self.h) { ok = false; break; }
+		for(var n = 0; n < self.l + self.l; n++) {
+			if(i+n*dx < 0 || i+n*dx >= self.l || j+n*dy < 0 || j+n*dy >= self.l) { ok = false; break; }
 			else if(self.board[i+n*dx][j+n*dy].prev.count > 0) { ok = false; break; }
 			else if(!self.board[i+n*dx][j+n*dy].id) { break; }
 			else {
@@ -131,8 +130,8 @@ var Game = function(params) {
 				var groupList = {};
 
 				//make list of groups with perimeter and neighbours
-				for(var n = 0; n < self.w; n++) {
-					for(var m = 0; m < self.h; m++) {
+				for(var n = 0; n < self.l; n++) {
+					for(var m = 0; m < self.l; m++) {
 						if(groups[n][m]) {
 							groupNum = groups[n][m];
 							if(!groupList[groupNum]) {
@@ -140,9 +139,9 @@ var Game = function(params) {
 							}
 
 							//careful of board edges
-							var maxA = n == self.w-1 ? 1 : 2;
+							var maxA = n == self.l-1 ? 1 : 2;
 							var minA = n == 0 ? 0 : -1;
-							var maxB = m == self.h-1 ? 1 : 2;
+							var maxB = m == self.l-1 ? 1 : 2;
 							var minB = m == 0 ? 0 : -1;
 
 							for(var a = minA; a < maxA; a++) {
@@ -183,8 +182,8 @@ var Game = function(params) {
 				}
 
 				//transfer pieces between players for any captures
-				for(var n = 0; n < self.w; n++) {
-					for(var m = 0; m < self.h; m++) {
+				for(var n = 0; n < self.l; n++) {
+					for(var m = 0; m < self.l; m++) {
 						if(groups[n][m]) {
 							for(var v in captured) {
 								if(v == groups[n][m]) {
@@ -208,14 +207,14 @@ var Game = function(params) {
 			//kill isolated pieces (MORE EFFICIENT WAY!!!!!!!)
 			var groups = findGroups(self)
 			var groupCount = {};
-			for(var n = 0; n < self.w; n++) {
-				for(var m = 0; m < self.h; m++) {
+			for(var n = 0; n < self.l; n++) {
+				for(var m = 0; m < self.l; m++) {
 					if(groupCount[groups[n][m]]) { groupCount[groups[n][m]]++; }
 					else { groupCount[groups[n][m]] = 1; }
 				}
 			}
-			for(var n = 0; n < self.w; n++) {
-				for(var m = 0; m < self.h; m++) {
+			for(var n = 0; n < self.l; n++) {
+				for(var m = 0; m < self.l; m++) {
 					var currId = self.board[n][m].id;
 					if(groups[n][m] && currId != 1) {
 						for(var v in groupCount) {
@@ -239,11 +238,11 @@ var Game = function(params) {
     var berth = 3;
     var rate = 0.005; //adjust for bigger boards????
     var density = 1/50;
-    var target = self.w*self.h*density;
+    var target = self.l*self.l*density;
 
     var count = 0;
-    for(var n = 0; n < self.w; n++) {
-      for(var m = 0; m < self.h; m++) {
+    for(var n = 0; n < self.l; n++) {
+      for(var m = 0; m < self.l; m++) {
         if(self.board[n][m].id == 1) { count++; } //==1 to only count dead pieces
       }
     }
@@ -256,8 +255,8 @@ var Game = function(params) {
       var spawnProb = rate;
       if(Math.random() < spawnProb) {
         while(berth >= 1) {
-    			n = Math.floor(Math.random()*(self.w-2*berth))+berth;
-    			m = Math.floor(Math.random()*(self.h-2*berth))+berth;
+    			n = Math.floor(Math.random()*(self.l-2*berth))+berth;
+    			m = Math.floor(Math.random()*(self.l-2*berth))+berth;
 
     			var check = 0;
     			for(var i = -berth; i <= berth; i++) {
@@ -280,8 +279,8 @@ var Game = function(params) {
     }
     if(diff < 0) { //kill
       var killProb = rate/count;
-      for(var n = berth; n < self.w-berth; n++) { //cant kill pieces near edge???
-    		for(var m = berth; m < self.h-berth; m++) {
+      for(var n = berth; n < self.l-berth; n++) { //cant kill pieces near edge???
+    		for(var m = berth; m < self.l-berth; m++) {
           if(self.board[n][m].id == 1) {
             var check = 0;
             for(var i = -berth; i <= berth; i++) {
@@ -302,8 +301,8 @@ var Game = function(params) {
   }
 
   self.boardSlide = function() {
-    for(var i = 0; i < self.w; i++) {
-  		for(var j = 0; j < self.h; j++) {
+    for(var i = 0; i < self.l; i++) {
+  		for(var j = 0; j < self.l; j++) {
   			if(self.board[i][j].prev.count > 0) { self.board[i][j].prev.count--; }
       }
     }

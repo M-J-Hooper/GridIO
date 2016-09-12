@@ -18,14 +18,15 @@ var gameList = {};
 
 //game settings
 var slide = 5;
-var w = 20;
-var h = w;
-var playerLimit = Math.floor(w*h/83.33333333);
+var l = 20;
+var playerLimit = Math.floor(l*l/83.33333333);
 var spawn = true;
 var pub = true;
 
 joinGame = function(socket,data) {
-	var player = new Player({new:{id:socket.id, name:data.name, color:data.color}});
+	var name = data.name.substring(0,10);
+	var color = data.color; //check if color is visible enough???
+	var player = new Player({new:{id:socket.id, name:name, color:color}});
 	var game;
 
 	if(data.joinId != null) {
@@ -36,7 +37,7 @@ joinGame = function(socket,data) {
 	}
 	else if(data.createId != null) {
 		console.log(JSON.stringify(data));
-		game = new Game({new:{id:data.createId,w:w,h:h,slide:slide,playerLimit:playerLimit,pub:pub,spawn:spawn}});
+		game = new Game({new:{id:data.createId,l:l,slide:slide,playerLimit:playerLimit,pub:pub,spawn:spawn}});
 		gameList[game.id] = {game:game,initPack:{players:[],pieces:[]},removePack:{players:[],pieces:[]},updatePack:{players:[],pieces:[]}};
 		console.log("Game "+game.id+" created");
 	}
@@ -48,7 +49,7 @@ joinGame = function(socket,data) {
 			}
 		}
 		if(!game) { //if no game with space found
-			game = new Game({new:{w:w,h:h,slide:slide,playerLimit:playerLimit,pub:true,spawn:true}});
+			game = new Game({new:{l:l,slide:slide,playerLimit:playerLimit,pub:true,spawn:true}});
 			gameList[game.id] = {game:game,initPack:{players:[],pieces:[]},removePack:{players:[],pieces:[]},updatePack:{players:[],pieces:[]}};
 			console.log("Game "+game.id+" created");
 		}

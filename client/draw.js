@@ -9,7 +9,7 @@ function drawBoard(ctx,game,view,selected) {
   for(var n = 8; n >= 0; n--) {
     var value = 256 - n*32;
     ctx.fillStyle = "rgb("+value+","+value+","+value+")";
-    roundRect(ctx,offsetX-borderWidth*n*view.size,offsetY-borderWidth*n*view.size,view.size*(game.w+2*borderWidth*n),view.size*(game.h+2*borderWidth*n),view.size*(borderWidth*n + 0.25),true,false);
+    roundRect(ctx,offsetX-borderWidth*n*view.size,offsetY-borderWidth*n*view.size,view.size*(game.l+2*borderWidth*n),view.size*(game.l+2*borderWidth*n),view.size*(borderWidth*n + 0.25),true,false);
   }
 
 
@@ -19,30 +19,29 @@ function drawBoard(ctx,game,view,selected) {
   //draw board design
   //rounded edges on tiles (slow due to round rect function)
   /*ctx.fillStyle = "rgb(255,255,255)";
-  for(var i = 0; i < w; i++) {
-    for(var j = 0; j < h; j++) {
+  for(var i = 0; i < game.l; i++) {
+    for(var j = 0; j < game.l; j++) {
       roundRect(ctx,i*size+offsetX,j*size+offsetY,size,size,size*0.25,true,true);
     }
   }*/
 
   //more efficient board style
-  for(var i = 1; i < game.w; i++) {
+  for(var i = 1; i < game.l; i++) {
     ctx.beginPath();
     ctx.moveTo(i*view.size+offsetX,offsetY);
-    ctx.lineTo(i*view.size+offsetX,game.w*view.size+offsetY);
+    ctx.lineTo(i*view.size+offsetX,game.l*view.size+offsetY);
     ctx.stroke();
-  }
-  for(var j = 1; j < game.h; j++) {
+
     ctx.beginPath();
-    ctx.moveTo(offsetX,j*view.size+offsetY);
-    ctx.lineTo(game.h*view.size+offsetX,j*view.size+offsetY);
+    ctx.moveTo(offsetX,i*view.size+offsetY);
+    ctx.lineTo(game.l*view.size+offsetX,i*view.size+offsetY);
     ctx.stroke();
   }
 
 
   //draw pieces
-  for(var i = 0; i < game.w; i++) {
-    for(var j = 0; j < game.h; j++) {
+  for(var i = 0; i < game.l; i++) {
+    for(var j = 0; j < game.l; j++) {
       if(game.board[i][j].id) {
         if(game.board[i][j].id == 1) { ctx.fillStyle = "rgb(64, 64, 64)"; }
         else { ctx.fillStyle = game.playerList[game.board[i][j].id].color; }
@@ -76,8 +75,8 @@ function updateUi(game,view,selfId) {
 
   $("#info .blob").css("background", game.playerList[selfId].color);
   $("#info .text-left").text(name);
-  $("#info .text-center").text("Score:"+game.playerList[selfId].score);
-  $("#info .text-right").text("Rank:"+rank+"/"+leaderboard.length);
+  $("#info .text-center").text("Score: "+game.playerList[selfId].score);
+  $("#info .text-right").text("Rank: "+rank+"/"+leaderboard.length);
 
   $("#leaderboard .inner").html("");
   var leaderLength = leaderboard.length < 10 ? leaderboard.length : 10;
@@ -92,7 +91,7 @@ function updateUi(game,view,selfId) {
   //update game info in settings
   $("#code").text((""+game.id).substring(2));
   var value = "#"+(""+game.id).slice(2,6);
-  $("#settings-info").html('<span class="text-id">'+value+'</span><span class="text-center">'+game.w+'x'+game.h+'</span><span class="text-right">'+game.getPlayerCount()+'/'+game.playerLimit+'</span>');
+  $("#settings-info").html('<span class="text-id">'+value+'</span><span class="text-center">'+game.l+'x'+game.l+'</span><span class="text-right">'+game.getPlayerCount()+'/'+game.playerLimit+'</span>');
 }
 
 //update the html of the game browser after goto or refresh
@@ -109,7 +108,7 @@ function updateBrowser(gameList, socket, name, color) {
       $("<div>", {
         id: game.id,
         class: "blob hover",
-        html: '<span class="text-id">'+value+'</span><span class="text-center">'+game.w+'x'+game.h+'</span><span class="text-right">'+game.getPlayerCount()+'/'+game.playerLimit+'</span>',
+        html: '<span class="text-id">'+value+'</span><span class="text-center">'+game.l+'x'+game.l+'</span><span class="text-right">'+game.getPlayerCount()+'/'+game.playerLimit+'</span>',
         click: function() { joinGame(null,this.id); }
       }).appendTo("#gamelist");
     }
