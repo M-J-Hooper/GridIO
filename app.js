@@ -72,7 +72,8 @@ joinGame = function(socket,data) {
 	//add move listener to socket of new joined player
 	socket.on('move',function(data){
 		var gameId = socketList[socket.id].gameId;
-		if(socket.id == gameList[gameId].game.board[data.i][data.j].id) {
+		//needs to prevent moves while waiting for zero score leave
+		if(gameId && socket.id == gameList[gameId].game.board[data.i][data.j].id) {
 			var pack = gameList[gameId].game.makeMove(data.i,data.j,data.dx,data.dy);
 			for(var n = 0; n < pack.players.length; n++) { gameList[gameId].updatePack.players.push(pack.players[n]); }
 			for(var n = 0; n < pack.pieces.length; n++) { gameList[gameId].updatePack.pieces.push(pack.pieces[n]); }
@@ -89,12 +90,14 @@ leaveGame = function(socket){
 	var gameId = socketList[socket.id].gameId;
 
 	if(gameList[gameId]) { //if statement for nodemon restart problems
+		//disassociate player with the game
 		socketList[socket.id].gameId = null;
 		console.log("Player "+socket.id+" left Game "+gameId);
 
 		//remove player from board
 		var pieces = gameList[gameId].game.removePlayer(socket.id);
 		console.log("Game "+gameId+" has "+gameList[gameId].game.getPlayerCount()+"/"+gameList[gameId].game.playerLimit+" players");
+
 
 		//delete game if last player
 		if(gameList[gameId].game.getPlayerCount() == 0) {
