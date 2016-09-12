@@ -36,7 +36,6 @@ joinGame = function(socket,data) {
 		else { return; }
 	}
 	else if(data.createId != null) {
-		console.log(JSON.stringify(data));
 		game = new Game({new:{id:data.createId,l:l,slide:slide,playerLimit:playerLimit,pub:pub,spawn:spawn}});
 		gameList[game.id] = {game:game,initPack:{players:[],pieces:[]},removePack:{players:[],pieces:[]},updatePack:{players:[],pieces:[]}};
 		console.log("Game "+game.id+" created");
