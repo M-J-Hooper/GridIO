@@ -9,9 +9,6 @@ var selfId = null;
 var selected = {i:null,j:null};
 var view = {height:0,width:0,size:50,x:0,y:0,fixed:false};
 
-var name;
-var color;
-
 socket.on('init',function(data){
   if(data.selfId) { selfId = data.selfId; }
 
@@ -107,7 +104,7 @@ setInterval(function(){
 
   //transition between menu when game starts/ends (BETTER WAY!!!)
   if(game && game.playerList[selfId].score > 0) { $("#menu").hide(); $("#ui").show(); }
-  else { $("#menu").show(); $("#ui").hide(); }
+  else { $("#menu").show(); $("#ui").hide(); $("#name").focus(); }
 },40);
 
 //send move when a valid piece is selected and wasd pressed
@@ -199,20 +196,17 @@ getGames = function() {
   });
 }
 
-//generate random player name
-getName = function() {
-  var word = chance.word()
-  name = word.charAt(0).toUpperCase() + word.slice(1);
-  $("#player").text(name);
+var word = chance.word()
+var name = word.charAt(0).toUpperCase() + word.slice(1);
+setName = function() {
+  if($("#name").val()) { name = $("#name").val().substring(0,15); }
 }
-getName();
 
-//generate random player color
-getColor = function() {
-  color = randomColor({luminosity:"dark",format:"rgb"});
-  $("#player").css("background", color);
+var color = randomColor({luminosity:"dark",format:"rgb"});
+setColor = function(newColor) {
+  $("#name").css("background",newColor);
+  color = newColor;
 }
-getColor();
 
 
 //menu clicks and transitions
@@ -222,24 +216,37 @@ $("#browse").hide();
 $("#create").hide();
 $("#join").hide();
 
-$("#name").click(getName);
-$("#color").click(getColor);
+$("#name").focus();
+updateColors = function() {
+  $("#colors").html("");
+  var colors = randomColor({luminosity: 'dark', count: 28});
+  for(var n = 0; n < colors.length; n++) {
+    $("<div>", {
+      id: colors[n],
+      class: "piece hover",
+      css: {background: colors[n]},
+      click: function() { setColor(this.id); }
+    }).appendTo("#colors");
+  }
+}
+updateColors();
+$("#more-colors").click(function() { updateColors(); });
 
 $("#go-rules").click(function() { $("#start").hide(); $("#rules").show(); });
-$("#rules-back").click(function() { $("#start").show(); $("#rules").hide(); });
+$("#rules-back").click(function() { $("#start").show(); $("#rules").hide(); $("#name").focus(); });
 
-$("#go-browse").click(function() { getGames(); $("#start").hide(); $("#browse").show(); });
+$("#go-browse").click(function() { getGames(); setName(); $("#start").hide(); $("#browse").show(); });
 $("#browse-refresh").click(function() { getGames(); });
-$("#browse-back").click(function() { $("#start").show(); $("#browse").hide(); });
+$("#browse-back").click(function() { $("#start").show(); $("#browse").hide(); $("#name").focus(); });
 
 var code;
-$("#go-create").click(function() { $("#start").hide(); $("#create").show(); code = Math.random(); $("#get-code").text((""+code).slice(-16)); });
-$("#create-create").click(function() { $("#menu").hide(); $("#create").hide(); socket.emit('join',{name:name,color:color,gameId:code}); });
-$("#create-back").click(function() { $("#start").show(); $("#create").hide(); });
+$("#go-create").click(function() { $("#start").hide(); $("#create").show(); setName(); code = Math.random(); $("#get-code").text((""+code).substring(2)); });
+$("#create-create").click(function() { $("#start").show(); $("#create").hide(); socket.emit('join',{name:name,color:color,createId:code}); });
+$("#create-back").click(function() { $("#start").show(); $("#create").hide(); $("#name").focus(); });
 
-$("#go-join").click(function() { $("#start").hide(); $("#join").show(); });
-$("#join-join").click(function() { $("#menu").hide(); $("#create").hide(); socket.emit('join',{name:name,color:color,gameId:code}); });
-$("#join-back").click(function() { $("#start").show(); $("#join").hide(); });
+$("#go-join").click(function() { $("#start").hide(); $("#join").show(); setName(); $("#put-code").focus(); });
+$("#join-join").click(function() { $("#start").show(); $("#join").hide(); socket.emit('join',{name:name,color:color,joinId:parseFloat("0."+$("#put-code").val())}); });
+$("#join-back").click(function() { $("#start").show(); $("#join").hide(); $("#name").focus(); });
 
 
-$("#play").click(function() { $("#menu").hide(); socket.emit('join',{name:name,color:color}); });
+$("#play").click(function() { setName(); socket.emit('join',{name:name,color:color}); });

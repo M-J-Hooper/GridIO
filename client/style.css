@@ -2,6 +2,11 @@ body {
   margin: 0px;
   font-family: monospace;
   font-size: 16px;
+
+}
+
+:focus {
+  outline: none;
 }
 
 canvas {
@@ -38,22 +43,29 @@ canvas {
   background: rgba(0, 0, 0, 0.8);
   padding: 4px 6px 4px 6px;
   margin: 10px;
-  border-radius: 5px;
+  border-radius: 7px;
+}
 
+.piece {
+  display: inline-block;
+  height: 27px;
+  width: 27px;
+  margin: 5px;
+  border-radius: 7px;
 }
 
 .hover:hover {
   background: rgba(0, 0, 0, 0.5);
 }
 
-input {
+input[type=text] {
+  display: block;
   font-size: 16px;
   font-family: monospace;
   text-align: center;
   width: 260px;
   border-style: none;
   box-shadow: none;
-  margin: 0px;
 }
 
 #start {
@@ -63,6 +75,10 @@ input {
 
 #title {
   width: 300px;
+}
+
+#colors {
+  margin: 10px;
 }
 
 #rules {
@@ -85,13 +101,13 @@ input {
 #leaderboard {
   margin: 10px;
   position: absolute;
-  width: 250px;
+  width: 280px;
 }
 
 #info {
   margin: 10px;
   position: absolute;
-  width: 350px;
+  width: 400px;
   bottom: 0px;
 }
 
@@ -130,4 +146,14 @@ input {
 
 .input {
   background: rgba(0, 0, 0, 0.5);
+}
+
+.blob:not(.input) {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
 }

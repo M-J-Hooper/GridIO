@@ -8,7 +8,8 @@ if(typeof module != 'undefined') {
 var Game = function(params) {
   var self = {};
   if(params.new) {
-    self.id = Math.random();
+    if(params.new.id) { self.id = params.new.id; }
+    else { self.id = Math.random(); }
     self.w = params.new.w;
     self.h = params.new.h;
     self.slide = params.new.slide;
@@ -236,7 +237,7 @@ var Game = function(params) {
   self.pieceSpawn = function() {
     var pieces = [];
     var berth = 3;
-    var rate = 0.005;
+    var rate = 0.005; //adjust for bigger boards????
     var density = 1/50;
     var target = self.w*self.h*density;
 

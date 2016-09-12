@@ -95,12 +95,12 @@ function updateBrowser(gameList, socket, name, color) {
     var playerCount = Object.keys(game.playerList).length;
     if(game.pub && playerCount < game.playerLimit) {
       count++;
-      var code = "#"+(""+game.id).slice(-4);
+      var code = "#"+(""+game.id).slice(2,6);
       $("<div>", {
         id: game.id,
         class: "blob hover",
         html: '<span class="text-id">'+code+'</span><span class="text-center">'+game.w+'x'+game.h+'</span><span class="text-right">'+playerCount+'/'+game.playerLimit+'</span>',
-        click: function() { socket.emit('join',{name:name,color:color,gameId:this.id}); }
+        click: function() { socket.emit('join',{name:name,color:color,joinId:this.id}); $("#start").show(); $("#browse").hide(); }
       }).appendTo("#gamelist");
     }
   }

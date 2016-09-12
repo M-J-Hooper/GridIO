@@ -1,7 +1,7 @@
 <title>GridIO</title>
 <link rel="stylesheet" type="text/css" href="client/style.css"/>
-<!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
-<script src="//cdn.socket.io/socket.io-1.4.5.js"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+<!--<script src="//cdn.socket.io/socket.io-1.4.5.js"></script>
 <script src="//code.jquery.com/jquery-1.10.2.js"></script>-->
 
 <body>
@@ -32,9 +32,11 @@
 
 		<div id="start" class="outer">
 			<div class="inner">
-				<input type="text" id="player" class="blob input">
-				<div id="name" class="blob hover">Change name</div>
-				<div id="color" class="blob hover">Change color</div>
+				<div class="blob neutral">Enter a name:</div>
+				<input type="text" id="name" class="blob input">
+				<div class="blob neutral">Pick a color:</div>
+				<div id="colors"></div>
+				<div id="more-colors" class="blob hover">New colors</div>
 			</div>
 			<div class="inner">
 				<div id="go-rules" class="blob hover bad">Rules</div>
@@ -57,7 +59,7 @@
 			<div id="headers" class="inner">
 				<div class="blob neutral">
 					<span class="text-id">#ID</span>
-					<span class="text-center">Size</span>
+					<span class="text-center">Grid</span>
 					<span class="text-right">Players</span>
 				</div>
 			</div>
@@ -70,7 +72,7 @@
 
 		<div id="create" class="outer">
 			<div class="inner">
-				<div class="blob neutral">Copy game code</div>
+				<div class="blob neutral">Copy game code:</div>
 				<div id="get-code" class="blob input"></div>
 			</div>
 			<div id="options" class="inner">
@@ -86,7 +88,7 @@
 
 		<div id="join" class="outer">
 			<div class="inner">
-				<div class="blob neutral">Enter game code</div>
+				<div class="blob neutral">Enter game code:</div>
 				<input type="text" id="put-code" class="blob input">
 			</div>
 			<div class="inner">
