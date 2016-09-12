@@ -18,7 +18,7 @@ var gameList = {};
 
 //game settings
 var slide = 5;
-var w = 12;
+var w = 50;
 var h = w;
 var playerLimit = Math.floor(w*h/83.33333333);
 var spawn = true;
@@ -54,7 +54,7 @@ joinGame = function(socket,data) {
 		}
 	}
 
-
+	//NEED BETTER WAY OF PREVENTING SPAM CLICKING!!!
 	//before adding to a game, check that the id is not already playing!!!
 	for(var n in game.playerList) {
 		if(game.playerList[n].id == socket.id) { return; }
@@ -122,6 +122,11 @@ io.sockets.on('connection', function(socket) {
 	//get gameList for game browser
 	socket.on('browse', function(data, callback) {
 		callback(gameList);
+	});
+
+	//leave game without disconnect
+	socket.on('leave', function(data) {
+		leaveGame(socket);
 	});
 
 	socket.on('disconnect',function() {

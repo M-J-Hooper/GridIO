@@ -5,10 +5,11 @@ function drawBoard(ctx,game,view,selected) {
   var offsetX = view.width/2 - view.x;
   var offsetY = view.height/2 - view.y;
 
+  var borderWidth = 0.5;
   for(var n = 8; n >= 0; n--) {
     var value = 256 - n*32;
     ctx.fillStyle = "rgb("+value+","+value+","+value+")";
-    roundRect(ctx,offsetX-0.5*n*view.size,offsetY-0.5*n*view.size,view.size*(game.w+n),view.size*(game.h+n),view.size*(0.5*n + 0.25),true,false);
+    roundRect(ctx,offsetX-borderWidth*n*view.size,offsetY-borderWidth*n*view.size,view.size*(game.w+2*borderWidth*n),view.size*(game.h+2*borderWidth*n),view.size*(borderWidth*n + 0.25),true,false);
   }
 
 

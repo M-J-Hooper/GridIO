@@ -95,7 +95,7 @@ function getView(game, selfId, view, smooth) {
   }
 
   if(smooth) {
-    var viewSmooth = 100;
+    var viewSmooth = 40;
     view.size += view.size*(r-1)/viewSmooth;
     view.x += (avI*view.size*r - view.x)/viewSmooth;
     view.y += (avJ*view.size*r - view.y)/viewSmooth;

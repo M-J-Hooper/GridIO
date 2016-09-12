@@ -205,6 +205,10 @@ joinGame = function(createId,joinId) {
   });
 }
 
+leaveGame = function() {
+
+}
+
 var word = chance.word()
 var name = word.charAt(0).toUpperCase() + word.slice(1);
 setName = function() {
@@ -251,3 +255,4 @@ $("#play").click(function() { setName(); joinGame(null,null); });
 
 $("#go-settings").click(function() { $("#settings").show(); });
 $("#settings-continue").click(function() { $("#settings").hide(); });
+$("#settings-leave").click(function() { socket.emit('leave'); game = null; $("#settings").hide(); });
