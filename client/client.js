@@ -199,8 +199,6 @@ joinGame = function(createId,joinId) {
       $("#start").show();
       $("#menu").hide();
       $("#ui").show();
-
-      $("#code").text((""+game.id).substring(2))
     }
   });
 }
@@ -253,6 +251,9 @@ $("#join-back").click(function() { $("#start").show(); $("#join").hide(); });
 
 $("#play").click(function() { setName(); joinGame(null,null); });
 
-$("#go-settings").click(function() { $("#settings").show(); });
+$("#go-settings").click(function() {
+  if($("#settings").is(":visible")) { $("#settings").hide(); }
+  else { $("#settings").show(); }
+});
 $("#settings-continue").click(function() { $("#settings").hide(); });
 $("#settings-leave").click(function() { socket.emit('leave'); game = null; $("#settings").hide(); });

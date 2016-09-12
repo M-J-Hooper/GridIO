@@ -88,6 +88,11 @@ function updateUi(game,view,selfId) {
       css: {background: game.playerList[leaderboard[i].id].color}
     }).appendTo("#leaderboard .inner");
   }
+
+  //update game info in settings
+  $("#code").text((""+game.id).substring(2));
+  var value = "#"+(""+game.id).slice(2,6);
+  $("#settings-info").html('<span class="text-id">'+value+'</span><span class="text-center">'+game.w+'x'+game.h+'</span><span class="text-right">'+game.getPlayerCount()+'/'+game.playerLimit+'</span>');
 }
 
 //update the html of the game browser after goto or refresh
@@ -100,11 +105,11 @@ function updateBrowser(gameList, socket, name, color) {
     var game = new Game({copy:gameList[n]});
     if(game.pub && game.getPlayerCount() < game.playerLimit) {
       count++;
-      var code = "#"+(""+game.id).slice(2,6);
+      var value = "#"+(""+game.id).slice(2,6);
       $("<div>", {
         id: game.id,
         class: "blob hover",
-        html: '<span class="text-id">'+code+'</span><span class="text-center">'+game.w+'x'+game.h+'</span><span class="text-right">'+game.getPlayerCount()+'/'+game.playerLimit+'</span>',
+        html: '<span class="text-id">'+value+'</span><span class="text-center">'+game.w+'x'+game.h+'</span><span class="text-right">'+game.getPlayerCount()+'/'+game.playerLimit+'</span>',
         click: function() { joinGame(null,this.id); }
       }).appendTo("#gamelist");
     }
@@ -118,7 +123,7 @@ updateColors = function() {
   for(var n = 0; n < colors.length; n++) {
     $("<div>", {
       id: colors[n],
-      class: "piece hover",
+      class: "piece",
       css: {background: colors[n]},
       click: function() { setColor(this.id); }
     }).appendTo("#colors");
