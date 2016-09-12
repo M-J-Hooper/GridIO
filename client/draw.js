@@ -5,8 +5,15 @@ function drawBoard(ctx,game,view,selected) {
   var offsetX = view.width/2 - view.x;
   var offsetY = view.height/2 - view.y;
 
+  for(var n = 8; n >= 0; n--) {
+    var value = 256 - n*32;
+    ctx.fillStyle = "rgb("+value+","+value+","+value+")";
+    roundRect(ctx,offsetX-0.5*n*view.size,offsetY-0.5*n*view.size,view.size*(game.w+n),view.size*(game.h+n),view.size*(0.5*n + 0.25),true,false);
+  }
+
+
   ctx.lineWidth = view.size*0.05;
-  ctx.strokeStyle = "rgb(200, 200, 200)";
+  ctx.strokeStyle = "rgb(224, 224, 224)";
 
   //draw board design
   //rounded edges on tiles (slow due to round rect function)
@@ -18,18 +25,16 @@ function drawBoard(ctx,game,view,selected) {
   }*/
 
   //more efficient board style
-  ctx.fillStyle = "white";
-  ctx.fillRect(offsetX,offsetY,view.size*game.w,view.size*game.h);
   for(var i = 1; i < game.w; i++) {
     ctx.beginPath();
     ctx.moveTo(i*view.size+offsetX,offsetY);
-    ctx.lineTo(i*view.size+offsetX,(game.w+1)*view.size+offsetY);
+    ctx.lineTo(i*view.size+offsetX,game.w*view.size+offsetY);
     ctx.stroke();
   }
   for(var j = 1; j < game.h; j++) {
     ctx.beginPath();
     ctx.moveTo(offsetX,j*view.size+offsetY);
-    ctx.lineTo((game.h+1)*view.size+offsetX,j*view.size+offsetY);
+    ctx.lineTo(game.h*view.size+offsetX,j*view.size+offsetY);
     ctx.stroke();
   }
 
@@ -91,20 +96,32 @@ function updateBrowser(gameList, socket, name, color) {
 
   var count = 0;
   for(var n = 0; n < gameList.length; n++) {
-    var game = gameList[n];
-    var playerCount = Object.keys(game.playerList).length;
-    if(game.pub && playerCount < game.playerLimit) {
+    var game = new Game({copy:gameList[n]});
+    if(game.pub && game.getPlayerCount() < game.playerLimit) {
       count++;
       var code = "#"+(""+game.id).slice(2,6);
       $("<div>", {
         id: game.id,
         class: "blob hover",
-        html: '<span class="text-id">'+code+'</span><span class="text-center">'+game.w+'x'+game.h+'</span><span class="text-right">'+playerCount+'/'+game.playerLimit+'</span>',
-        click: function() { socket.emit('join',{name:name,color:color,joinId:this.id}); $("#start").show(); $("#browse").hide(); }
+        html: '<span class="text-id">'+code+'</span><span class="text-center">'+game.w+'x'+game.h+'</span><span class="text-right">'+game.getPlayerCount()+'/'+game.playerLimit+'</span>',
+        click: function() { joinGame(null,this.id); }
       }).appendTo("#gamelist");
     }
   }
   if(!count) { $("#gamelist").html('<div class="blob neutral">No games found!</div>')}
+}
+
+updateColors = function() {
+  $("#colors").html("");
+  var colors = randomColor({luminosity: 'dark', count: 28});
+  for(var n = 0; n < colors.length; n++) {
+    $("<div>", {
+      id: colors[n],
+      class: "piece hover",
+      css: {background: colors[n]},
+      click: function() { setColor(this.id); }
+    }).appendTo("#colors");
+  }
 }
 
 

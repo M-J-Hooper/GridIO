@@ -12,7 +12,7 @@ body {
 canvas {
   position: absolute;
   border: 0px;
-  background: rgb(200, 200, 200);
+  background: black;
 }
 
 .layer {
@@ -109,6 +109,18 @@ input[type=text] {
   position: absolute;
   width: 400px;
   bottom: 0px;
+}
+
+#go-settings {
+  position: absolute;
+  right: 0px;
+  font-size: 30px;
+  color: rgba(0, 0, 0, 0.5);
+  margin: 10px;
+}
+
+#settings {
+  width: 300px;
 }
 
 .text-rank {

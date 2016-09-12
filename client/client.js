@@ -10,13 +10,6 @@ var selected = {i:null,j:null};
 var view = {height:0,width:0,size:50,x:0,y:0,fixed:false};
 
 socket.on('init',function(data){
-  if(data.selfId) { selfId = data.selfId; }
-
-  if(data.game) {
-    game = new Game({copy:data.game});
-    view = getView(game,selfId,view,false);
-  }
-
   for(var i = 0 ; i < data.players.length; i++){
     game.playerList[data.players[i].id] = new Player({copy:data.players[i]});
   }
@@ -103,8 +96,7 @@ setInterval(function(){
   }
 
   //transition between menu when game starts/ends (BETTER WAY!!!)
-  if(game && game.playerList[selfId].score > 0) { $("#menu").hide(); $("#ui").show(); }
-  else { $("#menu").show(); $("#ui").hide(); $("#name").focus(); }
+  if(!game || game.playerList[selfId].score == 0) { $("#menu").show(); $("#ui").hide(); }
 },40);
 
 //send move when a valid piece is selected and wasd pressed
@@ -187,12 +179,29 @@ document.addEventListener("touchend", function(event) {
 
 //send for games then update html
 getGames = function() {
-  socket.emit('browse',"",function(data) {
+  socket.emit('browse',"",function(gameList) {
     var array = [];
-    for(var v in data) {
-      array.push(data[v].game);
+    for(var v in gameList) {
+      array.push(gameList[v].game);
     }
     updateBrowser(array,socket, name, color);
+  });
+}
+
+joinGame = function(createId,joinId) {
+  socket.emit('join',{name:name,color:color,createId:createId,joinId:joinId}, function(joinedGame,playerId) {
+    selfId = playerId;
+    if(joinedGame) {
+      game = new Game({copy:joinedGame});
+      view = getView(game,selfId,view,false);
+
+      $("#browse").hide(); $("#create").hide(); $("#join").hide();
+      $("#start").show();
+      $("#menu").hide();
+      $("#ui").show();
+
+      $("#code").text((""+game.id).substring(2))
+    }
   });
 }
 
@@ -208,45 +217,37 @@ setColor = function(newColor) {
   color = newColor;
 }
 
-
 //menu clicks and transitions
+
 $("#ui").hide();
+$("#settings").hide();
 $("#rules").hide();
 $("#browse").hide();
 $("#create").hide();
 $("#join").hide();
 
 $("#name").focus();
-updateColors = function() {
-  $("#colors").html("");
-  var colors = randomColor({luminosity: 'dark', count: 28});
-  for(var n = 0; n < colors.length; n++) {
-    $("<div>", {
-      id: colors[n],
-      class: "piece hover",
-      css: {background: colors[n]},
-      click: function() { setColor(this.id); }
-    }).appendTo("#colors");
-  }
-}
+
 updateColors();
 $("#more-colors").click(function() { updateColors(); });
 
 $("#go-rules").click(function() { $("#start").hide(); $("#rules").show(); });
-$("#rules-back").click(function() { $("#start").show(); $("#rules").hide(); $("#name").focus(); });
+$("#rules-back").click(function() { $("#start").show(); $("#rules").hide(); });
 
 $("#go-browse").click(function() { getGames(); setName(); $("#start").hide(); $("#browse").show(); });
 $("#browse-refresh").click(function() { getGames(); });
-$("#browse-back").click(function() { $("#start").show(); $("#browse").hide(); $("#name").focus(); });
+$("#browse-back").click(function() { $("#start").show(); $("#browse").hide(); });
 
 var code;
 $("#go-create").click(function() { $("#start").hide(); $("#create").show(); setName(); code = Math.random(); $("#get-code").text((""+code).substring(2)); });
-$("#create-create").click(function() { $("#start").show(); $("#create").hide(); socket.emit('join',{name:name,color:color,createId:code}); });
-$("#create-back").click(function() { $("#start").show(); $("#create").hide(); $("#name").focus(); });
+$("#create-create").click(function() { joinGame(code,null); });
+$("#create-back").click(function() { $("#start").show(); $("#create").hide(); });
 
 $("#go-join").click(function() { $("#start").hide(); $("#join").show(); setName(); $("#put-code").focus(); });
-$("#join-join").click(function() { $("#start").show(); $("#join").hide(); socket.emit('join',{name:name,color:color,joinId:parseFloat("0."+$("#put-code").val())}); });
-$("#join-back").click(function() { $("#start").show(); $("#join").hide(); $("#name").focus(); });
+$("#join-join").click(function() { joinGame(null,parseFloat("0."+$("#put-code").val())); });
+$("#join-back").click(function() { $("#start").show(); $("#join").hide(); });
 
+$("#play").click(function() { setName(); joinGame(null,null); });
 
-$("#play").click(function() { setName(); socket.emit('join',{name:name,color:color}); });
+$("#go-settings").click(function() { $("#settings").show(); });
+$("#settings-continue").click(function() { $("#settings").hide(); });

@@ -2,8 +2,6 @@ var express = require('express');
 var app = express();
 var serv = require('http').Server(app);
 
-require('./client/lib/randomColor.js')(); //use npm???
-require('./client/lib/chance.js')();
 require('./client/helper.js')();
 require('./client/classes.js')();
 
@@ -20,9 +18,9 @@ var gameList = {};
 
 //game settings
 var slide = 5;
-var w = 50;
+var w = 12;
 var h = w;
-var playerLimit = Math.floor(w*h/80);
+var playerLimit = Math.floor(w*h/83.33333333);
 var spawn = true;
 var pub = true;
 
@@ -36,7 +34,8 @@ joinGame = function(socket,data) {
 		}
 		else { return; }
 	}
-	else if(data.createId) {
+	else if(data.createId != null) {
+		console.log(JSON.stringify(data));
 		game = new Game({new:{id:data.createId,w:w,h:h,slide:slide,playerLimit:playerLimit,pub:pub,spawn:spawn}});
 		gameList[game.id] = {game:game,initPack:{players:[],pieces:[]},removePack:{players:[],pieces:[]},updatePack:{players:[],pieces:[]}};
 		console.log("Game "+game.id+" created");
@@ -48,8 +47,7 @@ joinGame = function(socket,data) {
 				break;
 			}
 		}
-		//if no room
-		if(!game) {
+		if(!game) { //if no game with space found
 			game = new Game({new:{w:w,h:h,slide:slide,playerLimit:playerLimit,pub:true,spawn:true}});
 			gameList[game.id] = {game:game,initPack:{players:[],pieces:[]},removePack:{players:[],pieces:[]},updatePack:{players:[],pieces:[]}};
 			console.log("Game "+game.id+" created");
@@ -80,16 +78,10 @@ joinGame = function(socket,data) {
 		}
 	});
 
-	//give all info on connect
-	socket.emit('init',{
-		selfId:socket.id,
-		game:game,
-		players:[],
-		pieces:[]
-	});
-
 	console.log("Player "+socket.id+" joined Game "+game.id);
 	console.log("Game "+game.id+" has "+game.getPlayerCount()+"/"+game.playerLimit+" players");
+
+	return game;
 }
 
 leaveGame = function(socket){
@@ -122,8 +114,9 @@ io.sockets.on('connection', function(socket) {
 	console.log("Player "+socket.id+" connected");
 
 	//join specific game
-	socket.on('join', function(data) {
-		joinGame(socket,data);
+	socket.on('join', function(data, callback) {
+		var game = joinGame(socket,data);
+		callback(game,socket.id);
 	});
 
 	//get gameList for game browser
