@@ -60,8 +60,8 @@ var Game = function(params) {
     if(berth < 1) { console.log("Game "+self.id+" has no room for Player "+player.id); } //FIND NEW GAME IF NO ROOM!?
 
 		//add pieces and get score change
-		for(var i = -1; i <= 1; i++) {
-			for(var j = -1; j <= 1; j++) {
+		for(var i = 0; i <= 1; i++) {
+			for(var j = 0; j <= 1; j++) {
 				self.board[n+i][m+j].id = player.id;
 				pieces.push({i:n+i,j:m+j,id:player.id});
 				self.playerList[player.id].score++;

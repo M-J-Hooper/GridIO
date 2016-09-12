@@ -9,6 +9,10 @@ body {
   outline: none;
 }
 
+::-webkit-scrollbar {
+  display: none;
+}
+
 canvas {
   position: absolute;
   border: 0px;
@@ -82,12 +86,35 @@ input[type=text] {
 }
 
 #rules {
-  width: 300px;
+  width: 500px;
   color: black;
+}
+
+.big {
+  height: 120px;
+  vertical-align: middle;
+}
+
+.small {
+  height: 90px;
+  vertical-align: middle;
+}
+
+#rules-info {
+  max-height: 500px;
+}
+
+#rules-info span {
+  font-size: 32px;
+  vertical-align: middle;
 }
 
 #browse {
   width: 300px;
+}
+
+#gamelist {
+  max-height: 500px;
 }
 
 #create {

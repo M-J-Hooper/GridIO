@@ -28,8 +28,8 @@
 				<div id="settings-info" class="blob"></div>
 			</div>
 			<div class="inner">
-				<div id="settings-continue" class="blob hover good"><span class="fa fa-square"></span> Continue</div>
-				<div id="settings-leave" class="blob hover bad"><span class="fa fa-remove"></span> Leave</div>
+				<div id="settings-continue" class="blob hover good"><span class="fa fa-share-square"></span> Continue</div>
+				<div id="settings-leave" class="blob hover bad"><span class="fa fa-reply"></span> Leave game</div>
 			</div>
 		</div>
 	</div>
@@ -47,20 +47,42 @@
 				<input type="text" id="name" class="blob input">
 				<div class="blob neutral">Pick a color:</div>
 				<div id="colors"></div>
-				<div id="more-colors" class="blob hover"><span class="fa fa-paint-brush"></span> New colors</div>
+				<div id="more-colors" class="blob hover"><span class="fa fa-pencil-square"></span> New colors</div>
 			</div>
 			<div class="inner">
 				<div id="go-rules" class="blob hover bad"><span class="fa fa-book"></span> Rules</div>
-				<div id="play" class="blob hover good"><span class="fa fa-square"></span> Play now</div>
+				<div id="play" class="blob hover good"><span class="fa fa-share-square"></span> Play now</div>
 			</div>
 			<div class="inner">
 				<div id="go-create" class="blob hover"><span class="fa fa-plus-square"></span> Create game</div>
-				<div id="go-join" class="blob hover"><span class="fa fa-share-square"></span> Join game</div>
+				<div id="go-join" class="blob hover"><span class="fa fa-square"></span> Join game</div>
 				<div id="go-browse" class="blob hover"><span class="fa fa-list"></span> Browse games</div>
 			</div>
 		</div>
 
 		<div id="rules" class="outer">
+			<div id="rules-info" class="inner">
+				<div class="blob">Goal: Control the most pieces on the grid!</div>
+				<div class="blob input">Click one of your pieces to select it. Use WASD to move it and any pieces in its way:</div>
+				<img id="before-move" class="big" src="client/img/beforeMove.png">
+				<span class="fa fa-arrow-right"></span>
+				<img id="after-move" class="big" src="client/img/afterMove.png">
+
+				<div class="blob input">Move a line of enemy pieces by pushing with a longer line of your own pieces:</div>
+				<img id="before-push" class="big" src="client/img/beforePush.png">
+				<span class="fa fa-arrow-right"></span>
+				<img id="after-push" class="big" src="client/img/afterPush.png">
+
+				<div class="blob input">Capture a group of enemy pieces by surrounding more than half of it with your own pieces:</div>
+				<img id="before-capture" class="big" src="client/img/beforeCapture.png">
+				<span class="fa fa-arrow-right"></span>
+				<img id="after-capture" class="big" src="client/img/afterCapture.png">
+
+				<div class="blob input">Pieces not connected to a group die:</div>
+				<img id="before-loss" class="small" src="client/img/beforeLoss.png">
+				<span class="fa fa-arrow-right"></span>
+				<img id="after-loss" class="small" src="client/img/afterLoss.png">
+			</div>
 			<div class="inner">
 				<div id="rules-back" class="blob hover bad"><span class="fa fa-reply"></span> Back</div>
 			</div>
