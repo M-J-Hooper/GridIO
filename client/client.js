@@ -156,9 +156,9 @@ document.addEventListener("touchstart", function(event) {
 
 //if valid selection, send move in direction of drag on touch screen
 document.addEventListener("touchmove", function(event) {
+  event.preventDefault();
+  event.stopPropagation();
   if(game && game.playerList[selfId].score > 0) {
-    event.preventDefault();
-    event.stopPropagation();
 
     if(selected.i != null) {
       var offsetX = view.width/2 - view.x;
