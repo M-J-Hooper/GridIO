@@ -233,6 +233,9 @@ $("#name").focus();
 updateColors();
 $("#more-colors").click(function() { updateColors(); });
 
+var touch = mobileTabletCheck();
+if(touch) { $("#rules-pc").hide(); }
+else { $("#rules-touch").hide(); }
 $("#go-rules").click(function() { $("#start").hide(); $("#rules").show(); });
 $("#rules-back").click(function() { $("#start").show(); $("#rules").hide(); });
 
