@@ -2,7 +2,7 @@ body {
   margin: 0px;
   font-family: 'Bree Serif', serif;
   font-size: 16px;
-
+  background: black;
 }
 
 :focus {
@@ -27,33 +27,39 @@ canvas {
   bottom: 0px;
 }
 
+.section {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.subsection {
+  display: flex;
+  flex-direction: column;
+  flex-basis: 300px;
+}
+
 .outer {
-  overflow: auto;
   background: rgba(0, 0, 0, 0.5);
-  margin: 10px auto;
+  margin: 5px;
+  padding: 5px;
   border-radius: 20px;
 }
 
 .inner {
-  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
   background: white;
-  margin: 10px;
+  margin: 5px;
+  padding: 5px;
   border-radius: 10px;
 }
 
 .blob {
   color: white;
-  overflow: hidden;
   background: rgba(0, 0, 0, 0.8);
   padding: 4px 6px 4px 6px;
-  margin: 10px;
-  border-radius: 7px;
-}
-
-.piece {
-  display: inline-block;
-  height: 27px;
-  width: 27px;
   margin: 5px;
   border-radius: 7px;
 }
@@ -63,26 +69,24 @@ canvas {
 }
 
 input[type=text] {
-  display: block;
   font-size: 16px;
   font-family: 'Bree Serif', serif;
   text-align: center;
-  width: 260px;
   border-style: none;
   box-shadow: none;
 }
 
-#start {
-  width: 300px;
-  margin: 10px auto;
-}
-
-#title {
-  width: 300px;
-}
-
 #colors {
-  margin: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.color {
+  height: 27px;
+  width: 27px;
+  margin: 5px;
+  border-radius: 7px;
 }
 
 #rules {
@@ -109,30 +113,16 @@ input[type=text] {
   vertical-align: middle;
 }
 
-#browse {
-  width: 300px;
-}
-
 #gamelist {
   max-height: 500px;
 }
 
-#create {
-  width: 300px;
-}
-
-#join {
-  width: 300px;
-}
-
 #leaderboard {
-  margin: 10px;
   position: absolute;
   width: 280px;
 }
 
 #info {
-  margin: 10px;
   position: absolute;
   width: 400px;
   bottom: 0px;
@@ -141,15 +131,16 @@ input[type=text] {
 #go-settings {
   position: absolute;
   right: 0px;
-  margin: 10px;
 }
 
 #go-settings div {
-  margin: 10px;
+  margin: 5px;
   color: white;
 }
 
 #settings {
+  position: absolute;
+  right: 0px;
   width: 300px;
 }
 
@@ -173,20 +164,24 @@ input[type=text] {
   float: right;
 }
 
-.good {
+.green {
   background: green;
 }
 
-.bad {
+.red {
   background: red;
 }
 
-.neutral {
+.blue {
+  background: blue;
+}
+
+.white {
   background: white;
   color: black;
 }
 
-.input {
+.light {
   background: rgba(0, 0, 0, 0.5);
 }
 
@@ -198,4 +193,36 @@ input[type=text] {
   -ms-user-select: none;
   -o-user-select: none;
   user-select: none;
+}
+
+@media (max-width: 899px) {
+  #player {
+    order: 1;
+  }
+
+  #other {
+    order: 2;
+  }
+
+  #account {
+    order: 3;
+  }
+
+  #leaderboard {
+    display: none;
+  }
+}
+
+@media (max-width: 599px) {
+  #player {
+    order: 1;
+  }
+
+  #other {
+    order: 3;
+  }
+
+  #account {
+    order: 2;
+  }
 }

@@ -122,7 +122,7 @@ updateColors = function() {
   for(var n = 0; n < colors.length; n++) {
     $("<div>", {
       id: colors[n],
-      class: "piece",
+      class: "color",
       css: {background: colors[n]},
       click: function() { setColor(this.id); }
     }).appendTo("#colors");
