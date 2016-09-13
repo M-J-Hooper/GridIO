@@ -29,8 +29,6 @@
 				<div class="blob white">Game info:</div>
 				<div id="code" class="blob light"></div>
 				<div id="settings-info" class="blob"></div>
-			</div>
-			<div class="inner">
 				<div id="settings-continue" class="blob hover green"><span class="fa fa-share-square"></span> Continue</div>
 				<div id="settings-leave" class="blob hover red"><span class="fa fa-reply"></span> Leave game</div>
 			</div>
@@ -49,14 +47,61 @@
 		</div>
 
 		<div id="start" class="section">
-			<div id="account" class="subsection">
+			<div class="subsection">
+				<div id="other" class="outer">
+					<div class="inner">
+						<div id="go-rules" class="blob hover"><span class="fa fa-book"></span> How to play</div>
+						<div id="go-create" class="blob hover"><span class="fa fa-plus-square"></span> Create game</div>
+						<div id="go-join" class="blob hover"><span class="fa fa-share-square"></span> Join game</div>
+						<div id="go-browse" class="blob hover"><span class="fa fa-list"></span> Browse games</div>
+					</div>
+				</div>
+
+				<div id="join" class="outer">
+					<div class="inner">
+						<div class="blob white">Enter game code:</div>
+						<input type="text" id="put-code" class="blob light">
+						<div id="join-join" class="blob hover green"><span class="fa fa-share-square"></span> Join</div>
+						<div id="join-back" class="blob hover red"><span class="fa fa-reply"></span> Back</div>
+					</div>
+				</div>
+
+				<div id="browse" class="outer">
+					<div class="inner">
+						<div class="blob white">
+							<span class="text-id">#ID</span>
+							<span class="text-center">Grid</span>
+							<span class="text-right">Players</span>
+						</div>
+						<div id="gamelist"></div>
+						<div id="browse-refresh" class="blob hover green"><span class="fa fa-refresh"></span> Refresh</div>
+						<div id="browse-back" class="blob hover red"><span class="fa fa-reply"></span> Back</div>
+					</div>
+				</div>
+
+				<div id="create" class="outer">
+					<div class="inner">
+						<div class="blob white">Copy game code:</div>
+						<div id="get-code" class="blob light"></div>
+						<div class="blob hover">Size</div>
+						<div class="blob hover">Public/Private</div>
+						<div id="create-create" class="blob hover green"><span class="fa fa-plus-square"></span> Create</div>
+						<div id="create-back" class="blob hover red"><span class="fa fa-reply"></span> Back</div>
+					</div>
+				</div>
+
 				<div class="outer">
 					<div class="inner">
-						<div id="login" class="blob hover blue"><span class="fa fa-facebook-square"></span> Login</div>
-						<div class="blob white">Display profile here...</div>
+						<div class="blob white">Display advert here...</div>
 					</div>
 				</div>
 			</div>
+
+
+
+
+
+
 			<div id="player" class="subsection">
 				<div class="outer">
 					<div class="inner">
@@ -69,13 +114,11 @@
 					</div>
 				</div>
 			</div>
-			<div id="other" class="subsection">
+			<div id="account" class="subsection">
 				<div class="outer">
 					<div class="inner">
-						<div id="go-rules" class="blob hover"><span class="fa fa-book"></span> How to play</div>
-						<div id="go-create" class="blob hover"><span class="fa fa-plus-square"></span> Create game</div>
-						<div id="go-join" class="blob hover"><span class="fa fa-share-square"></span> Join game</div>
-						<div id="go-browse" class="blob hover"><span class="fa fa-list"></span> Browse games</div>
+						<div id="login" class="blob hover blue"><span class="fa fa-facebook-square"></span> Login</div>
+						<div class="blob white">Display profile here...</div>
 					</div>
 				</div>
 				<div class="outer">
@@ -119,46 +162,6 @@
 			</div>
 		</div>
 
-		<div id="browse" class="outer">
-			<div class="inner">
-				<div class="blob white">
-					<span class="text-id">#ID</span>
-					<span class="text-center">Grid</span>
-					<span class="text-right">Players</span>
-				</div>
-				<div id="gamelist"></div>
-			</div>
-			<div class="inner">
-				<div id="browse-refresh" class="blob hover green"><span class="fa fa-refresh"></span> Refresh</div>
-				<div id="browse-back" class="blob hover red"><span class="fa fa-reply"></span> Back</div>
-			</div>
-		</div>
-
-		<div id="create" class="outer">
-			<div class="inner">
-				<div class="blob white">Copy game code:</div>
-				<div id="get-code" class="blob light"></div>
-			</div>
-			<div id="options" class="inner">
-				<div class="blob hover">Size</div>
-				<div class="blob hover">Public/Private</div>
-			</div>
-			<div class="inner">
-				<div id="create-create" class="blob hover green"><span class="fa fa-plus-square"></span> Create</div>
-				<div id="create-back" class="blob hover red"><span class="fa fa-reply"></span> Back</div>
-			</div>
-		</div>
-
-		<div id="join" class="outer">
-			<div class="inner">
-				<div class="blob white">Enter game code:</div>
-				<input type="text" id="put-code" class="blob light">
-			</div>
-			<div class="inner">
-				<div id="join-join" class="blob hover green"><span class="fa fa-share-square"></span> Join</div>
-				<div id="join-back" class="blob hover red"><span class="fa fa-reply"></span> Back</div>
-			</div>
-		</div>
 	</div>
 
 </body>

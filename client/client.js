@@ -209,9 +209,13 @@ leaveGame = function() {
 
 var word = chance.word()
 var name = word.charAt(0).toUpperCase() + word.slice(1);
-setName = function() {
-  if($("#name").val()) { name = $("#name").val().substring(0,10); }
-}
+$("#name").change(function() {
+  if($("#name").val()) { name = $("#name").val().substring(0,15); $("#name").val(name); }
+  else {
+    var word = chance.word()
+    name = word.charAt(0).toUpperCase() + word.slice(1);
+  }
+});
 
 var color = randomColor({luminosity:"dark",format:"rgb"});
 setColor = function(newColor) {
@@ -239,20 +243,20 @@ else { $("#rules-touch").hide(); }
 $("#go-rules").click(function() { $("#start").hide(); $("#rules").show(); });
 $("#rules-back").click(function() { $("#start").show(); $("#rules").hide(); });
 
-$("#go-browse").click(function() { getGames(); setName(); $("#start").hide(); $("#browse").show(); });
+$("#go-browse").click(function() { getGames(); $("#other").hide(); $("#browse").show(); });
 $("#browse-refresh").click(function() { getGames(); });
-$("#browse-back").click(function() { $("#start").show(); $("#browse").hide(); });
+$("#browse-back").click(function() { $("#other").show(); $("#browse").hide(); });
 
 var code;
-$("#go-create").click(function() { $("#start").hide(); $("#create").show(); setName(); code = Math.random(); $("#get-code").text((""+code).substring(2)); });
+$("#go-create").click(function() { $("#other").hide(); $("#create").show(); code = Math.random(); $("#get-code").text((""+code).substring(2)); });
 $("#create-create").click(function() { joinGame(code,null); });
-$("#create-back").click(function() { $("#start").show(); $("#create").hide(); });
+$("#create-back").click(function() { $("#other").show(); $("#create").hide(); });
 
-$("#go-join").click(function() { $("#start").hide(); $("#join").show(); setName(); $("#put-code").focus(); });
+$("#go-join").click(function() { $("#other").hide(); $("#join").show(); $("#put-code").focus(); });
 $("#join-join").click(function() { joinGame(null,parseFloat("0."+$("#put-code").val())); });
-$("#join-back").click(function() { $("#start").show(); $("#join").hide(); });
+$("#join-back").click(function() { $("#other").show(); $("#join").hide(); });
 
-$("#play").click(function() { setName(); joinGame(null,null); });
+$("#play").click(function() { joinGame(null,null); });
 
 $("#go-settings").click(function() { $("#settings").show(); $("#go-settings").hide() });
 $("#settings-continue").click(function() { $("#settings").hide(); $("#go-settings").show(); });

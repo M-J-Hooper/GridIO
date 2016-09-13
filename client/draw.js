@@ -113,7 +113,7 @@ function updateBrowser(gameList, socket, name, color) {
       }).appendTo("#gamelist");
     }
   }
-  if(!count) { $("#gamelist").html('<div class="blob neutral">No games found!</div>')}
+  if(!count) { $("#gamelist").html('<div class="blob light">No games found!</div>')}
 }
 
 updateColors = function() {

@@ -185,7 +185,7 @@ input[type=text] {
   background: rgba(0, 0, 0, 0.5);
 }
 
-.blob:not(.input) {
+.blob:not(.light) {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
@@ -196,33 +196,15 @@ input[type=text] {
 }
 
 @media (max-width: 899px) {
-  #player {
-    order: 1;
-  }
-
-  #other {
-    order: 2;
-  }
-
-  #account {
-    order: 3;
-  }
-
   #leaderboard {
     display: none;
   }
-}
 
-@media (max-width: 599px) {
   #player {
-    order: 1;
+    order: -1;
   }
 
-  #other {
-    order: 3;
-  }
-
-  #account {
-    order: 2;
+  #settings {
+    margin: 5px auto;
   }
 }
