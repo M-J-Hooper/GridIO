@@ -206,11 +206,11 @@ joinGame = function(createData,joinId) {
       game = new Game({copy:joinedGame});
       view = getView(game,selfId,view,false);
 
-      $("#browse").hide(); $("#create").hide(); $("#join").hide(); $("#lose").hide();
-      $("#start").show();
+      $("#browse").hide(); $("#create").hide(); $("#join").hide();
       $("#other").show();
       $("#menu").hide();
 
+      $("#lose").hide(); $("#settings").hide(); $("#go-settings").show();
       $("#ui").show(); $("#leaderboard").show(); $("#info").show();
     }
   });
