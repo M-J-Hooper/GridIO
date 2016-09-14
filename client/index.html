@@ -47,7 +47,7 @@
 		</div>
 
 		<div id="start" class="section">
-			<div class="subsection">
+			<div id="other-sub" class="subsection">
 				<div id="other" class="outer">
 					<div class="inner">
 						<div id="go-rules" class="blob hover"><span class="fa fa-book"></span> How to play</div>
@@ -97,10 +97,36 @@
 				</div>
 			</div>
 
+			<div id="rules" class="subsection">
+				<div class="outer">
+					<div class="inner">
+						<div id="rules-info">
+							<div class="blob">Goal: Control the most pieces on the grid!</div>
+							<div id="rules-pc" class="blob light">Click one of your pieces to select it. Use the WASD keys to move it and push pieces in its way:</div>
+							<div id="rules-touch" class="blob light">Touch down on one of your pieces to select it. Drag to move it and push pieces in its way:</div>
+							<img id="before-move" class="big" src="client/img/beforeMove.png">
+							<span class="fa fa-arrow-right"></span>
+							<img id="after-move" class="big" src="client/img/afterMove.png">
 
+							<div class="blob light">Move enemy pieces by pushing them with more of your own pieces (eg. 3 greens push 2 reds):</div>
+							<img id="before-push" class="big" src="client/img/beforePush.png">
+							<span class="fa fa-arrow-right"></span>
+							<img id="after-push" class="big" src="client/img/afterPush.png">
 
+							<div class="blob light">Capture a group of enemy pieces by surrounding more than half of it with your own pieces (eg. green surrounds 4/8 of reds edges):</div>
+							<img id="before-capture" class="big" src="client/img/beforeCapture.png">
+							<span class="fa fa-arrow-right"></span>
+							<img id="after-capture" class="big" src="client/img/afterCapture.png">
 
-
+							<div class="blob light">Pieces not connected to a group die:</div>
+							<img id="before-loss" class="small" src="client/img/beforeLoss.png">
+							<span class="fa fa-arrow-right"></span>
+							<img id="after-loss" class="small" src="client/img/afterLoss.png">
+						</div>
+						<div id="rules-back" class="blob hover red"><span class="fa fa-reply"></span> Back</div>
+					</div>
+				</div>
+			</div>
 
 			<div id="player" class="subsection">
 				<div class="outer">
@@ -128,40 +154,6 @@
 				</div>
 			</div>
 		</div>
-
-		<div id="rules" class="section">
-			<div class="subsection">
-				<div class="outer">
-					<div id="rules-info" class="inner">
-						<div class="blob">Goal: Control the most pieces on the grid!</div>
-						<div id="rules-pc" class="blob light">Click one of your pieces to select it. Use the WASD keys to move it and push pieces in its way:</div>
-						<div id="rules-touch" class="blob light">Touch down on one of your pieces to select it. Drag to move it and push pieces in its way:</div>
-						<img id="before-move" class="big" src="client/img/beforeMove.png">
-						<span class="fa fa-arrow-right"></span>
-						<img id="after-move" class="big" src="client/img/afterMove.png">
-
-						<div class="blob light">Move enemy pieces by pushing them with more of your own pieces (eg. 3 greens push 2 reds):</div>
-						<img id="before-push" class="big" src="client/img/beforePush.png">
-						<span class="fa fa-arrow-right"></span>
-						<img id="after-push" class="big" src="client/img/afterPush.png">
-
-						<div class="blob light">Capture a group of enemy pieces by surrounding more than half of it with your own pieces (eg. green surrounds 4/8 of reds edges):</div>
-						<img id="before-capture" class="big" src="client/img/beforeCapture.png">
-						<span class="fa fa-arrow-right"></span>
-						<img id="after-capture" class="big" src="client/img/afterCapture.png">
-
-						<div class="blob light">Pieces not connected to a group die:</div>
-						<img id="before-loss" class="small" src="client/img/beforeLoss.png">
-						<span class="fa fa-arrow-right"></span>
-						<img id="after-loss" class="small" src="client/img/afterLoss.png">
-					</div>
-					<div class="inner">
-						<div id="rules-back" class="blob hover red"><span class="fa fa-reply"></span> Back</div>
-					</div>
-				</div>
-			</div>
-		</div>
-
 	</div>
 
 </body>

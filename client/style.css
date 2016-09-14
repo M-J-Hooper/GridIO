@@ -89,11 +89,6 @@ input[type=text] {
   border-radius: 7px;
 }
 
-#rules {
-  width: 500px;
-  color: black;
-}
-
 .big {
   height: 120px;
   vertical-align: middle;
@@ -104,8 +99,13 @@ input[type=text] {
   vertical-align: middle;
 }
 
+#rules {
+  flex-basis: 600px;
+}
+
 #rules-info {
-  max-height: 500px;
+  overflow: scroll;
+  max-height: 400px;
 }
 
 #rules-info span {
@@ -114,7 +114,7 @@ input[type=text] {
 }
 
 #gamelist {
-  max-height: 500px;
+  max-height: 400px;
 }
 
 #leaderboard {

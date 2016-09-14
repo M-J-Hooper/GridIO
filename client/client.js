@@ -240,8 +240,8 @@ $("#more-colors").click(function() { updateColors(); });
 var touch = mobileTabletCheck();
 if(touch) { $("#rules-pc").hide(); }
 else { $("#rules-touch").hide(); }
-$("#go-rules").click(function() { $("#start").hide(); $("#rules").show(); });
-$("#rules-back").click(function() { $("#start").show(); $("#rules").hide(); });
+$("#go-rules").click(function() { $("#other-sub").hide(); $("#rules").show(); });
+$("#rules-back").click(function() { $("#other-sub").show(); $("#rules").hide(); });
 
 $("#go-browse").click(function() { getGames(); $("#other").hide(); $("#browse").show(); });
 $("#browse-refresh").click(function() { getGames(); });
