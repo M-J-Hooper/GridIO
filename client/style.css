@@ -56,6 +56,7 @@ canvas {
   border-radius: 10px;
 }
 
+
 .blob {
   color: white;
   background: rgba(0, 0, 0, 0.8);
@@ -68,6 +69,13 @@ canvas {
   background: rgba(0, 0, 0, 0.5);
 }
 
+.split {
+  display: flex;
+}
+
+.size, .pub {
+  flex: 1;
+}
 input[type=text] {
   font-size: 16px;
   font-family: 'Bree Serif', serif;
@@ -141,6 +149,11 @@ input[type=text] {
 #settings {
   position: absolute;
   right: 0px;
+  width: 300px;
+}
+
+#lose {
+  margin: 5px auto;
   width: 300px;
 }
 

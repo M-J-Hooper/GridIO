@@ -19,7 +19,7 @@ var gameList = {};
 //game settings
 var slide = 5;
 var l = 20;
-var playerLimit = Math.floor(l*l/83.33333333);
+var playerLimit = Math.round(l*l/83.33333333);
 var spawn = true;
 var pub = true;
 
@@ -35,8 +35,10 @@ joinGame = function(socket,data) {
 		}
 		else { return; }
 	}
-	else if(data.createId != null) {
-		game = new Game({new:{id:data.createId,l:l,slide:slide,playerLimit:playerLimit,pub:pub,spawn:spawn}});
+	else if(data.createData != null) {
+		//add a check that createData.l is a correct value
+
+		game = new Game({new:{id:data.createData.createId,l:data.createData.l,slide:slide,playerLimit:Math.round(data.createData.l*data.createData.l/83.3333),pub:data.createData.pub,spawn:spawn}});
 		gameList[game.id] = {game:game,initPack:{players:[],pieces:[]},removePack:{players:[],pieces:[]},updatePack:{players:[],pieces:[]}};
 		console.log("Game "+game.id+" created");
 	}
@@ -55,9 +57,11 @@ joinGame = function(socket,data) {
 	}
 
 	//NEED BETTER WAY OF PREVENTING SPAM CLICKING!!!
-	//before adding to a game, check that the id is not already playing!!!
-	for(var n in game.playerList) {
-		if(game.playerList[n].id == socket.id) { return; }
+	//before adding to a game, check that the id is not already playing
+	for(var n in gameList) {
+		if(gameList[n].game.playerList[socket.id]) {
+			if(gameList[n].game.playerList[socket.id].score > 0) { return; }
+		}
 	}
 
 	gameList[game.id].initPack.players.push(player);
@@ -169,13 +173,6 @@ setInterval(function(){
 		gameList[v].initPack = {players:[],pieces:[]};
 		gameList[v].removePack = {players:[],pieces:[]};
 		gameList[v].updatePack = {players:[],pieces:[]};
-
-		//faster safer way of forcing zero scores to leave?
-		for(var w in gameList[v].game.playerList) {
-			if(gameList[v].game.playerList[w].score == 0) {
-				leaveGame(socketList[gameList[v].game.playerList[w].id].socket);
-			}
-		}
 	}
 },40);
 

@@ -1,5 +1,4 @@
 <title>GridIO</title>
-<meta name="viewport" content="width=device-width; maximum-scale=1; minimum-scale=1;" />
 
 <link rel="stylesheet" type="text/css" href="client/style.css">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
@@ -31,6 +30,14 @@
 				<div id="settings-info" class="blob"></div>
 				<div id="settings-continue" class="blob hover green"><span class="fa fa-share-square"></span> Continue</div>
 				<div id="settings-leave" class="blob hover red"><span class="fa fa-reply"></span> Leave game</div>
+			</div>
+		</div>
+		<div id="lose" class="outer">
+			<div class="inner">
+				<div class="blob white">You lost!</div>
+				<div class="blob white">Display stats here...</div>
+				<div id="lose-play" class="blob hover green"><span class="fa fa-share-square"></span> Play again</div>
+				<div id="lose-leave" class="blob hover red"><span class="fa fa-reply"></span> Leave game</div>
 			</div>
 		</div>
 	</div>
@@ -70,7 +77,7 @@
 					<div class="inner">
 						<div class="blob white">
 							<span class="text-id">#ID</span>
-							<span class="text-center">Grid</span>
+							<span class="text-center">Size</span>
 							<span class="text-right">Players</span>
 						</div>
 						<div id="gamelist"></div>
@@ -81,10 +88,20 @@
 
 				<div id="create" class="outer">
 					<div class="inner">
+						<div class="blob white">Choose grid size:</div>
+						<div class="split">
+							<div id="create-20" class="size blob light">20</div>
+							<div id="create-50" class="size blob">50</div>
+							<div id="create-100" class="size blob">100</div>
+							<div id="create-200" class="size blob">200</div>
+						</div>
+						<div class="blob white">Choose game privacy:</div>
+						<div class="split">
+							<div id="create-public" class="pub blob light">Public</div>
+							<div id="create-private" class="pub blob">Private</div>
+						</div>
 						<div class="blob white">Copy game code:</div>
 						<div id="get-code" class="blob light"></div>
-						<div class="blob hover">Size</div>
-						<div class="blob hover">Public/Private</div>
 						<div id="create-create" class="blob hover green"><span class="fa fa-plus-square"></span> Create</div>
 						<div id="create-back" class="blob hover red"><span class="fa fa-reply"></span> Back</div>
 					</div>

@@ -21,7 +21,6 @@ socket.on('init',function(data){
 });
 
 socket.on('update',function(data) {
-
   //unpack piece updates
   if(data.pieces.length) {
     var ownPieces = false;
@@ -91,12 +90,24 @@ setInterval(function(){
     game.boardSlide();
     view = getView(game,selfId,view,true);
 
+    //bring up lose screen on zero score
+    var count = 0;
+    for(var i = 0; i < game.l; i++) {
+  		for(var j = 0; j < game.l; j++) {
+        if(game.board[i][j].id == selfId) { count++; break; }
+      }
+    }
+    if(!count) {
+      $("#leaderboard").hide();
+      $("#info").hide();
+      $("#go-settings").hide();
+      $("#settings").hide();
+      $("#lose").show();
+    }
+
     ctx.clearRect(0,0,view.width,view.height);
     drawBoard(ctx,game,view,selected);
   }
-
-  //transition between menu when game starts/ends (BETTER WAY!!!)
-  if(!game || game.playerList[selfId].score == 0) { $("#menu").show(); $("#ui").hide(); }
 },40);
 
 //send move when a valid piece is selected and wasd pressed
@@ -188,23 +199,33 @@ getGames = function() {
   });
 }
 
-joinGame = function(createId,joinId) {
-  socket.emit('join',{name:name,color:color,createId:createId,joinId:joinId}, function(joinedGame,playerId) {
+joinGame = function(createData,joinId) {
+  socket.emit('join',{name:name,color:color,createData:createData,joinId:joinId}, function(joinedGame,playerId) {
     selfId = playerId;
     if(joinedGame) {
       game = new Game({copy:joinedGame});
       view = getView(game,selfId,view,false);
 
-      $("#browse").hide(); $("#create").hide(); $("#join").hide();
+      $("#browse").hide(); $("#create").hide(); $("#join").hide(); $("#lose").hide();
       $("#start").show();
+      $("#other").show();
       $("#menu").hide();
-      $("#ui").show();
+
+      $("#ui").show(); $("#leaderboard").show(); $("#info").show();
     }
   });
 }
 
 leaveGame = function() {
+  //emit leave game and get some callback to end client game
+  socket.emit('leave');
+  game = null;
 
+  $("#settings").hide();
+  $("#lose").hide();
+  $("#go-settings").show();
+  $("#ui").hide();
+  $("#menu").show();
 }
 
 var word = chance.word()
@@ -227,6 +248,7 @@ setColor = function(newColor) {
 
 $("#ui").hide();
 $("#settings").hide();
+$("#lose").hide();
 $("#rules").hide();
 $("#browse").hide();
 $("#create").hide();
@@ -248,8 +270,16 @@ $("#browse-refresh").click(function() { getGames(); });
 $("#browse-back").click(function() { $("#other").show(); $("#browse").hide(); });
 
 var code;
+var pub = true;
+var l = 20;
 $("#go-create").click(function() { $("#other").hide(); $("#create").show(); code = Math.random(); $("#get-code").text((""+code).substring(2)); });
-$("#create-create").click(function() { joinGame(code,null); });
+$("#create-20").click(function() { l = 20; $("#create-20").addClass("light"); $("#create-50").removeClass("light"); $("#create-100").removeClass("light"); $("#create-200").removeClass("light"); });
+$("#create-50").click(function() { l = 50; $("#create-20").removeClass("light"); $("#create-50").addClass("light"); $("#create-100").removeClass("light"); $("#create-200").removeClass("light"); });
+$("#create-100").click(function() { l = 100; $("#create-20").removeClass("light"); $("#create-50").removeClass("light"); $("#create-100").addClass("light"); $("#create-200").removeClass("light"); });
+$("#create-200").click(function() { l = 200; $("#create-20").removeClass("light"); $("#create-50").removeClass("light"); $("#create-100").removeClass("light"); $("#create-200").addClass("light"); });
+$("#create-public").click(function() { pub = true; $("#create-public").addClass("light"); $("#create-private").removeClass("light"); });
+$("#create-private").click(function() { pub = false; $("#create-public").removeClass("light"); $("#create-private").addClass("light"); });
+$("#create-create").click(function() { joinGame({createId:code,l:l,pub:pub}, null); });
 $("#create-back").click(function() { $("#other").show(); $("#create").hide(); });
 
 $("#go-join").click(function() { $("#other").hide(); $("#join").show(); $("#put-code").focus(); });
@@ -260,4 +290,7 @@ $("#play").click(function() { joinGame(null,null); });
 
 $("#go-settings").click(function() { $("#settings").show(); $("#go-settings").hide() });
 $("#settings-continue").click(function() { $("#settings").hide(); $("#go-settings").show(); });
-$("#settings-leave").click(function() { socket.emit('leave'); game = null; $("#settings").hide(); });
+$("#settings-leave").click(function() { leaveGame(); });
+
+$("#lose-play").click(function() { joinGame(null,game.id); });
+$("#lose-leave").click(function() { leaveGame(); });

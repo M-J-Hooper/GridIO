@@ -91,7 +91,7 @@ function updateUi(game,view,selfId) {
   //update game info in settings
   $("#code").text((""+game.id).substring(2));
   var value = "#"+(""+game.id).slice(2,6);
-  $("#settings-info").html('<span class="text-id">'+value+'</span><span class="text-center">'+game.l+'x'+game.l+'</span><span class="text-right">'+game.getPlayerCount()+'/'+game.playerLimit+'</span>');
+  $("#settings-info").html('<span class="text-id">'+value+'</span><span class="text-center">'+game.l+'</span><span class="text-right">'+game.getPlayerCount()+'/'+game.playerLimit+'</span>');
 }
 
 //update the html of the game browser after goto or refresh
@@ -108,7 +108,7 @@ function updateBrowser(gameList, socket, name, color) {
       $("<div>", {
         id: game.id,
         class: "blob hover",
-        html: '<span class="text-id">'+value+'</span><span class="text-center">'+game.l+'x'+game.l+'</span><span class="text-right">'+game.getPlayerCount()+'/'+game.playerLimit+'</span>',
+        html: '<span class="text-id">'+value+'</span><span class="text-center">'+game.l+'</span><span class="text-right">'+game.getPlayerCount()+'/'+game.playerLimit+'</span>',
         click: function() { joinGame(null,this.id); }
       }).appendTo("#gamelist");
     }

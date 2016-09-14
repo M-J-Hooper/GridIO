@@ -91,11 +91,11 @@ function getView(game, selfId, view, smooth) {
   else {
     avI = game.l/2;
     avJ = game.l/2
-    r = Math.min(view.width/(game.l+1),view.height/(game.l+1))/view.size;
+    r = Math.min(view.width/(game.l+8),view.height/(game.l+8))/view.size;
   }
 
   if(smooth) {
-    var viewSmooth = 40;
+    var viewSmooth = 50;
     view.size += view.size*(r-1)/viewSmooth;
     view.x += (avI*view.size*r - view.x)/viewSmooth;
     view.y += (avJ*view.size*r - view.y)/viewSmooth;
