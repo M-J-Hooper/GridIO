@@ -116,20 +116,6 @@ function updateBrowser(gameList, socket, name, color) {
   if(!count) { $("#gamelist").html('<div class="blob light">No games found!</div>')}
 }
 
-updateColors = function() {
-  $("#colors").html("");
-  var colors = randomColor({luminosity: 'dark', count: 28});
-  for(var n = 0; n < colors.length; n++) {
-    $("<div>", {
-      id: colors[n],
-      class: "color",
-      css: {background: colors[n]},
-      click: function() { setColor(this.id); }
-    }).appendTo("#colors");
-  }
-}
-
-
 //helper to draw rounded rectangle
 function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
   ctx.beginPath();

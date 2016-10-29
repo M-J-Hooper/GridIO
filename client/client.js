@@ -200,7 +200,7 @@ getGames = function() {
 }
 
 joinGame = function(createData,joinId) {
-  socket.emit('join',{name:name,color:color,createData:createData,joinId:joinId}, function(joinedGame,playerId) {
+  socket.emit('join',{name:name,color:randomColor({luminosity: 'dark'}),createData:createData,joinId:joinId}, function(joinedGame,playerId) {
     selfId = playerId;
     if(joinedGame) {
       game = new Game({copy:joinedGame});
@@ -255,9 +255,6 @@ $("#create").hide();
 $("#join").hide();
 
 $("#name").focus();
-
-updateColors();
-$("#more-colors").click(function() { updateColors(); });
 
 var touch = mobileTabletCheck();
 if(touch) { $("#rules-pc").hide(); }

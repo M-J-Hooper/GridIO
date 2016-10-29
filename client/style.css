@@ -29,14 +29,14 @@ canvas {
 
 .section {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
 }
 
 .subsection {
   display: flex;
   flex-direction: column;
-  flex-basis: 300px;
+  width: 300px;
 }
 
 .outer {
@@ -76,6 +76,7 @@ canvas {
 .size, .pub {
   flex: 1;
 }
+
 input[type=text] {
   font-size: 16px;
   font-family: 'Bree Serif', serif;
@@ -108,7 +109,7 @@ input[type=text] {
 }
 
 #rules {
-  flex-basis: 900px;
+  width: 500px;
 }
 
 #rules-info {
@@ -211,10 +212,6 @@ input[type=text] {
 @media (max-width: 899px) {
   #leaderboard {
     display: none;
-  }
-
-  #player {
-    order: -1;
   }
 
   #settings {
