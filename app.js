@@ -160,9 +160,9 @@ setInterval(function(){
 
 		if(socketList[v].gameId) {
 			var game = gameList[socketList[v].gameId];
-			socket.emit('init',game.initPack);
-			socket.emit('update',game.updatePack);
-			socket.emit('remove',game.removePack);
+			if(game.initPack.players.length != 0 || game.initPack.pieces.length != 0) socket.emit('init',game.initPack);
+			if(game.updatePack.pieces.length != 0 || game.updatePack.players.length != 0)  socket.emit('update',game.updatePack);
+			if(game.removePack.players.length != 0 || game.removePack.pieces.length != 0)  socket.emit('remove',game.removePack);
 		}
 	}
 
