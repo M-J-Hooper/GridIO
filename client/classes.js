@@ -96,8 +96,6 @@ var Game = function(params) {
 
 	//decide if a move is allowed and then calculate changes - must be very fast!
 	self.makeMove = function(i,j,dx,dy) {
-		console.time("makeMove");
-		
     var id = self.board[i][j].id;
 		var selfCount = 0;
 		var otherCount = 0;
@@ -242,9 +240,6 @@ var Game = function(params) {
 				}
 			}
 		}
-
-		console.timeEnd("makeMove");
-
 		return pack;
 	}
 

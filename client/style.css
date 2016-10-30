@@ -1,7 +1,6 @@
 body {
   margin: 0px;
   font-family: 'Bree Serif', serif;
-  font-size: 16px;
   background: black;
 }
 
@@ -78,7 +77,6 @@ canvas {
 }
 
 input[type=text] {
-  font-size: 16px;
   font-family: 'Bree Serif', serif;
   text-align: center;
   border-style: none;
@@ -118,7 +116,7 @@ input[type=text] {
 }
 
 #rules-info span {
-  font-size: 32px;
+  font-size: 200%;
   vertical-align: middle;
 }
 
