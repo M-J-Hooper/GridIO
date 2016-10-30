@@ -133,10 +133,13 @@ var Game = function(params) {
 			do {
 				var region = {minI:i+dx,maxI:i+dx,minJ:j+dy,maxJ:j+dy}
 				var checked = createArray(self.l,self.l);
-				var data = regionLoop(self,{region:region,checked:checked} , i+dx, j+dy);
+				var data = regionLoop(self,{region:region,checked:checked} , i, j);
 				region = data.region;
+				console.log(JSON.stringify(region));
 
 				var groups = findGroups(self, region);
+				console.log(JSON.stringify(groups));
+
 				var groupList = {};
 
 				//make list of groups with perimeter and neighbours
@@ -187,8 +190,11 @@ var Game = function(params) {
 					}
 
 					//if more then half perimeter covered by max surrounder then add "group:n captured by id:result"
-					if(max/groupList[n].perimeter >= 0.5) { captured[n] = result; }
+					if(result != 1 && max/groupList[n].perimeter >= 0.5) { captured[n] = result; }
 				}
+
+				console.log(JSON.stringify(groupList));
+				console.log(JSON.stringify(captured));
 
 				//transfer pieces between players for any captures
 				for(var n = 0; n < groups.length; n++) {
