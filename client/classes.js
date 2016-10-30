@@ -30,6 +30,7 @@ var Game = function(params) {
     return Object.keys(self.playerList).length;
   }
 
+	//add player to the board
 	self.addPlayer = function(player) {
     self.playerList[player.id] = player;
 
@@ -69,6 +70,7 @@ var Game = function(params) {
     return pieces;
 	}
 
+	//remove a player from the board
   self.removePlayer = function(id) {
     var pieces = [];
 
@@ -92,7 +94,10 @@ var Game = function(params) {
     return pieces;
   }
 
+	//decide if a move is allowed and then calculate changes - must be very fast!
 	self.makeMove = function(i,j,dx,dy) {
+		console.time("makeMove");
+		
     var id = self.board[i][j].id;
 		var selfCount = 0;
 		var otherCount = 0;
@@ -100,23 +105,23 @@ var Game = function(params) {
     var pack = {players:[],pieces:[]};
 
 		//how many pieces ahead of move and can they be moved
-		for(var n = 0; n < self.l + self.l; n++) {
-			if(i+n*dx < 0 || i+n*dx >= self.l || j+n*dy < 0 || j+n*dy >= self.l) { ok = false; break; }
-			else if(self.board[i+n*dx][j+n*dy].prev.count > 0) { ok = false; break; }
-			else if(!self.board[i+n*dx][j+n*dy].id) { break; }
+		for(var n = 0; n < self.l; n++) {
+			if(i+n*dx < 0 || i+n*dx >= self.l || j+n*dy < 0 || j+n*dy >= self.l) { ok = false; break; } //fails if boundary hit
+			else if(self.board[i+n*dx][j+n*dy].prev.count > 0) { ok = false; break; } //fails if moving piece is hit
+			else if(!self.board[i+n*dx][j+n*dy].id) { break; } //succeeds if reachs an empty tile
 			else {
-				if(self.board[i+n*dx][j+n*dy].id == id && otherCount == 0) { selfCount++; }
+				if(self.board[i+n*dx][j+n*dy].id == id && otherCount == 0) { selfCount++; } //count own pieces which are pushing
 				else {
-					otherCount++;
-					if(selfCount == otherCount) { ok = false; break; }
+					otherCount++; //count pieces being pushed
+					if(selfCount == otherCount) { ok = false; break; } //fails if cannot push
 				}
 			}
 		}
 
-		//when move is allowed or on client
+		//when move is allowed
 		if(ok) {
-			for(var n = n; n > 0; n--) {
-				self.board[i+n*dx][j+n*dy].id = self.board[i+(n-1)*dx][j+(n-1)*dy].id; //update board
+			for(var n = n; n > 0; n--) { //track back through moved pieces for updating
+				self.board[i+n*dx][j+n*dy].id = self.board[i+(n-1)*dx][j+(n-1)*dy].id;
 				var prev = {count:self.slide,dx:dx,dy:dy};
 				self.board[i+n*dx][j+n*dy].prev = prev;
         pack.pieces.push({i:i+n*dx,j:j+n*dy,id:self.board[i+(n-1)*dx][j+(n-1)*dy].id,prev:prev});
@@ -126,31 +131,37 @@ var Game = function(params) {
       pack.pieces.push({i:i,j:j,id:null,prev:{count:self.slide}});
 
 			do {
-				var groups = findGroups(self);
+				var region = {minI:i+dx,maxI:i+dx,minJ:j+dy,maxJ:j+dy}
+				var checked = createArray(self.l,self.l);
+				var data = regionLoop(self,{region:region,checked:checked} , i+dx, j+dy);
+				region = data.region;
+				console.log(JSON.stringify(region));
+
+				var groups = findGroups(self, region);
+				console.log(JSON.stringify(groups));
+
 				var groupList = {};
 
 				//make list of groups with perimeter and neighbours
-				for(var n = 0; n < self.l; n++) {
-					for(var m = 0; m < self.l; m++) {
+				for(var n = 0; n < groups.length; n++) {
+					for(var m = 0; m < groups[0].length; m++) {
 						if(groups[n][m]) {
-							groupNum = groups[n][m];
+							var groupNum = groups[n][m];
 							if(!groupList[groupNum]) {
-								groupList[groupNum] = {id:self.board[n][m].id,perimeter:0,neighbours:[]};
+								groupList[groupNum] = {id:self.board[n+region.minI][m+region.minJ].id,perimeter:0,neighbours:[]};
 							}
 
-							//careful of board edges
-							var maxA = n == self.l-1 ? 1 : 2;
-							var minA = n == 0 ? 0 : -1;
-							var maxB = m == self.l-1 ? 1 : 2;
-							var minB = m == 0 ? 0 : -1;
-
-							for(var a = minA; a < maxA; a++) {
-								for(var b = minB; b < maxB; b++) {
+							//loop through the 4 bounding tiles
+							for(var a = -1; a < 2; a++) {
+								for(var b = -1; b < 2; b++) {
 									if(Math.abs(a) + Math.abs(b) == 1) {
-										if(groups[n+a][m+b] != groupNum) {
+										if(n+a == groups.length || n+a < 0 || m+b == groups[0].length || m+b < 0) { //if index out of region then must be perimeter
 											groupList[groupNum].perimeter++;
-											if(groups[n+a][m+b] && self.board[n+a][m+b].id != 1) {
-												groupList[groupNum].neighbours.push(self.board[n+a][m+b].id);
+										}
+										else if(groups[n+a][m+b] != groupNum) { //if of different group or no group
+											groupList[groupNum].perimeter++;
+											if(groups[n+a][m+b] && self.board[n+region.minI+a][m+region.minJ+b] != 1) { //if of different group
+												groupList[groupNum].neighbours.push(self.board[n+region.minI+a][m+region.minJ+b].id); //add id to list of attacking players for that group
 											}
 										}
 									}
@@ -178,49 +189,56 @@ var Game = function(params) {
 		        }
 					}
 
+					//if more then half perimeter covered by max surrounder then add "group:n captured by id:result"
 					if(max/groupList[n].perimeter >= 0.5) { captured[n] = result; }
 				}
 
+				console.log(JSON.stringify(groupList));
+				console.log(JSON.stringify(captured));
+
 				//transfer pieces between players for any captures
-				for(var n = 0; n < self.l; n++) {
-					for(var m = 0; m < self.l; m++) {
+				for(var n = 0; n < groups.length; n++) {
+					for(var m = 0; m < groups[0].length; m++) {
 						if(groups[n][m]) {
 							for(var v in captured) {
-								if(v == groups[n][m]) {
-									if(self.board[n][m].id != 1) {
-										self.playerList[self.board[n][m].id].score--;
-                    pack.players.push(self.playerList[self.board[n][m].id].getUpdatePack());
+								if(v == groups[n][m]) { //if group has been captured
+									if(self.board[n+region.minI][m+region.minJ].id != 1) { //capture of non-dead piece results in score changes
+										//score and pack for prey
+										self.playerList[self.board[n+region.minI][m+region.minJ].id].score--;
+                    pack.players.push(self.playerList[self.board[n+region.minI][m+region.minJ].id].getUpdatePack());
 									}
-
+									//score and pack for attacker
 									self.playerList[captured[v]].score++;
                   pack.players.push(self.playerList[captured[v]].getUpdatePack());
 
-									self.board[n][m].id = captured[v];
-                  pack.pieces.push({i:n,j:m,id:captured[v]});
+									//edit board and pack for piece change
+									self.board[n+region.minI][m+region.minJ].id = captured[v];
+                  pack.pieces.push({i:n+region.minI,j:m+region.minJ,id:captured[v]});
 								}
 							}
 						}
 					}
 				}
-			} while(Object.keys(captured).length != 0);
+			} while(Object.keys(captured).length != 0); //capture could cause further captures so repeat
 
-			//kill isolated pieces (MORE EFFICIENT WAY!!!!!!!)
-			var groups = findGroups(self)
+			//kill isolated pieces
 			var groupCount = {};
-			for(var n = 0; n < self.l; n++) {
-				for(var m = 0; m < self.l; m++) {
-					if(groupCount[groups[n][m]]) { groupCount[groups[n][m]]++; }
-					else { groupCount[groups[n][m]] = 1; }
+			for(var n = 0; n < groups.length; n++) {
+				for(var m = 0; m < groups[0].length; m++) {
+					if(groups[n][m]) {
+						if(groupCount[groups[n][m]]) { groupCount[groups[n][m]]++; }
+						else { groupCount[groups[n][m]] = 1; }
+					}
 				}
 			}
-			for(var n = 0; n < self.l; n++) {
-				for(var m = 0; m < self.l; m++) {
-					var currId = self.board[n][m].id;
+			for(var n = 0; n < groups.length; n++) {
+				for(var m = 0; m < groups[0].length; m++) {
+					var currId = self.board[n+region.minI][m+region.minJ].id;
 					if(groups[n][m] && currId != 1) {
 						for(var v in groupCount) {
 							if(groupCount[v] == 1 && v == groups[n][m]) {
-								self.board[n][m].id = 1;
-                pack.pieces.push({i:n,j:m,id:1});
+								self.board[n+region.minI][m+region.minJ].id = 1;
+                pack.pieces.push({i:n+region.minI,j:m+region.minJ,id:1});
 
 								self.playerList[currId].score--;
                 pack.players.push(self.playerList[currId].getUpdatePack());
@@ -230,14 +248,17 @@ var Game = function(params) {
 				}
 			}
 		}
+
+		console.timeEnd("makeMove");
+
 		return pack;
 	}
 
   self.pieceSpawn = function() {
     var pieces = [];
     var berth = 3;
-    var rate = 0.005; //adjust for bigger boards????
-    var density = 1/50;
+    var rate = 0.001*self.l*self.l;
+    var density = 1/100;
     var target = self.l*self.l*density;
 
     var count = 0;

@@ -2,6 +2,7 @@ if(typeof module != 'undefined') {
   module.exports = function() {
     this.createArray = createArray;
     this.findGroups = findGroups;
+    this.regionLoop = regionLoop;
   }
 }
 
@@ -16,16 +17,16 @@ function createArray(length) {
   return arr;
 }
 
-function findGroups(game) {
-	var groups = createArray(game.l,game.l);
+function findGroups(game, region) {
+	var groups = createArray(region.maxI-region.minI+1,region.maxJ-region.minJ+1);
 	var groupNum = 0;
 
 	//get array of grouped pieces
-	for(var n = 0; n < game.l; n++) {
-		for(var m = 0; m < game.l; m++) {
-			if(game.board[n][m].id && !groups[n][m]) {
+	for(var n = 0; n < groups.length; n++) {
+		for(var m = 0; m < groups[0].length; m++) {
+			if(game.board[n+region.minI][m+region.minJ].id && !groups[n][m]) {
 				groupNum++;
-				groups = groupsLoop(game,game.board[n][m].id,groups,n,m,groupNum);
+				groups = groupLoop(game,region,groups,n,m,groupNum);
 			}
 		}
 	}
@@ -33,25 +34,55 @@ function findGroups(game) {
 }
 
 //helper function to loop through when calculating groups
-function groupsLoop(game,id,groups,n,m,groupNum) {
+function groupLoop(game,region,groups,n,m,groupNum) {
 	groups[n][m] = groupNum;
 
 	//careful of board edges
-	var maxA = n == game.l-1 ? 1 : 2;
+	var maxA = n == groups.length-1 ? 1 : 2;
 	var minA = n == 0 ? 0 : -1;
-	var maxB = m == game.l-1 ? 1 : 2;
+	var maxB = m == groups[0].length-1 ? 1 : 2;
 	var minB = m == 0 ? 0 : -1;
 
 	for(var a = minA; a < maxA; a++) {
 		for(var b = minB; b < maxB; b++) {
 			if(Math.abs(a) + Math.abs(b) == 1) {
-				if(game.board[n+a][m+b].id == id && !groups[n+a][m+b]) {
-					groups = groupsLoop(game,id,groups,n+a,m+b,groupNum);
+				if(game.board[n+region.minI+a][m+region.minJ+b].id == game.board[n+region.minI][m+region.minJ].id) {
+          if(!groups[n+a][m+b]) {
+					  groups = groupLoop(game,region,groups,n+a,m+b,groupNum);
+          }
 				}
 			}
 		}
 	}
 	return groups;
+}
+
+//helper function to find minimal region for finding groups in
+function regionLoop(game, data, i, j) {
+  data.checked[i][j] = true;
+
+  //update mins and maxes
+  if(i < data.region.minI) data.region.minI = i;
+  if(i > data.region.maxI) data.region.maxI = i;
+  if(j < data.region.minJ) data.region.minJ = j;
+  if(j > data.region.maxJ) data.region.maxJ = j;
+
+  //careful of board edges
+	var maxA = i == game.l-1 ? 1 : 2;
+	var minA = i == 0 ? 0 : -1;
+	var maxB = j == game.l-1 ? 1 : 2;
+	var minB = j == 0 ? 0 : -1;
+
+  for(var a = minA; a < maxA; a++) {
+		for(var b = minB; b < maxB; b++) {
+			if(Math.abs(a) + Math.abs(b) == 1) {
+        if(game.board[i+a][j+b].id && !data.checked[i+a][j+b]) {
+          data = regionLoop(game, data, i+a, j+b);
+        }
+      }
+    }
+  }
+  return data;
 }
 
 //get info on own pieces for size and view

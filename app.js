@@ -18,7 +18,7 @@ var gameList = {};
 
 //game settings
 var slide = 5;
-var l = 20;
+var l = 200;
 var playerLimit = Math.round(l*l/83.33333333);
 var spawn = true;
 var pub = true;
