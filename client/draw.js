@@ -5,6 +5,12 @@ function drawBoard(ctx,game,view,selected) {
   var offsetX = view.width/2 - view.x;
   var offsetY = view.height/2 - view.y;
 
+  var minI = Math.floor(-offsetX / view.size)-1;
+  var maxI = minI + Math.ceil(view.width / view.size)+2;
+  var minJ = Math.floor(-offsetY / view.size)-1;
+  var maxJ = minJ + Math.ceil(view.height / view.size)+2;
+
+  //draw board border
   var borderWidth = 0.5;
   for(var n = 8; n >= 0; n--) {
     var value = 256 - n*32;
@@ -12,43 +18,41 @@ function drawBoard(ctx,game,view,selected) {
     roundRect(ctx,offsetX-borderWidth*n*view.size,offsetY-borderWidth*n*view.size,view.size*(game.l+2*borderWidth*n),view.size*(game.l+2*borderWidth*n),view.size*(borderWidth*n + 0.25),true,false);
   }
 
-
   ctx.lineWidth = view.size*0.05;
   ctx.strokeStyle = "rgb(224, 224, 224)";
 
-  //draw board design
-  //rounded edges on tiles (slow due to round rect function)
-  /*ctx.fillStyle = "rgb(255,255,255)";
-  for(var i = 0; i < game.l; i++) {
-    for(var j = 0; j < game.l; j++) {
-      roundRect(ctx,i*size+offsetX,j*size+offsetY,size,size,size*0.25,true,true);
-    }
-  }*/
-
   //more efficient board style
-  for(var i = 1; i < game.l; i++) {
+  for(var i = minI; i <= maxI; i++) {
     ctx.beginPath();
-    ctx.moveTo(i*view.size+offsetX,offsetY);
-    ctx.lineTo(i*view.size+offsetX,game.l*view.size+offsetY);
-    ctx.stroke();
-
+    if(i>=0 && i<game.l) {
+      var x = i*view.size+offsetX;
+      ctx.moveTo(x,Math.max(offsetY,0));
+      ctx.lineTo(x,Math.min(offsetY+game.l*view.size,view.height));
+      ctx.stroke();
+    }
+  }
+  for(var j = minJ; j <= maxJ; j++) {
     ctx.beginPath();
-    ctx.moveTo(offsetX,i*view.size+offsetY);
-    ctx.lineTo(game.l*view.size+offsetX,i*view.size+offsetY);
-    ctx.stroke();
+    if(j>=0 && j<game.l) {
+      var y = j*view.size+offsetY;
+      ctx.moveTo(Math.max(offsetX,0),y);
+      ctx.lineTo(Math.min(offsetX+game.l*view.size,view.width),y);
+      ctx.stroke();
+    }
   }
 
-
   //draw pieces
-  for(var i = 0; i < game.l; i++) {
-    for(var j = 0; j < game.l; j++) {
-      if(game.board[i][j].id) {
-        if(game.board[i][j].id == 1) { ctx.fillStyle = "rgb(64, 64, 64)"; }
-        else { ctx.fillStyle = game.playerList[game.board[i][j].id].color; }
+  for(var i = minI; i <= maxI; i++) {
+    for(var j = minJ; j <= maxJ; j++) {
+      if(i>=0 && i<game.l && j>=0 && j<game.l) {
+        if(game.board[i][j].id) {
+          if(game.board[i][j].id == 1) { ctx.fillStyle = "rgb(64, 64, 64)"; }
+          else { ctx.fillStyle = game.playerList[game.board[i][j].id].color; }
 
-        var x = (i+0.1 - game.board[i][j].prev.dx*game.board[i][j].prev.count/game.slide)*view.size;
-        var y = (j+0.1 - game.board[i][j].prev.dy*game.board[i][j].prev.count/game.slide)*view.size;
-        roundRect(ctx,x+offsetX,y+offsetY,view.size*0.8,view.size*0.8,view.size*0.2,true,false);
+          var x = (i+0.1 - game.board[i][j].prev.dx*game.board[i][j].prev.count/game.slide)*view.size;
+          var y = (j+0.1 - game.board[i][j].prev.dy*game.board[i][j].prev.count/game.slide)*view.size;
+          roundRect(ctx,x+offsetX,y+offsetY,view.size*0.8,view.size*0.8,view.size*0.2,true,false);
+        }
       }
     }
   }

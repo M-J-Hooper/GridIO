@@ -246,7 +246,7 @@ var Game = function(params) {
   self.pieceSpawn = function() {
     var pieces = [];
     var berth = 3;
-    var rate = 0.001*self.l*self.l;
+    var rate = self.l*self.l/10000;
     var density = 1/100;
     var target = self.l*self.l*density;
 
@@ -310,12 +310,31 @@ var Game = function(params) {
     return pieces;
   }
 
-  self.boardSlide = function() {
-    for(var i = 0; i < self.l; i++) {
-  		for(var j = 0; j < self.l; j++) {
-  			if(self.board[i][j].prev.count > 0) { self.board[i][j].prev.count--; }
-      }
-    }
+  self.boardSlide = function(view) {
+		if(view) {
+			var offsetX = view.width/2 - view.x;
+			var offsetY = view.height/2 - view.y;
+
+			var minI = Math.floor(-offsetX / view.size)-5;
+			var maxI = minI + Math.ceil(view.width / view.size)+10;
+			var minJ = Math.floor(-offsetY / view.size)-5;
+			var maxJ = minJ + Math.ceil(view.height / view.size)+10;
+
+			for(var i = minI; i <= maxI; i++) {
+				for(var j = minJ; j <= maxJ; j++) {
+					if(i>=0 && i<game.l && j>=0 && j<game.l) {
+						if(self.board[i][j].prev.count > 0) { self.board[i][j].prev.count--; }
+					}
+				}
+			}
+		}
+		else {
+			for(var i = 0; i < self.l; i++) {
+				for(var j = 0; j < self.l; j++) {
+					if(self.board[i][j].prev.count > 0) { self.board[i][j].prev.count--; }
+				}
+			}
+		}
   }
 
   //reorder leaderboard based on score

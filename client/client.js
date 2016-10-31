@@ -87,17 +87,11 @@ setInterval(function(){
   ctx.canvas.height = view.height;
 
   if(game) { //view board even when score goes to zero
-    game.boardSlide();
+    game.boardSlide(view);
     view = getView(game,selfId,view,true);
 
     //bring up lose screen on zero score
-    var count = 0;
-    for(var i = 0; i < game.l; i++) {
-  		for(var j = 0; j < game.l; j++) {
-        if(game.board[i][j].id == selfId) { count++; break; }
-      }
-    }
-    if(!count) {
+    if(!game.playerList[selfId].score) {
       $("#leaderboard").hide();
       $("#info").hide();
       $("#go-settings").hide();
