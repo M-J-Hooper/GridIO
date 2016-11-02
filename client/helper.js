@@ -94,27 +94,28 @@ function getView(game, selfId, view, smooth) {
   var avI = 0;
   var avJ = 0;
 
-  for(var i = 0; i < game.l; i++) {
-		for(var j = 0; j < game.l; j++) {
-      if(game.board[i][j].id == selfId) {
-        if(first) { minI = i; maxI = i; minJ = j; maxJ = j; first = false; }
-        else {
-          if(i < minI) { minI = i; }
-          if(i > maxI) { maxI = i; }
-          if(j < minJ) { minJ = j; }
-          if(j > maxJ) { maxJ = j; }
+  for(var i = view.minI-5; i < view.maxI+10; i++) {
+		for(var j = view.minJ-5; j < view.maxJ+10; j++) {
+      if(i>=0 && i<game.l && j>=0 && j<game.l) {
+        if(game.board[i][j].id == selfId) {
+          if(first) { minI = i; maxI = i; minJ = j; maxJ = j; first = false; }
+          else {
+            if(i < minI) { minI = i; }
+            if(i > maxI) { maxI = i; }
+            if(j < minJ) { minJ = j; }
+            if(j > maxJ) { maxJ = j; }
+          }
         }
-        count++;
       }
 		}
 	}
 
   var r;
-  if(count && !view.fixed) {
+  if(game.playerList[selfId].score) {
     avI = (maxI + minI + 1)/2;
     avJ = (maxJ + minJ + 1)/2;
 
-    var viewDist = Math.sqrt(count)+2;
+    var viewDist = Math.sqrt(game.playerList[selfId].score)+2;
     var playerSizeX = (maxI - minI + 1);
     var playerSizeY = (maxJ - minJ + 1);
     r = Math.min(view.width/(playerSizeX+viewDist*2),view.height/(playerSizeY+viewDist*2))/view.size;
@@ -126,8 +127,8 @@ function getView(game, selfId, view, smooth) {
   }
 
   if(smooth) {
-    var viewSmooth = 50;
     var prevSize = view.size;
+    var viewSmooth = 50;
     view.size += prevSize*(r-1)/viewSmooth;
     view.x += (avI*prevSize*r - view.x)/viewSmooth;
     view.y += (avJ*prevSize*r - view.y)/viewSmooth;
@@ -137,6 +138,15 @@ function getView(game, selfId, view, smooth) {
     view.x = avI*view.size;
     view.y = avJ*view.size;
   }
+
+  view.offsetX = view.width/2 - view.x;
+  view.offsetY = view.height/2 - view.y;
+
+  view.minI = Math.floor(-view.offsetX / view.size);
+  view.maxI = view.minI + Math.ceil(view.width / view.size);
+  view.minJ = Math.floor(-view.offsetY / view.size);
+  view.maxJ = view.minJ + Math.ceil(view.height / view.size);
+
   return view;
 }
 
@@ -146,7 +156,7 @@ function selectPiece(game,selfId,i,j) {
   if(i>=0 && i<game.l && j>=0 && j<game.l && game.board[i][j].id == selfId) {
     return {i:i,j:j};
   }
-  else { return {i:null,j:null} }
+  else { return {i:null,j:null}; }
 }
 
 mobileTabletCheck = function() {

@@ -312,16 +312,8 @@ var Game = function(params) {
 
   self.boardSlide = function(view) {
 		if(view) {
-			var offsetX = view.width/2 - view.x;
-			var offsetY = view.height/2 - view.y;
-
-			var minI = Math.floor(-offsetX / view.size)-5;
-			var maxI = minI + Math.ceil(view.width / view.size)+10;
-			var minJ = Math.floor(-offsetY / view.size)-5;
-			var maxJ = minJ + Math.ceil(view.height / view.size)+10;
-
-			for(var i = minI; i <= maxI; i++) {
-				for(var j = minJ; j <= maxJ; j++) {
+			for(var i = view.minI-5; i <= view.maxI+10; i++) {
+				for(var j = view.minJ-5; j <= view.maxJ+10; j++) {
 					if(i>=0 && i<game.l && j>=0 && j<game.l) {
 						if(self.board[i][j].prev.count > 0) { self.board[i][j].prev.count--; }
 					}

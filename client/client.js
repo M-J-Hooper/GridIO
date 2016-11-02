@@ -7,7 +7,7 @@ var ctx = canvas[0].getContext("2d");
 var game = null;
 var selfId = null;
 var selected = {i:null,j:null};
-var view = {height:0,width:0,size:50,x:0,y:0,fixed:false};
+var view = {height:0,width:0,size:1,x:0,y:0,offsetX:0,offsetY:0,minI:0,maxI:0,minJ:0,maxJ:0};
 
 socket.on('init',function(data){
   for(var i = 0 ; i < data.players.length; i++){
@@ -123,15 +123,11 @@ document.onkeydown = function(event){
 //try to select a piece on mouse click
 document.onmousedown = function(event) {
   if(game && game.playerList[selfId].score > 0) {
-    var offsetX = view.width/2 - view.x;
-    var offsetY = view.height/2 - view.y;
-
-    var i = Math.floor((event.clientX-offsetX)/view.size);
-    var j = Math.floor((event.clientY-offsetY)/view.size);
+    var i = Math.floor((event.clientX-view.offsetX)/view.size);
+    var j = Math.floor((event.clientY-view.offsetY)/view.size);
 
     selected = selectPiece(game,selfId,i,j);
   }
-  //console.log(JSON.stringify(game));
 }
 
 //try to select a piece on touch of a screen
@@ -140,12 +136,9 @@ document.addEventListener("touchstart", function(event) {
   //event.stopPropagation();
 
   if(game && game.playerList[selfId].score > 0) {
-    var offsetX = view.width/2 - view.x;
-    var offsetY = view.height/2 - view.y;
-
     var touch = event.touches[0];
-    var i = Math.floor((touch.clientX-offsetX)/view.size);
-    var j = Math.floor((touch.clientY-offsetY)/view.size);
+    var i = Math.floor((touch.clientX-view.offsetX)/view.size);
+    var j = Math.floor((touch.clientY-view.offsetY)/view.size);
 
     selected = selectPiece(game,selfId,i,j);
   }
@@ -158,12 +151,9 @@ document.addEventListener("touchmove", function(event) {
     event.stopPropagation();
 
     if(selected.i != null) {
-      var offsetX = view.width/2 - view.x;
-      var offsetY = view.height/2 - view.y;
-
       var touch = event.touches[0];
-      var diffI = Math.floor((touch.clientX-offsetX)/view.size) - selected.i;
-      var diffJ = Math.floor((touch.clientY-offsetY)/view.size) - selected.j;
+      var diffI = Math.floor((touch.clientX-view.offsetX)/view.size) - selected.i;
+      var diffJ = Math.floor((touch.clientY-view.offsetY)/view.size) - selected.j;
       var dx = 0;
       var dy = 0;
       if(Math.abs(diffI) > Math.abs(diffJ)) { dx = Math.sign(diffI); }
@@ -198,6 +188,7 @@ joinGame = function(createData,joinId) {
     selfId = playerId;
     if(joinedGame) {
       game = new Game({copy:joinedGame});
+      view.maxI = game.l-1; view.maxJ = game.l-1;
       view = getView(game,selfId,view,false);
 
       $("#browse").hide(); $("#create").hide(); $("#join").hide();
