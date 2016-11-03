@@ -11,15 +11,19 @@ if(typeof module != 'undefined') {
 
 var Game = function(params) {
   var self = {};
+
+	//default game settings
+	self.id = Math.random();
+	self.slide = 5;
+	self.l = 50;
+	self.pub = true;
+  self.playerList = {};
+
   if(params.new) {
     if(params.new.id) { self.id = params.new.id; }
-    else { self.id = Math.random(); }
-    self.l = params.new.l;
-    self.slide = params.new.slide;
-    self.playerLimit = params.new.playerLimit;
-    self.pub = params.new.pub;
-    self.spawn = params.new.spawn;
-    self.playerList = {};
+    if(params.new.l) self.l = params.new.l;
+    if(params.new.pub) self.pub = params.new.pub;
+
 
   	self.board = createArray(self.l,self.l);
   	for(var n = 0; n < self.l; n++) {
@@ -28,6 +32,8 @@ var Game = function(params) {
   		}
   	}
   }
+  self.playerLimit = 2;//Math.round(self.l*self.l/83.33333333);
+
   if(params.copy) { self = params.copy; }
 
   self.getPlayerCount = function() {
@@ -84,14 +90,8 @@ var Game = function(params) {
   		for(var j = 0; j < self.l; j++) {
   			if(self.board[i][j].id == id) {
           //1 to kill pieces, null to remove totally
-          if(self.spawn) {
-            self.board[i][j].id = 1;
-            pieces.push({i:i,j:j,id:1});
-          } else {
-            self.board[i][j].id = null;
-            pieces.push({i:i,j:j,id:null});
-          }
-
+					self.board[i][j].id = null;
+					pieces.push({i:i,j:j,id:null});
   			}
   		}
   	}

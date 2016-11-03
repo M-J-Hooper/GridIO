@@ -16,12 +16,7 @@ console.log("Server started.");
 var socketList = {};
 var gameList = {};
 
-//game settings
-var slide = 5;
-var l = 50;
-var playerLimit = Math.round(l*l/83.33333333);
-var spawn = true;
-var pub = true;
+
 
 
 ///////////////////////////////////////////////////////////////////////
@@ -31,12 +26,10 @@ var pub = true;
 setInterval(function(){
 	//if(!game) return;
 
-	//spawn pieces for games with spawning on
+	//spawn pieces for all games
 	for(var v in gameList) {
-		if(gameList[v].game.spawn) {
-			var pieces = gameList[v].game.pieceSpawn();
-			for(var n = 0; n < pieces.length; n++) { gameList[v].updatePack.pieces.push(pieces[n]); }
-		}
+		var pieces = gameList[v].game.pieceSpawn();
+		for(var n = 0; n < pieces.length; n++) { gameList[v].updatePack.pieces.push(pieces[n]); }
 	}
 
 	//send pack for game to corresponding joined players
@@ -73,27 +66,27 @@ function joinGame(socket,data) {
 	var game;
 
 	if(data.joinId != null) {
-		if(gameList[data.joinId] && gameList[data.joinId].game.getPlayerCount() < playerLimit) {
+		if(gameList[data.joinId] && gameList[data.joinId].game.getPlayerCount() < gameList[data.joinId].game.playerLimit) {
 			game = gameList[data.joinId].game;
 		}
 		else { return; }
 	}
 	else if(data.createData != null) {
-		//add a check that createData.l is a correct value
+		if(data.createData.l != 20 && data.createData.l != 50 && data.createData.l != 100 && data.createData.l != 200) return; //avoid dodgy sizes
 
-		game = new Game({new:{id:data.createData.createId,l:data.createData.l,slide:slide,playerLimit:Math.round(data.createData.l*data.createData.l/83.3333),pub:data.createData.pub,spawn:spawn}});
+		game = new Game({new:{id:data.createData.createId,l:data.createData.l,pub:data.createData.pub}});
 		gameList[game.id] = {game:game,initPack:{players:[],pieces:[]},removePack:{players:[],pieces:[]},updatePack:{players:[],pieces:[]}};
 		console.log("Game "+game.id+" created");
 	}
 	else { //check for space in current games
 		for(var v in gameList) {
-			if(gameList[v].game.pub && gameList[v].game.getPlayerCount() < playerLimit) {
+			if(gameList[v].game.pub && gameList[v].game.getPlayerCount() < gameList[v].game.playerLimit) {
 				game = gameList[v].game;
 				break;
 			}
 		}
 		if(!game) { //if no game with space found
-			game = new Game({new:{l:l,slide:slide,playerLimit:playerLimit,pub:true,spawn:true}});
+			game = new Game({new:{}});
 			gameList[game.id] = {game:game,initPack:{players:[],pieces:[]},removePack:{players:[],pieces:[]},updatePack:{players:[],pieces:[]}};
 			console.log("Game "+game.id+" created");
 		}
