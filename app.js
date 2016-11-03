@@ -23,7 +23,50 @@ var playerLimit = Math.round(l*l/83.33333333);
 var spawn = true;
 var pub = true;
 
-joinGame = function(socket,data) {
+
+///////////////////////////////////////////////////////////////////////
+//Main server update loop
+///////////////////////////////////////////////////////////////////////
+
+setInterval(function(){
+	//if(!game) return;
+
+	//spawn pieces for games with spawning on
+	for(var v in gameList) {
+		if(gameList[v].game.spawn) {
+			var pieces = gameList[v].game.pieceSpawn();
+			for(var n = 0; n < pieces.length; n++) { gameList[v].updatePack.pieces.push(pieces[n]); }
+		}
+	}
+
+	//send pack for game to corresponding joined players
+	for(var v in socketList){
+		var socket = socketList[v].socket;
+
+		if(socketList[v].gameId) {
+			var game = gameList[socketList[v].gameId];
+			if(game.initPack.players.length != 0 || game.initPack.pieces.length != 0) socket.emit('init',game.initPack);
+			if(game.updatePack.pieces.length != 0 || game.updatePack.players.length != 0)  socket.emit('update',game.updatePack);
+			if(game.removePack.players.length != 0 || game.removePack.pieces.length != 0)  socket.emit('remove',game.removePack);
+		}
+	}
+
+	//slide and return packs to empty
+	for(var v in gameList) {
+		gameList[v].game.boardSlide();
+
+		gameList[v].initPack = {players:[],pieces:[]};
+		gameList[v].removePack = {players:[],pieces:[]};
+		gameList[v].updatePack = {players:[],pieces:[]};
+	}
+},40);
+
+
+///////////////////////////////////////////////////////////////////////
+//Joining and leaving games
+///////////////////////////////////////////////////////////////////////
+
+function joinGame(socket,data) {
 	var name = data.name.substring(0,10);
 	var color = data.color; //check if color is visible enough???
 	var player = new Player({new:{id:socket.id, name:name, color:color}});
@@ -89,7 +132,7 @@ joinGame = function(socket,data) {
 	return game;
 }
 
-leaveGame = function(socket){
+function leaveGame(socket){
 	var gameId = socketList[socket.id].gameId;
 
 	if(gameList[gameId]) { //if statement for nodemon restart problems
@@ -113,6 +156,10 @@ leaveGame = function(socket){
 	}
 }
 
+
+///////////////////////////////////////////////////////////////////////
+//Socket listeners
+///////////////////////////////////////////////////////////////////////
 
 var io = require('socket.io')(serv,{});
 io.sockets.on('connection', function(socket) {
@@ -142,39 +189,6 @@ io.sockets.on('connection', function(socket) {
 		console.log("Player "+socket.id+" disconnected")
 	});
 });
-
-setInterval(function(){
-	//if(!game) return;
-
-	//spawn pieces for games with spawning on
-	for(var v in gameList) {
-		if(gameList[v].game.spawn) {
-			var pieces = gameList[v].game.pieceSpawn();
-			for(var n = 0; n < pieces.length; n++) { gameList[v].updatePack.pieces.push(pieces[n]); }
-		}
-	}
-
-	//send pack for game to corresponding joined players
-	for(var v in socketList){
-		var socket = socketList[v].socket;
-
-		if(socketList[v].gameId) {
-			var game = gameList[socketList[v].gameId];
-			if(game.initPack.players.length != 0 || game.initPack.pieces.length != 0) socket.emit('init',game.initPack);
-			if(game.updatePack.pieces.length != 0 || game.updatePack.players.length != 0)  socket.emit('update',game.updatePack);
-			if(game.removePack.players.length != 0 || game.removePack.pieces.length != 0)  socket.emit('remove',game.removePack);
-		}
-	}
-
-	//slide and return packs to empty
-	for(var v in gameList) {
-		gameList[v].game.boardSlide();
-
-		gameList[v].initPack = {players:[],pieces:[]};
-		gameList[v].removePack = {players:[],pieces:[]};
-		gameList[v].updatePack = {players:[],pieces:[]};
-	}
-},40);
 
 /*
 var profiler = require('v8-profiler');

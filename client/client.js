@@ -9,6 +9,73 @@ var selfId = null;
 var selected = {i:null,j:null};
 var view = {height:0,width:0,size:1,x:0,y:0,offsetX:0,offsetY:0,minI:0,maxI:0,minJ:0,maxJ:0};
 
+
+///////////////////////////////////////////////////////////////////////
+//Main client update loop
+///////////////////////////////////////////////////////////////////////
+
+//client side update loop for drawing
+setInterval(function(){
+  //canvas matched to window size
+  view.width = window.innerWidth;
+  view.height = window.innerHeight;
+
+  ctx.canvas.width  = view.width;
+  ctx.canvas.height = view.height;
+
+  if(game) { //view board even when score goes to zero
+    game.boardSlide(view);
+    view = getView(game,selfId,view,true);
+
+    //bring up lose screen on zero score
+    if(!game.playerList[selfId].score) {
+      $("#leaderboard").hide();
+      $("#info").hide();
+      $("#go-settings").hide();
+      $("#settings").hide();
+      $("#lose").show();
+    }
+
+    ctx.clearRect(0,0,view.width,view.height);
+    drawBoard(ctx,game,view,selected);
+  }
+},40);
+
+
+///////////////////////////////////////////////////////////////////////
+//Socket listeners and emitters
+///////////////////////////////////////////////////////////////////////
+
+function joinGame(createData,joinId) {
+  socket.emit('join',{name:name,color:randomColor({luminosity: 'dark'}),createData:createData,joinId:joinId}, function(joinedGame,playerId) {
+    selfId = playerId;
+    if(joinedGame) {
+      game = new Game({copy:joinedGame});
+      view.maxI = game.l-1; view.maxJ = game.l-1;
+      view = getView(game,selfId,view,false);
+
+      $("#browse").hide(); $("#create").hide(); $("#join").hide();
+      $("#other").show();
+      $("#menu").hide();
+
+      $("#lose").hide(); $("#settings").hide(); $("#go-settings").show();
+      $("#ui").show(); $("#leaderboard").show(); $("#info").show();
+    }
+  });
+}
+
+function leaveGame() {
+  //emit leave game and get some callback to end client game
+  socket.emit('leave');
+  game = null;
+
+  $("#settings").hide();
+  $("#lose").hide();
+  $("#go-settings").show();
+  $("#ui").hide();
+  $("#menu").show();
+}
+
 socket.on('init',function(data){
   for(var i = 0 ; i < data.players.length; i++){
     game.playerList[data.players[i].id] = new Player({copy:data.players[i]});
@@ -77,32 +144,10 @@ socket.on('remove',function(data) {
   }
 });
 
-//client side update loop for drawing
-setInterval(function(){
-  //canvas matched to window size
-  view.width = window.innerWidth;
-  view.height = window.innerHeight;
 
-  ctx.canvas.width  = view.width;
-  ctx.canvas.height = view.height;
-
-  if(game) { //view board even when score goes to zero
-    game.boardSlide(view);
-    view = getView(game,selfId,view,true);
-
-    //bring up lose screen on zero score
-    if(!game.playerList[selfId].score) {
-      $("#leaderboard").hide();
-      $("#info").hide();
-      $("#go-settings").hide();
-      $("#settings").hide();
-      $("#lose").show();
-    }
-
-    ctx.clearRect(0,0,view.width,view.height);
-    drawBoard(ctx,game,view,selected);
-  }
-},40);
+///////////////////////////////////////////////////////////////////////
+//User input event handlers
+///////////////////////////////////////////////////////////////////////
 
 //send move when a valid piece is selected and wasd pressed
 document.onkeydown = function(event){
@@ -172,45 +217,21 @@ document.addEventListener("touchend", function(event) {
   selected = {i:null,j:null};
 }, false);
 
+
+
+///////////////////////////////////////////////////////////////////////
+//Menu navigation and logic
+///////////////////////////////////////////////////////////////////////
+
 //send for games then update html
-getGames = function() {
-  socket.emit('browse',"",function(gameList) {
+function getGames() {
+  socket.emit("browse","",function(gameList) {
     var array = [];
     for(var v in gameList) {
       array.push(gameList[v].game);
     }
     updateBrowser(array,socket, name, color);
   });
-}
-
-joinGame = function(createData,joinId) {
-  socket.emit('join',{name:name,color:randomColor({luminosity: 'dark'}),createData:createData,joinId:joinId}, function(joinedGame,playerId) {
-    selfId = playerId;
-    if(joinedGame) {
-      game = new Game({copy:joinedGame});
-      view.maxI = game.l-1; view.maxJ = game.l-1;
-      view = getView(game,selfId,view,false);
-
-      $("#browse").hide(); $("#create").hide(); $("#join").hide();
-      $("#other").show();
-      $("#menu").hide();
-
-      $("#lose").hide(); $("#settings").hide(); $("#go-settings").show();
-      $("#ui").show(); $("#leaderboard").show(); $("#info").show();
-    }
-  });
-}
-
-leaveGame = function() {
-  //emit leave game and get some callback to end client game
-  socket.emit('leave');
-  game = null;
-
-  $("#settings").hide();
-  $("#lose").hide();
-  $("#go-settings").show();
-  $("#ui").hide();
-  $("#menu").show();
 }
 
 var word = chance.word()
@@ -224,7 +245,7 @@ $("#name").change(function() {
 });
 
 var color = randomColor({luminosity:"dark",format:"rgb"});
-setColor = function(newColor) {
+function setColor(newColor) {
   $("#name").css("background",newColor);
   color = newColor;
 }

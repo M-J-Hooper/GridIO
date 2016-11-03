@@ -61,55 +61,69 @@ function drawBoard(ctx,game,view,selected) {
   }
 }
 
-//update html of leaderboard and info bar after player update
-function updateUi(game,view,selfId) {
-  var leaderboard = game.getLeaderboard();
-  var rank = 0;
-  for(var i = 0; i < leaderboard.length; i++) {
-    if(leaderboard[i].id == selfId) { rank = leaderboard[i].rank; }
-  }
-
-  $("#info .blob").css("background", game.playerList[selfId].color);
-  $("#info .text-left").text(name);
-  $("#info .text-center").text("Score: "+game.playerList[selfId].score);
-  $("#info .text-right").text("Rank: "+rank+"/"+leaderboard.length);
-
-  $("#leaderboard .inner").html("");
-  var leaderLength = leaderboard.length < 10 ? leaderboard.length : 10;
-  for(var i = 0; i < leaderLength; i++) {
-    $("<div>", {
-      class: "blob",
-      html: '<span class="text-rank">#'+leaderboard[i].rank+'</span><span class="text-left">'+leaderboard[i].name+'</span><span class="text-right">'+leaderboard[i].score+'</span>',
-      css: {background: game.playerList[leaderboard[i].id].color}
-    }).appendTo("#leaderboard .inner");
-  }
-
-  //update game info in settings
-  $("#code").text((""+game.id).substring(2));
-  var value = "#"+(""+game.id).slice(2,6);
-  $("#settings-info").html('<span class="text-id">'+value+'</span><span class="text-center">'+game.l+'</span><span class="text-right">'+game.getPlayerCount()+'/'+game.playerLimit+'</span>');
-}
-
-//update the html of the game browser after goto or refresh
-function updateBrowser(gameList, socket, name, color) {
-  $("#gamelist").html("");
-  gameList.sort(function(a,b) { return Object.keys(b.playerList).length - Object.keys(a.playerList).length; })
-
+//get info on own pieces for size and view
+function getView(game, selfId, view, smooth) {
+  var minI, maxI, minJ, maxJ;
+  var first = true;
   var count = 0;
-  for(var n = 0; n < gameList.length; n++) {
-    var game = new Game({copy:gameList[n]});
-    if(game.pub && game.getPlayerCount() < game.playerLimit) {
-      count++;
-      var value = "#"+(""+game.id).slice(2,6);
-      $("<div>", {
-        id: game.id,
-        class: "blob hover",
-        html: '<span class="text-id">'+value+'</span><span class="text-center">'+game.l+'</span><span class="text-right">'+game.getPlayerCount()+'/'+game.playerLimit+'</span>',
-        click: function() { joinGame(null,this.id); }
-      }).appendTo("#gamelist");
-    }
+
+  var avI = 0;
+  var avJ = 0;
+
+  for(var i = view.minI-5; i < view.maxI+10; i++) {
+		for(var j = view.minJ-5; j < view.maxJ+10; j++) {
+      if(i>=0 && i<game.l && j>=0 && j<game.l) {
+        if(game.board[i][j].id == selfId) {
+          if(first) { minI = i; maxI = i; minJ = j; maxJ = j; first = false; }
+          else {
+            if(i < minI) { minI = i; }
+            if(i > maxI) { maxI = i; }
+            if(j < minJ) { minJ = j; }
+            if(j > maxJ) { maxJ = j; }
+          }
+        }
+      }
+		}
+	}
+
+  var r;
+  if(game.playerList[selfId].score) {
+    avI = (maxI + minI + 1)/2;
+    avJ = (maxJ + minJ + 1)/2;
+
+    var viewDist = Math.sqrt(game.playerList[selfId].score)+2;
+    var playerSizeX = (maxI - minI + 1);
+    var playerSizeY = (maxJ - minJ + 1);
+    r = Math.min(view.width/(playerSizeX+viewDist*2),view.height/(playerSizeY+viewDist*2))/view.size;
   }
-  if(!count) { $("#gamelist").html('<div class="blob light">No games found!</div>')}
+  else {
+    avI = game.l/2;
+    avJ = game.l/2
+    r = Math.max(view.width/game.l,view.height/game.l)/view.size;
+  }
+
+  if(smooth) {
+    var prevSize = view.size;
+    var viewSmooth = 50;
+    view.size += prevSize*(r-1)/viewSmooth;
+    view.x += (avI*prevSize*r - view.x)/viewSmooth;
+    view.y += (avJ*prevSize*r - view.y)/viewSmooth;
+  }
+  else {
+    view.size  = view.size*r;
+    view.x = avI*view.size;
+    view.y = avJ*view.size;
+  }
+
+  view.offsetX = view.width/2 - view.x;
+  view.offsetY = view.height/2 - view.y;
+
+  view.minI = Math.floor(-view.offsetX / view.size);
+  view.maxI = view.minI + Math.ceil(view.width / view.size);
+  view.minJ = Math.floor(-view.offsetY / view.size);
+  view.maxJ = view.minJ + Math.ceil(view.height / view.size);
+
+  return view;
 }
 
 //helper to draw rounded rectangle
