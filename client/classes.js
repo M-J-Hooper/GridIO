@@ -32,7 +32,7 @@ var Game = function(params) {
   		}
   	}
   }
-  self.playerLimit = 2;//Math.round(self.l*self.l/83.33333333);
+  self.playerLimit = Math.round(self.l*self.l/83.33333333);
 
   if(params.copy) { self = params.copy; }
 
