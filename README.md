@@ -1,8 +1,8 @@
 # GridIO
-Node.js Socket.io game
+A simple fun Node.js Socket.IO game.
 
-In development...
+You control tiles on a grid. Push other players tiles and surround them to capture them. Fight to control the most tiles.
 
-Test servers: 
-* [www.gridio.xyz](http://www.gridio.xyz)
-* [gridio.herokuapp.com](http://gridio.herokuapp.com)
+There a single page frontend which displays the grid and game activity with a HTML canvas. Moves are sent to the Node.js backend where they are processed. Changes in board state are then broadcast to all players on that grid.
+
+Multiple games can take place simultaneously with matchmaking. Custom games with varying sizes and publicity can be created.
