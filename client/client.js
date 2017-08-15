@@ -1,6 +1,6 @@
-/*global $, io, classes, common, draw, helper, randomColor, chance*/
+/*global $, io, classes, common, drawer, helper, randomColor, chance*/
 
-(function($, io, classes, common, draw, helper, randomColor, chance) {
+(function($, io, classes, common, drawer, helper, randomColor, chance) {
   
   var socket = io();
   
@@ -29,7 +29,7 @@
   
     if(game) { //view board even when score goes to zero
       game.boardSlide(view);
-      view = draw.getView(game,selfId,view,true);
+      view = drawer.getView(game,selfId,view,true);
   
       //bring up lose screen on zero score
       if(!game.playerList[selfId].score) {
@@ -41,7 +41,7 @@
       }
   
       ctx.clearRect(0,0,view.width,view.height);
-      draw.drawBoard(ctx,game,view,selected);
+      drawer.drawBoard(ctx,game,view,selected);
     }
   },40);
   
@@ -56,7 +56,7 @@
       if(joinedGame) {
         game = new classes.Game({copy:joinedGame});
         view.maxI = game.l-1; view.maxJ = game.l-1;
-        view = draw.getView(game,selfId,view,false);
+        view = drawer.getView(game,selfId,view,false);
   
         $("#browse").hide(); $("#create").hide(); $("#join").hide();
         $("#other").show();
@@ -227,17 +227,6 @@
   //Menu navigation and logic
   ///////////////////////////////////////////////////////////////////////
   
-  //send for games then update html
-  function getGames() {
-    socket.emit("browse","",function(gameList) {
-      var array = [];
-      for(var v in gameList) {
-        array.push(gameList[v].game);
-      }
-      draw.updateBrowser(array,socket, name, color);
-    });
-  }
-  
   var word = chance.word()
   var name = word.charAt(0).toUpperCase() + word.slice(1);
   $("#name").change(function() {
@@ -272,10 +261,6 @@
   $("#go-rules").click(function() { $("#other-sub").hide(); $("#rules").show(); });
   $("#rules-back").click(function() { $("#other-sub").show(); $("#rules").hide(); });
   
-  $("#go-browse").click(function() { getGames(); $("#other").hide(); $("#browse").show(); });
-  $("#browse-refresh").click(function() { getGames(); });
-  $("#browse-back").click(function() { $("#other").show(); $("#browse").hide(); });
-  
   var code;
   var pub = true;
   var l = 20;
@@ -303,4 +288,4 @@
   $("#lose-leave").click(function() { leaveGame(); });
   
   
-})($, io, classes, common, draw, helper, randomColor, chance);
+})($, io, classes, common, drawer, helper, randomColor, chance);

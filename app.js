@@ -44,7 +44,7 @@ setInterval(function(){
 		}
 	}
 
-	//slide and return packs to empty
+	//slide and empty packs
 	for(var v in gameList) {
 		gameList[v].game.boardSlide();
 
@@ -155,6 +155,7 @@ function leaveGame(socket){
 ///////////////////////////////////////////////////////////////////////
 
 var io = require('socket.io')(serv,{});
+
 io.sockets.on('connection', function(socket) {
 	socket.id = Math.random();
 	socketList[socket.id] = {socket:socket,gameId:null}; //connected but not joined
@@ -164,11 +165,6 @@ io.sockets.on('connection', function(socket) {
 	socket.on('join', function(data, callback) {
 		var game = joinGame(socket,data);
 		callback(game,socket.id);
-	});
-
-	//get gameList for game browser
-	socket.on('browse', function(data, callback) {
-		callback(gameList);
 	});
 
 	//leave game without disconnect

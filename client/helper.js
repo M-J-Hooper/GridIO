@@ -1,6 +1,6 @@
-/*global $, navigator*/
+/*global $, classes, navigator*/
 
-this.helper = function($) {
+this.helper = function($, classes) {
   'use strict';
 
   ///////////////////////////////////////////////////////////////////////
@@ -17,7 +17,7 @@ this.helper = function($) {
     
   
     $("#info .blob").css("background", game.playerList[selfId].color);
-    $("#info .text-left").text(name);
+    $("#info .text-left").text(game.playerList[selfId].name);
     $("#info .text-center").text("Score: "+game.playerList[selfId].score);
     $("#info .text-right").text("Rank: "+rank+"/"+leaderboard.length);
   
@@ -38,31 +38,6 @@ this.helper = function($) {
   }
   
   
-  //update the html of the game browser after goto or refresh
-  function updateBrowser(gameList, socket, name, color) {
-    $("#gamelist").html("");
-    gameList.sort(function(a,b) { return Object.keys(b.playerList).length - Object.keys(a.playerList).length; })
-  
-    var count = 0;
-    for(var n = 0; n < gameList.length; n++) {
-      var game = new Game({copy:gameList[n]});
-      if(game.pub && game.getPlayerCount() < game.playerLimit) {
-        count++;
-        var value = "#"+(""+game.id).slice(2,6);
-        $("<div>", {
-          id: game.id,
-          class: "blob hover",
-          html: '<span class="text-id">'+value+'</span><span class="text-center">'+game.l+'</span><span class="text-right">'+game.getPlayerCount()+'/'+game.playerLimit+'</span>',
-          click: function() { joinGame(null,this.id); }
-        }).appendTo("#gamelist");
-      }
-    }
-    if(!count) { $("#gamelist").html('<div class="blob light">No games found!</div>')}
-  }
-  
-  
-  
-  
   ///////////////////////////////////////////////////////////////////////
   //Wierd methods of detecting mobile and tablet users
   ///////////////////////////////////////////////////////////////////////
@@ -81,8 +56,7 @@ this.helper = function($) {
   
   return {
       updateUi: updateUi,
-      updateBrowser: updateBrowser,
       mobileTabletCheck: mobileTabletCheck,
       mobileCheck: mobileCheck
   };
-}($);
+}($, classes);

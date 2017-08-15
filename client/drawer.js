@@ -1,6 +1,6 @@
 /*global helper*/
 
-this.draw = function(helper) {
+this.drawer = function(helper) {
   'use strict';
 
   var mobile = helper.mobileCheck();
@@ -131,7 +131,7 @@ this.draw = function(helper) {
     return view;
   }
   
-  //helper to draw rounded rectangle
+  //draw rounded rectangle
   function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
     ctx.beginPath();
     ctx.moveTo(x + radius, y);
@@ -149,7 +149,7 @@ this.draw = function(helper) {
     if(stroke) { ctx.stroke(); }
   }
   
-  //helper for converting rgb to rgba
+  //convert rgb to rgba
   function makeAlpha(rgb,alpha) {
     return rgb.replace(')', ', ' + alpha + ')').replace('rgb', 'rgba');
   }
@@ -160,4 +160,5 @@ this.draw = function(helper) {
     drawBoard: drawBoard,
     getView: getView
   };
+  
 }(helper);
