@@ -85,4 +85,4 @@ this.helper = function($) {
       mobileTabletCheck: mobileTabletCheck,
       mobileCheck: mobileCheck
   };
-}();
+}($);

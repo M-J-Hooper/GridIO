@@ -2,8 +2,8 @@ var express = require('express');
 var app = express();
 var serv = require('http').Server(app);
 
-require('./client/helper.js')();
-require('./client/classes.js')();
+var common = require('./client/common.js');
+var classes = require('./client/classes.js');
 
 app.get('/',function(req, res) {
 	res.sendFile(__dirname + '/client/index.html');
@@ -62,7 +62,7 @@ setInterval(function(){
 function joinGame(socket,data) {
 	var name = data.name.substring(0,10);
 	var color = data.color; //check if color is visible enough???
-	var player = new Player({new:{id:socket.id, name:name, color:color}});
+	var player = new classes.Player({new:{id:socket.id, name:name, color:color}});
 	var game;
 
 	if(data.joinId != null) {
@@ -74,7 +74,7 @@ function joinGame(socket,data) {
 	else if(data.createData != null) {
 		if(data.createData.l != 20 && data.createData.l != 50 && data.createData.l != 100 && data.createData.l != 200) return; //avoid dodgy sizes
 
-		game = new Game({new:{id:data.createData.createId,l:data.createData.l,pub:data.createData.pub}});
+		game = new classes.Game({new:{id:data.createData.createId,l:data.createData.l,pub:data.createData.pub}});
 		gameList[game.id] = {game:game,initPack:{players:[],pieces:[]},removePack:{players:[],pieces:[]},updatePack:{players:[],pieces:[]}};
 		console.log("Game "+game.id+" created");
 	}
@@ -86,7 +86,7 @@ function joinGame(socket,data) {
 			}
 		}
 		if(!game) { //if no game with space found
-			game = new Game({new:{}});
+			game = new classes.Game({new:{}});
 			gameList[game.id] = {game:game,initPack:{players:[],pieces:[]},removePack:{players:[],pieces:[]},updatePack:{players:[],pieces:[]}};
 			console.log("Game "+game.id+" created");
 		}
@@ -182,21 +182,3 @@ io.sockets.on('connection', function(socket) {
 		console.log("Player "+socket.id+" disconnected")
 	});
 });
-
-/*
-var profiler = require('v8-profiler');
-var fs = require('fs');
-var startProfiling = function(duration){
-	profiler.startProfiling('1', true);
-	setTimeout(function(){
-		var profile1 = profiler.stopProfiling('1');
-
-		profile1.export(function(error, result) {
-			fs.writeFile('./profile.cpuprofile', result);
-			profile1.delete();
-			console.log("Profile saved.");
-		});
-	},duration);
-}
-startProfiling(10000);
-*/

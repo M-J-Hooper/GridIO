@@ -1,14 +1,13 @@
-/*global common*/
-
-(function (factory) {
+(function(factory) {
     if (typeof exports === 'object') {
       // Node requirements
+      var common = require('./common.js');
       module.exports = factory(common);
     } else {
       // Browser global
       this.classes = factory(common);
     }
-})(function (common) {
+})(function(common) {
   'use strict';
 
 	///////////////////////////////////////////////////////////////////////
@@ -21,7 +20,7 @@
 		//default game settings
 		self.id = Math.random();
 		self.slide = 5;
-		self.l = 50;
+		self.l = 20;
 		self.pub = true;
 	  self.playerList = {};
 	

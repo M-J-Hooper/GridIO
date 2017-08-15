@@ -1,6 +1,6 @@
 /*global helper*/
 
-this.draw = function (helper) {
+this.draw = function(helper) {
   'use strict';
 
   var mobile = helper.mobileCheck();
@@ -160,4 +160,4 @@ this.draw = function (helper) {
     drawBoard: drawBoard,
     getView: getView
   };
-}();
+}(helper);

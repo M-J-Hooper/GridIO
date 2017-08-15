@@ -1,14 +1,12 @@
-/*global $*/
-
-(function (factory) {
+(function(factory) {
     if (typeof exports === 'object') {
       // Node requirements
-      module.exports = factory($);
+      module.exports = factory();
     } else {
       // Browser global
-      this.common = factory($);
+      this.common = factory();
     }
-})(function ($) {
+})(function() {
   'use strict';
 
   function createArray(length) {

@@ -1,6 +1,6 @@
-/*global $, io, classes, common, draw, helper*/
+/*global $, io, classes, common, draw, helper, randomColor, chance*/
 
-(function($, io, classes, common, draw, helper) {
+(function($, io, classes, common, draw, helper, randomColor, chance) {
   
   var socket = io();
   
@@ -301,4 +301,6 @@
   
   $("#lose-play").click(function() { joinGame(null,game.id); });
   $("#lose-leave").click(function() { leaveGame(); });
-})();
+  
+  
+})($, io, classes, common, draw, helper, randomColor, chance);
