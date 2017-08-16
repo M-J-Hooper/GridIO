@@ -103,9 +103,6 @@
   
   
   
-  
-  
-  
   return {
     selectPiece: selectPiece,
     createArray: createArray,
