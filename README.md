@@ -5,4 +5,4 @@ There a single page frontend which displays the grid and game activity with a HT
 
 This was created primarily as a learning exercise in Node.js, Socket.IO and general JavaScript practices.
 
-Find the test server hosted on Heroku [here](http://gridio.herokuapp.com).
+Connect to the test server hosted on Heroku [here](http://gridio.herokuapp.com).
